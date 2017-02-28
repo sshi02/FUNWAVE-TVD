@@ -99,4 +99,4 @@ clean:
 		/bin/rm -f *.o *.mod
 
 clobber:	clean
-		/bin/rm -f *.f90 *.o mytvd
+		/bin/rm -f *.f90 *.o $(EXEC)

@@ -1,7 +1,7 @@
 #-----------BEGIN MAKEFILE-------------------------------------------------
             SHELL         = /bin/sh
-            DEF_FLAGS     = -P -C -traditional 
-            EXEC          = mytvd
+            DEF_FLAGS     = -P -traditional 
+            EXEC          = funwave_sgi_OSS
 #==========================================================================
 #--------------------------------------------------------------------------
 #        PRECISION          DEFAULT PRECISION: SINGLE                     
@@ -12,29 +12,27 @@
             FLAG_2 = -DPARALLEL
             FLAG_3 = -DSAMPLES
             FLAG_4 = -DCARTESIAN
-#              FLAG_6 = -DINTEL
+              FLAG_6 = -DINTEL
 #             FLAG_7 = -DMIXING
 #             FLAG_8 = -DCOUPLING
 #             FLAG_9 = -DZALPHA
 #             FLAG_10 = -DMANNING
-#             FLAG_11 = -DSPHERICAL_IJ_STATION
-#             FLAG_12 = -DVESSEL
 
 #--------------------------------------------------------------------------
 #  mpi defs 
 #--------------------------------------------------------------------------
          CPP      = /usr/bin/cpp 
          CPPFLAGS = $(DEF_FLAGS)
-         FC       = mpif90
-#         FC        = /usr/local/mpi/intel/openmpi-1.8.4/bin/mpif90
+         FC       = ifort
          DEBFLGS  = 
          OPT      = 
          CLIB     = 
 #==========================================================================
 
-         FFLAGS = $(DEBFLGS) $(OPT) 
+         FFLAGS = $(DEBFLGS) $(OPT) -fPIC -g -O2
          MDEPFLAGS = --cpp --fext=f90 --file=-
          RANLIB = ranlib
+	 MPILIB = -lmpi
 #--------------------------------------------------------------------------
 #  CAT Preprocessing Flags
 #--------------------------------------------------------------------------
@@ -49,7 +47,7 @@
 #  Libraries           
 #--------------------------------------------------------------------------
 
-#            LIBS  = $(PV3LIB) $(CLIB)  $(PARLIB) $(IOLIBS) $(MPILIB) $(GOTMLIB)
+            LIBS  = $(PV3LIB) $(CLIB)  $(PARLIB) $(IOLIBS) $(MPILIB) $(GOTMLIB)
 #            INCS  = $(IOINCS) $(GOTMINCS)
 
 
@@ -66,7 +64,7 @@
 #  FUNWAVE-TVD Source Code.
 #--------------------------------------------------------------------------
 
-MODS  = mod_param.F	mod_global.F	mod_input.F mod_vessel.F \
+MODS  = mod_param.F	mod_global.F	mod_input.F \
 
 MAIN  = main.F bc.F fluxes.F init.F io.F tridiagnal.F       \
         breaker.F derivatives.F dispersion.F etauv_solver.F \
@@ -82,8 +80,8 @@ OBJS = $(SRCS:.F=.o)
 #--------------------------------------------------------------------------
 
 $(EXEC):	$(OBJS)
-		$(FC) $(FFLAGS) $(LDFLAGS) -o $(EXEC) $(OBJS) $(LIBS)
-#	mv $(EXEC) ../work/.
+		$(FC) $(FFLAGS) $(LDFLAGS) -o $(EXEC) $(OBJS) $(LIBS) -Bdynamic
+		mv $(EXEC) ../bin/
 #--------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------
