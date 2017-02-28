@@ -50,6 +50,9 @@
 !-------------------------------------------------------------------------------------
 SUBROUTINE OUTPUT
     USE GLOBAL
+# if defined(VESSEL)
+     USE VESSEL_MODULE
+# endif
     IMPLICIT NONE
 
      SCREEN_COUNT=SCREEN_COUNT+DT
@@ -79,6 +82,14 @@ SUBROUTINE OUTPUT
        PLOT_COUNT=PLOT_COUNT-PLOT_INTV
        CALL PREVIEW
       ENDIF
+# if defined (VESSEL)
+      PLOT_COUNT_VESSEL=PLOT_COUNT_VESSEL+DT
+      IF(PLOT_COUNT_VESSEL>=PLOT_INTV_VESSEL)THEN
+       PLOT_COUNT_VESSEL=PLOT_COUNT_VESSEL-PLOT_INTV_VESSEL
+       CALL OUTPUT_VESSEL
+      ENDIF      
+# endif
+
 
 END SUBROUTINE OUTPUT
 
@@ -330,6 +341,7 @@ SUBROUTINE READ_INPUT
 # else
       WRITE(3,'(A11,A50)')'WAVEMAKER:', WAVEMAKER
 # endif
+
         IF(WaveMaker(1:7)=='LEF_SOL')THEN
           CALL READ_FLOAT(AMP_SOLI,FILE_NAME,'AMP',ierr)
           CALL READ_FLOAT(DEP_SOLI,FILE_NAME,'DEP',ierr)
@@ -471,7 +483,8 @@ SUBROUTINE READ_INPUT
       WRITE(3,'(A11,F12.2)')'Ywidth_WK=', Ywidth_WK
 # endif
         ENDIF
-        IF(WaveMaker(1:6)=='WK_IRR')THEN
+        IF(WaveMaker(1:6)=='WK_IRR'.OR.WaveMaker(1:6)=='TMA_1D'  &
+           .OR.WaveMaker(1:6)=='JON_1D'.OR.WaveMaker(1:6)=='JON_2D')THEN
           CALL READ_FLOAT(Xc_WK,FILE_NAME,'Xc_WK',ierr)
           CALL READ_FLOAT(Yc_WK,FILE_NAME,'Yc_WK',ierr)
           CALL READ_FLOAT(DEP_WK,FILE_NAME,'DEP_WK',ierr)
@@ -482,8 +495,72 @@ SUBROUTINE READ_INPUT
           CALL READ_FLOAT(FreqMax,FILE_NAME,'FreqMax',ierr)
           CALL READ_FLOAT(Hmo,FILE_NAME,'Hmo',ierr)
           CALL READ_FLOAT(GammaTMA,FILE_NAME,'GammaTMA',ierr)
+          IF(ierr==1)THEN
+             GammaTMA = 3.3
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A14,A50)')'GammaTMA', 'NOT DEFINED, USE 3.3'
+# else
+      WRITE(3,'(A14,A50)')'GammaTMA', 'NOT DEFINED, USE 3.3'
+# endif
+          ENDIF
+
+          CALL READ_INTEGER(Nfreq,FILE_NAME,'Nfreq',ierr)
+          IF(ierr==1)THEN
+             Nfreq = 45
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A25,A50)')'Nfreq for TMA or JON', 'NOT DEFINED, USE 45'
+# else
+      WRITE(3,'(A25,A50)')'Nfreq for TMA or JON', 'NOT DEFINED, USE 45'
+# endif
+          ENDIF
+
+         IF(WaveMaker(1:6)=='TMA_1D'  &
+           .OR.WaveMaker(1:6)=='JON_1D')THEN
+          Ntheta = 1
+         ELSE
+          CALL READ_INTEGER(Ntheta,FILE_NAME,'Ntheta',ierr)
+          IF(ierr==1)THEN
+             Ntheta = 24
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A25,A50)')'Ntheta for TMA or JON', 'NOT DEFINED, USE 24'
+# else
+      WRITE(3,'(A25,A50)')'Ntheta for TMA or JON', 'NOT DEFINED, USE 24'
+# endif
+          ENDIF
+
+         ENDIF ! 1D or not
+
+         IF(WaveMaker(1:6)=='TMA_1D'  &
+           .OR.WaveMaker(1:6)=='JON_1D')THEN
+          ThetaPeak = 0.0_SP
+         ELSE
           CALL READ_FLOAT(ThetaPeak,FILE_NAME,'ThetaPeak',ierr)
+          IF(ierr==1)THEN
+             ThetaPeak = 0.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A25,A50)')'ThetaPeak', 'NOT DEFINED, USE 0.0'
+# else
+      WRITE(3,'(A25,A50)')'ThetaPeak', 'NOT DEFINED, USE 0.0'
+# endif
+          ENDIF ! end ierr
+         ENDIF ! 1D or not
+
+         IF(WaveMaker(1:6)=='TMA_1D'  &
+           .OR.WaveMaker(1:6)=='JON_1D')THEN
+          ! do nothing
+         ELSE
           CALL READ_FLOAT(Sigma_Theta,FILE_NAME,'Sigma_Theta',ierr)
+          IF(ierr==1)THEN
+             Sigma_Theta = 10.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A25,A50)')'Sigma_Theta', 'NOT DEFINED, USE 10.0'
+# else
+      WRITE(3,'(A25,A50)')'Sigma_Theta', 'NOT DEFINED, USE 10.0'
+# endif
+          ENDIF ! end ierr
+
+         ENDIF ! 1D or not
+
           CALL READ_FLOAT(Ywidth_WK,FILE_NAME,'Ywidth_WK',ierr)
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A12,F12.2)')'Xc_WK   =  ', Xc_WK
@@ -491,6 +568,8 @@ SUBROUTINE READ_INPUT
       if (myid.eq.0) WRITE(3,'(A12,F12.2)')'DEP_WK  =  ', DEP_WK
       if (myid.eq.0) WRITE(3,'(A12,F12.2)')'Time_ramp= ', Time_ramp
       if (myid.eq.0) WRITE(3,'(A12,F12.2)')'Delta_WK=  ', Delta_WK
+      if (myid.eq.0) WRITE(3,'(A12,I12)')'Nfreq=  ', Nfreq
+      if (myid.eq.0) WRITE(3,'(A12,I12)')'Ntheta=  ', Ntheta
       if (myid.eq.0) WRITE(3,'(A12,F12.2)')'FreqPeak=  ', FreqPeak
       if (myid.eq.0) WRITE(3,'(A12,F12.2)')'FreqMin =  ', FreqMin
       if (myid.eq.0) WRITE(3,'(A12,F12.2)')'FreqMax =  ', FreqMax
@@ -504,6 +583,8 @@ SUBROUTINE READ_INPUT
       WRITE(3,'(A12,F12.2)')'DEP_WK  =  ', DEP_WK
       WRITE(3,'(A12,F12.2)')'Time_ramp= ', Time_ramp
       WRITE(3,'(A12,F12.2)')'Delta_WK=  ', Delta_WK
+      WRITE(3,'(A12,I12)')'Nfreq=  ', Nfreq
+      WRITE(3,'(A12,I12)')'Ntheta=  ', Ntheta
       WRITE(3,'(A12,F12.2)')'FreqPeak=  ', FreqPeak
       WRITE(3,'(A12,F12.2)')'FreqMin =  ', FreqMin
       WRITE(3,'(A12,F12.2)')'FreqMax =  ', FreqMax
@@ -627,9 +708,9 @@ SUBROUTINE READ_INPUT
 ! south-north periodic boundary condition
       CALL READ_LOGICAL(PERIODIC,FILE_NAME,'PERIODIC',ierr)
 # if defined (PARALLEL)
-      if (myid.eq.0) WRITE(3,'(A11,A50)')'PERIODIC:', PERIODIC
+      if (myid.eq.0) WRITE(3,'(A11,L2)')'PERIODIC:', PERIODIC
 # else
-      WRITE(3,'(A11,A50)')'PERIODIC:', PERIODIC
+      WRITE(3,'(A11,L2)')'PERIODIC:', PERIODIC
 # endif
 # endif
 
@@ -918,6 +999,12 @@ SUBROUTINE READ_INPUT
 
 ! output parameters
       CALL READ_INTEGER(OUTPUT_RES,FILE_NAME,'OUTPUT_RES',ierr)
+# if defined (PARALLEL)
+       if (myid.eq.0) WRITE(3,'(A15,I10)')'OUTPUT_RES',OUTPUT_RES
+# else
+       WRITE(3,'(A15,I10)')'OUTPUT_RES',OUTPUT_RES
+# endif 
+
       CALL READ_LOGICAL(OUT_DEPTH,FILE_NAME,'DEPTH_OUT',ierr)
       CALL READ_LOGICAL(OUT_U,FILE_NAME,'U',ierr)
       CALL READ_LOGICAL(OUT_V,FILE_NAME,'V',ierr)
@@ -946,12 +1033,50 @@ SUBROUTINE READ_INPUT
       CALL READ_LOGICAL(OUT_Gx,FILE_NAME,'Gx',ierr)
       CALL READ_LOGICAL(OUT_Gy,FILE_NAME,'Gy',ierr)
       CALL READ_LOGICAL(OUT_AGE,FILE_NAME,'AGE',ierr)
+      CALL READ_LOGICAL(OUT_NU,FILE_NAME,'OUT_NU',ierr)
       CALL READ_LOGICAL(OUT_TMP,FILE_NAME,'TMP',ierr)
 
 !ykchoi
 !	CALL READ_FLOAT(EtaBlowVal,FILE_NAME,'EtaBlowVal',ierr)
 !  fyshi set blowup value is 100xmax_depth in init.F  
 	CALL READ_FLOAT(STEADY_TIME,FILE_NAME,'STEADY_TIME',ierr)
+
+# if defined (PARALLEL)
+      if (myid.eq.0)   then
+# endif
+      WRITE(3,'(A15,L2)')'OUT_DEPTH',OUT_DEPTH
+      WRITE(3,'(A15,L2)')'OUT_U',OUT_U
+      WRITE(3,'(A15,L2)')'OUT_V',OUT_V
+      WRITE(3,'(A15,L2)')'OUT_ETA',OUT_ETA
+      WRITE(3,'(A15,L2)')'OUT_Hmax',OUT_Hmax
+      WRITE(3,'(A15,L2)')'OUT_Hmin',OUT_Hmin
+      WRITE(3,'(A15,L2)')'OUT_Umax',OUT_Umax
+      WRITE(3,'(A15,L2)')'OUT_MFmax',OUT_MFmax
+      WRITE(3,'(A15,L2)')'OUT_VORmax',OUT_VORmax
+      WRITE(3,'(A15,L2)')'OUT_MASK',OUT_MASK
+      WRITE(3,'(A15,L2)')'OUT_MASK9',OUT_MASK9
+      WRITE(3,'(A15,L2)')'OUT_Umean',OUT_Umean
+      WRITE(3,'(A15,L2)')'OUT_Vmean',OUT_Vmean
+      WRITE(3,'(A15,L2)')'OUT_ETAmean',OUT_ETAmean
+      WRITE(3,'(A15,L2)')'OUT_WaveHeight',OUT_WaveHeight
+      WRITE(3,'(A15,L2)')'OUT_SXL',OUT_SXL
+      WRITE(3,'(A15,L2)')'OUT_SXR',OUT_SXR
+      WRITE(3,'(A15,L2)')'OUT_SYL',OUT_SYL
+      WRITE(3,'(A15,L2)')'OUT_SYR',OUT_SYR
+      WRITE(3,'(A15,L2)')'OUT_SourceX',OUT_SourceX
+      WRITE(3,'(A15,L2)')'OUT_SourceY',OUT_SourceY
+      WRITE(3,'(A15,L2)')'OUT_P',OUT_P
+      WRITE(3,'(A15,L2)')'OUT_Q',OUT_Q
+      WRITE(3,'(A15,L2)')'OUT_Fx',OUT_Fx
+      WRITE(3,'(A15,L2)')'OUT_Fy',OUT_Fy
+      WRITE(3,'(A15,L2)')'OUT_Gx',OUT_Gx
+      WRITE(3,'(A15,L2)')'OUT_Gy',OUT_Gy
+      WRITE(3,'(A15,L2)')'OUT_AGE',OUT_AGE
+      WRITE(3,'(A15,L2)')'OUT_NU',OUT_NU
+      WRITE(3,'(A15,L2)')'OUT_TMP',OUT_TMP
+# if defined (PARALLEL)
+      endif
+# endif
 
 ! 
 # if defined (PARALLEL)
@@ -1049,7 +1174,7 @@ SUBROUTINE STATIONS
      do i=1,NumberStations
        if (nsta(i).eq.1) then
           iunit=100+i
-          write (iunit,'(20E16.5)') time, eta(ista(i),jsta(i)),&
+          write (iunit,'(20E16.8)') time, eta(ista(i),jsta(i)),&
                           u(ista(i),jsta(i)),v(ista(i),jsta(i))
        endif
      enddo
@@ -1150,7 +1275,7 @@ SUBROUTINE STATIONS_SPHERICAL_IJ
             u_sta=u(ista(i),jsta(i))
             v_sta=v(ista(i),jsta(i)) 
           ENDIF
-          write (iunit,'(20E16.5)') time, eta_sta,&
+          write (iunit,'(20E16.8)') time, eta_sta,&
                           u_sta,v_sta
        endif
      enddo
@@ -1409,15 +1534,17 @@ SUBROUTINE PREVIEW
         TMP_NAME = TRIM(FDIR)//'age_'//TRIM(FILE_NAME)
          call PutFile(TMP_NAME,AGE_BREAKING)
       ENDIF
-      IF(VISCOSITY_BREAKING)THEN
-        TMP_NAME = TRIM(FDIR)//'nubrk_'//TRIM(FILE_NAME)
-         call PutFile(TMP_NAME,nu_break)
-        TMP_NAME = TRIM(FDIR)//'etat_'//TRIM(FILE_NAME)
-         call PutFile(TMP_NAME,etat) 
-      ENDIF
-     
      ENDIF
 
+      IF(VISCOSITY_BREAKING)THEN
+       IF(OUT_NU)THEN
+        TMP_NAME = TRIM(FDIR)//'nubrk_'//TRIM(FILE_NAME)
+         call PutFile(TMP_NAME,nu_break)
+       ENDIF
+!        TMP_NAME = TRIM(FDIR)//'etat_'//TRIM(FILE_NAME)
+!         call PutFile(TMP_NAME,etat) 
+      ENDIF
+     
 # if defined (VESSEL)
      IF(OUT_VESSEL)THEN
         TMP_NAME = TRIM(FDIR)//'Pves_'//TRIM(FILE_NAME)
@@ -1681,4 +1808,58 @@ SUBROUTINE PutFile(FILE,PHI)
 END SUBROUTINE PutFile
 
 # endif
+
+# if defined (VESSEL)
+!-------------------------------------------------------------------------------------
+!
+!    OUTPUT_VESSEL is a subroutine to write vessel data
+!
+! HISTORY: 
+!    02/18/2017  Fengyan Shi
+!
+!-------------------------------------------------------------------------------------
+SUBROUTINE OUTPUT_VESSEL
+     USE GLOBAL
+     USE INPUT_READ
+     USE VESSEL_MODULE
+     IMPLICIT NONE
+     CHARACTER(LEN=80)::FDIR=' '
+     LOGICAL :: FirstCallVessel = .TRUE.
+     SAVE FirstCallVessel
+
+# if defined (PARALLEL)
+     IF(myid.eq.0)THEN
+# endif
+
+! initialize stations
+     if (FirstCallVessel) then
+       FDIR=TRIM(RESULT_FOLDER)
+       FirstCallVessel = .FALSE.
+       open(99,FILE=TRIM(FDIR)//'Resis.txt')
+     endif
+
+! write to stations
+
+       write (99,'(60E16.5)') time,(ResistanceX(i),i=1,NumVessel), &
+                                 (ResPosX(i),i=1,NumVessel), &
+                                 (ResNegX(i),i=1,NumVessel), &
+                                 (ResistanceY(i),i=1,NumVessel), &
+                                 (ResPosY(i),i=1,NumVessel), &
+                                 (ResNegY(i),i=1,NumVessel)
+
+! close station files
+     if (TIME.ge.TOTAL_TIME) then
+       CLOSE(99) 
+     endif
+
+# if defined (PARALLEL)
+      ENDIF
+# endif
+
+END SUBROUTINE OUTPUT_VESSEL
+
+# endif
+! end vessel
+
+
 

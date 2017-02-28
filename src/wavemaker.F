@@ -279,9 +279,11 @@ SUBROUTINE WAVEMAKER_INITIALIZATION
 
      ENDIF 
 
-! wei and kirby, 1999, irregular wavemaker
+! wei and kirby, 1999, irregular wavemaker 
+! updated with 1D TMA and Jonswap
       
-     IF(WaveMaker(1:6)=='WK_IRR') THEN
+        IF(WaveMaker(1:6)=='WK_IRR'.OR.WaveMaker(1:6)=='TMA_1D'  &
+           .OR.WaveMaker(1:6)=='JON_1D'.OR.WaveMaker(1:6)=='JON_2D')THEN
 
 !        move allocation here from init.F 06/07/2016
 
@@ -314,7 +316,7 @@ SUBROUTINE WAVEMAKER_INITIALIZATION
        T_brk=1.0_SP/FreqMax
       ENDIF
 
-     ENDIF
+     ENDIF  ! end wk irregular wave (tma, 2d, 1d, jon_1d)
 !   now include spherical 
 
 
@@ -1021,7 +1023,7 @@ END SUBROUTINE CALCULATE_TMA_Cm_Sm
 !
 !    WK_WAVEMAKER_IRREGULAR_WAVE is subroutine 
 !      to calculate source function for Wei and Kirbys 
-!      internal wave maker, irregular wave (TMA)
+!      internal wave maker, irregular wave (TMA, JONSWAP)
 !
 !    HISTORY: 
 !      11/8/2010 Fengyan Shi
@@ -1036,6 +1038,7 @@ SUBROUTINE WK_WAVEMAKER_IRREGULAR_WAVE &
                 sigma_theta_input,rlamda,beta_gen,D_gen,phi1,width,omgn, &
                 Periodic,DY,Nglob)
      USE PARAM
+     USE GLOBAL, only : WAVEMAKER
 #  if defined (PARALLEL)
      USE GLOBAL, only : myid, ier
 # endif
@@ -1071,6 +1074,10 @@ SUBROUTINE WK_WAVEMAKER_IRREGULAR_WAVE &
         phi=1.0_SP-0.5_SP*(2.0_SP-omiga_spec)**2
         if(omiga_spec.le.1.0_SP) phi=0.5_SP*omiga_spec**2
         if(omiga_spec.ge.2.0_SP) phi=1.0_SP
+
+        IF(WaveMaker(1:3)=='JON') THEN
+          phi=1.0_SP
+        ENDIF
 
         sigma_spec=0.07_SP
         if(fre.gt.fm)sigma_spec=0.09_SP
@@ -1130,6 +1137,9 @@ SUBROUTINE WK_WAVEMAKER_IRREGULAR_WAVE &
 
         ktotal=mtheta
 
+       IF(mtheta==1) THEN ! 1D case
+         AG(1) = 1.0_SP
+       ELSE
 !-------- ykchoi (11/07/2016)
 ! ------- Wrapped normal directional spreading function (Borgman, 1984)
        sumAG=0.0_SP;
@@ -1199,12 +1209,14 @@ SUBROUTINE WK_WAVEMAKER_IRREGULAR_WAVE &
 !
 !-------- ykchoi (11/07/2016) ]	
 
+      ENDIF ! 1D or not
+
         alpha_spec=Hmo**2/16.0_SP/Ef
 
         do ktheta=1,mtheta
         Hmo_each(ktheta)=4.0_SP*SQRT((alpha_spec*Ef100*AG(ktheta)))
-
         enddo
+
 ! ---  wave generation parameter
 
         do kf=1,mfreq
@@ -1223,9 +1235,14 @@ SUBROUTINE WK_WAVEMAKER_IRREGULAR_WAVE &
 !ykchoi(11/07/16)
 ! yes, this statement makes a distribution symmetric, checked by fyshi(11/14/2016)
 
+
+      IF (mtheta == 1) THEN
+        theta = 0.0_SP
+      ELSE
         theta = -pi/3.0_SP + theta_input*pi/180.0_SP &
 	         + 2.0_SP/3.0_SP*pi/(real(ktotal)-1.0_SP)*(real(ktheta)-1.0_SP)   
  
+      ENDIF
 
         alpha=-0.39_SP
         alpha1=alpha+1.0_SP/3.0_SP
@@ -1260,16 +1277,14 @@ SUBROUTINE WK_WAVEMAKER_IRREGULAR_WAVE &
        IF(Theta.GT.ZERO)THEN
          tmp3=ZERO
          I=0
-         Do WHILE (tmp3<Theta)
+!  fyshi change < to <= to include theta=0, 02/26/2017
+         Do WHILE (tmp3<=Theta)
            I=I+1
            tmp2=I*2.0_SP*pi/DY/(Nglob-1.0_SP) 
            IF(tmp2.GE.tmp1)THEN
             tmp3=pi/2.0_SP
            ELSE
             tmp3=ASIN(tmp2/tmp1)      ! theta, based on rlamda=wkn*sin(theta)
-           ENDIF
-           IF(I>1000)THEN
-             WRITE(*,*) 'could not find a wave angle for periodic boundary condition, STOP'
            ENDIF
          ENDDO
           IF(tmp2.LT.tmp1) tmp3=ASIN((I-1)*2.0_SP*pi/DY/(Nglob-1.0_SP)/tmp1)
@@ -1284,13 +1299,22 @@ SUBROUTINE WK_WAVEMAKER_IRREGULAR_WAVE &
            ELSE           
              tmp3=-ASIN(tmp2/tmp1)      ! theta, based on rlamda=wkn*sin(theta)
            ENDIF
-           IF(I>1000)THEN
-             WRITE(*,*) 'could not find a wave angle for periodic boundary condition, STOP'
-           ENDIF
          ENDDO
           IF(tmp2.LT.tmp1) tmp3=-ASIN((I-1)*2.0_SP*pi/DY/(Nglob-1.0_SP)/tmp1)
        ENDIF
+
+# if defined (PARALLEL)
+           if(myid==0)then
+             WRITE(3,'(A40)') 'For periodic bc, Freq, Dir, New Dir'
+             WRITE(3,'(3F12.3)')  Freq(kf),theta*180./pi,tmp3*180./pi
+           endif
+# else
+             WRITE(3,'(A40)') 'For periodic bc, Freq, Dir, New Dir'
+             WRITE(3,'(3F12.3)')  Freq(kf),theta*180./pi,tmp3*180./pi
+# endif
+
        Theta = tmp3
+
      ENDIF
 
 ! ________________
@@ -1305,8 +1329,8 @@ SUBROUTINE WK_WAVEMAKER_IRREGULAR_WAVE &
         *(omgn(kf)**2-alpha1*grav*wkn**4*h_gen**3)  &
              /(omgn(kf)*wkn*rI*(1.0_SP-alpha*(wkn*h_gen)**2))
 
-        enddo
-        enddo
+        enddo ! end kf
+        enddo ! end ktheta
 	  
 
 ! calculate wavemaker width
@@ -1518,3 +1542,4 @@ SUBROUTINE VISCOSITY_WMAKER (M,N,ETAT,visbrk,H,MinDepthFrc,DX,DY)
      ENDDO
 
 END SUBROUTINE VISCOSITY_WMAKER
+

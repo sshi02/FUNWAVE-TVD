@@ -221,7 +221,7 @@ MODULE GLOBAL
         REAL(SP) :: FreqMin,FreqMax,FreqPeak,GammaTMA,Hmo,ThetaPeak,&
                     Sigma_Theta
         REAL(SP),DIMENSION(:,:,:),ALLOCATABLE ::Cm,Sm
-        INTEGER :: Nfreq=45,Ntheta=24 
+        INTEGER :: Nfreq,Ntheta 
         REAL(SP)::x1_Nwave = 5.0, &
                   x2_Nwave = 5.0, &
                   a0_Nwave = 1.0, &
@@ -312,7 +312,7 @@ MODULE GLOBAL
                   OUT_Fx=.FALSE., OUT_Fy=.FALSE.,&
                   OUT_Gx=.FALSE., OUT_Gy=.FALSE.,&
                   OUT_MASK9=.FALSE., OUT_DEPTH=.FALSE., &
-                  OUT_TMP=.FALSE., OUT_AGE=.FALSE., &
+                  OUT_TMP=.FALSE., OUT_AGE=.FALSE.,OUT_NU=.FALSE., &
                   OUT_Hmax=.FALSE., &
                   OUT_Hmin=.FALSE., &
                   OUT_Umax=.FALSE.

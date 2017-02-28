@@ -94,10 +94,12 @@ SUBROUTINE SourceTerms
           WaveMaker_Mass(I,J)=TANH(PI/(Time_ramp*Tperiod)*TIME)*D_gen &
                  *EXP(-Beta_gen*(xmk-Xc_WK)**2)&
                  *SIN(rlamda*(ymk-ZERO)-2.0_SP*PI/Tperiod*TIME)    
-         ENDIF
        ENDIF
 
-       IF(WAVEMAKER(1:6)=='WK_IRR')THEN
+!  added TMA_1D and JON_1D 02/24/2017
+
+        IF(WaveMaker(1:6)=='WK_IRR'.OR.WaveMaker(1:6)=='TMA_1D'  &
+           .OR.WaveMaker(1:6)=='JON_1D'.OR.WaveMaker(1:6)=='JON_2D')THEN
           WK_Source=ZERO
           DO kf=1,Nfreq
            WK_Source=WK_Source+TANH(PI/(Time_ramp/FreqPeak)*TIME)*(Cm(I,J,kf) &
@@ -105,6 +107,7 @@ SUBROUTINE SourceTerms
                        +Sm(I,J,kf)*SIN(OMGN_IR(KF)*TIME))
           ENDDO
           WaveMaker_Mass(I,J)=WK_Source
+
        ENDIF
 
        IF(WAVEMAKER(1:7)=='WK_TIME')THEN
@@ -131,6 +134,8 @@ SUBROUTINE SourceTerms
           WaveMaker_Mass(I,J)=WK_Source
        ENDIF
 
+      ENDIF ! end maker domain
+
          ENDDO
          ENDDO
 
@@ -139,22 +144,33 @@ SUBROUTINE SourceTerms
      nu_vis=ZERO	
 	! ykchoi(08.18.2015)
 	! new variable :: WAVEMAKER_VIS
+        ! should include ghost cells 02/28/2017 fyshi
+
       !IF(VISCOSITY_BREAKING)THEN
       IF(VISCOSITY_BREAKING .OR. WAVEMAKER_VIS)THEN
-       DO J=Jbeg,Jend
-       DO I=Ibeg,Iend
-         nu_vis(I,J)=nu_break(I,J)
-       ENDDO
-       ENDDO
+
+        nu_vis = nu_break
+
+!       DO J=Jbeg,Jend
+!       DO I=Ibeg,Iend
+!         nu_vis(I,J)=nu_break(I,J)
+!       ENDDO
+!       ENDDO
+
       ENDIF
 
 
      IF(DIFFUSION_SPONGE)THEN
-       DO J=Jbeg,Jend
-       DO I=Ibeg,Iend
-         nu_vis(I,J)=nu_vis(I,J)+nu_sponge(I,J)
-       ENDDO
-       ENDDO          
+!    should include ghost cells 02/28/2017, fyshi
+
+       nu_vis = nu_vis + nu_sponge
+
+!       DO J=Jbeg,Jend
+!       DO I=Ibeg,Iend
+!         nu_vis(I,J)=nu_vis(I,J)+nu_sponge(I,J)
+!       ENDDO
+!       ENDDO          
+
      ENDIF
 
 107  format(500f12.6)

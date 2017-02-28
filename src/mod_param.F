@@ -75,6 +75,7 @@ MODULE PARAM
        REAL(SP), PARAMETER:: grav=9.81_SP
        REAL(SP), PARAMETER:: zero = 0.0_SP
        REAL(SP), PARAMETER:: RHO_AW = 0.0012041_SP
+       REAL(SP), PARAMETER:: RHO_WATER = 1000.0_SP
        REAL(SP), PARAMETER:: DEG2RAD = 0.0175_SP
 
 ! some global variables

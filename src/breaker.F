@@ -107,8 +107,12 @@ SUBROUTINE BREAKING(M,N,ETAx,ETAy,ETAT,Cbrk1,Cbrk2,H,MinDepthFrc,&
      REAL(SP),DIMENSION(M,N),INTENT(OUT)::AGE
      REAL(SP)::C,Angle,AGE1,AGE2,AGE3,propx,propy,propxy
 
-     DO J=Nghost+1,N-Nghost
-     DO I=Nghost+1,M-Nghost
+     DO J = Jbeg, Jend
+     DO I = Ibeg, Iend
+
+!     02/28/2017 fyshi
+!     DO J=Nghost+1,N-Nghost
+!     DO I=Nghost+1,M-Nghost
 
      tmp3=SQRT(GRAV*MAX(MinDepthFrc,H(I,J)))
      tmp1=Cbrk1*tmp3
@@ -206,12 +210,16 @@ SUBROUTINE BREAKING(M,N,ETAx,ETAy,ETAT,Cbrk1,Cbrk2,H,MinDepthFrc,&
     IF(ABS(xmk-Xc_WK)<Width_WK.AND. &
             ABS(ymk-Yc_WK)<Ywidth_WK/2.0_SP)THEN
 
-      IF(ETAt(I,J)>MIN(tmp2,WAVEMAKER_Cbrk*tmp3))THEN
-         cap1=1.0*(MAX(Depth(I,J),MinDepthFrc)+ETA(I,J))
-         nu_break(I,J)=cap1*WAVEMAKER_Cbrk*tmp3+nu_bkg
-      ELSE
-         nu_break(I,J)=ZERO+nu_bkg
-      ENDIF
+! remove wavebreaking inside wavemaker
+
+         nu_break(I,J) = ZERO
+
+!      IF(ETAt(I,J)>MIN(tmp2,WAVEMAKER_Cbrk*tmp3))THEN
+!         cap1=1.0*(MAX(Depth(I,J),MinDepthFrc)+ETA(I,J))
+!         nu_break(I,J)=cap1*WAVEMAKER_Cbrk*tmp3+nu_bkg
+!      ELSE
+!         nu_break(I,J)=ZERO+nu_bkg
+!      ENDIF
 
     ELSE ! outside wavemaker    
 
