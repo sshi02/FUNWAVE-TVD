@@ -231,6 +231,7 @@ SUBROUTINE READ_INPUT
       CALL READ_FLOAT(DX,FILE_NAME,'DX',ierr)
 
       IF(ierr==1)THEN
+         PRINT *,"Did you intend to use Spherical Coordinates?"
 # if defined (PARALLEL)
       if (myid.eq.0) THEN
          WRITE(*,'(A40,A40)')'DX:', 'NOT DEFINED, STOP'

@@ -290,6 +290,11 @@ SUBROUTINE STORM_FORCING
     ENDDO
     ENDDO
 
+#ifndef CARTESIAN
+#ifdef STORM
+#error "Please compile without -DSTORM when -DCARTESIAN is not set."
+#endif
+#endif
 
     DO J=Jbeg,Jend
     DO I=Ibeg,Iend

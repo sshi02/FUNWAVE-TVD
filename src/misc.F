@@ -83,7 +83,7 @@ SUBROUTINE INDEX
    if( nprocs /= NumberProcessor) then
      if( myid==0 ) then
 	 print *, '======================================================='
-       print *, '*** STOP :: Number of processors in MPIRUN /= Px*Py ***'
+       print *, '*** STOP :: Number of processors(',nprocs,') in MPIRUN /= Px*Py(',PX*PY,') ***'
 	 print *, '======================================================='
      endif
      call MPI_FINALIZE ( ier )
