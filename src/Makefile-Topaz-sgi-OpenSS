@@ -1,7 +1,7 @@
 #-----------BEGIN MAKEFILE-------------------------------------------------
             SHELL         = /bin/sh
             DEF_FLAGS     = -P -traditional 
-            EXEC          = funwave_cray
+            EXEC          = funwave_sgi_OSS
 #==========================================================================
 #--------------------------------------------------------------------------
 #        PRECISION          DEFAULT PRECISION: SINGLE                     
@@ -12,8 +12,7 @@
             FLAG_2 = -DPARALLEL
             FLAG_3 = -DSAMPLES
             FLAG_4 = -DCARTESIAN
-	    FLAG_5 = -DCRAY
-#              FLAG_6 = -DINTEL
+              FLAG_6 = -DINTEL
 #             FLAG_7 = -DMIXING
 #             FLAG_8 = -DCOUPLING
 #             FLAG_9 = -DZALPHA
@@ -24,16 +23,16 @@
 #--------------------------------------------------------------------------
          CPP      = /usr/bin/cpp 
          CPPFLAGS = $(DEF_FLAGS)
-         FC       = ftn
+         FC       = ifort
          DEBFLGS  = 
          OPT      = 
          CLIB     = 
 #==========================================================================
 
-         FFLAGS = $(DEBFLGS) $(OPT) #-fPIC -g -O2
+         FFLAGS = $(DEBFLGS) $(OPT) -fPIC -g -O2
          MDEPFLAGS = --cpp --fext=f90 --file=-
          RANLIB = ranlib
-	 MPILIB = # -lmpi
+	 MPILIB = -lmpi
 #--------------------------------------------------------------------------
 #  CAT Preprocessing Flags
 #--------------------------------------------------------------------------
@@ -101,4 +100,3 @@ clean:
 
 clobber:	clean
 		/bin/rm -f *.f90 *.o $(EXEC)
-
