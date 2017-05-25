@@ -12,7 +12,8 @@
             FLAG_2 = -DPARALLEL
             FLAG_3 = -DSAMPLES
             FLAG_4 = -DCARTESIAN
-              FLAG_6 = -DINTEL
+#	    FLAG_5 = -DVESSEL
+            FLAG_6 = -DINTEL
 #             FLAG_7 = -DMIXING
 #             FLAG_8 = -DCOUPLING
 #             FLAG_9 = -DZALPHA
@@ -64,7 +65,7 @@
 #  FUNWAVE-TVD Source Code.
 #--------------------------------------------------------------------------
 
-MODS  = mod_param.F	mod_global.F	mod_input.F \
+MODS  = mod_param.F	mod_global.F	mod_input.F mod_vessel.F  mod_bathy_correction.F \
 
 MAIN  = main.F bc.F fluxes.F init.F io.F tridiagnal.F       \
         breaker.F derivatives.F dispersion.F etauv_solver.F \
