@@ -53,6 +53,10 @@ SUBROUTINE OUTPUT
 # if defined(VESSEL)
      USE VESSEL_MODULE
 # endif
+# if defined(STORM)
+     USE STORM_MODULE
+# endif
+
     IMPLICIT NONE
 
      SCREEN_COUNT=SCREEN_COUNT+DT
@@ -124,14 +128,12 @@ SUBROUTINE READ_INPUT
 !ykchoi]
 
 # if defined (PARALLEL)
+    CALL MPI_COMM_SIZE (MPI_COMM_WORLD, nprocs, ier)   !ykchoi(04/May/2017)
     CALL MPI_COMM_RANK (MPI_COMM_WORLD, myid, ier)
 # endif
 
-![ykchoi (15.03.25)
       FDIR=TRIM(RESULT_FOLDER)
 	OPEN(10000,FILE='time_dt.out',STATUS='UNKNOWN')
-	!OPEN(10000,FILE=TRIM( TRIM(FDIR)//'time.out' ),STATUS='UNKNOWN')
-!ykchoi (15.03.25)]
 
       OPEN(3,FILE='LOG.txt')   
 
@@ -145,24 +147,79 @@ SUBROUTINE READ_INPUT
         TITLE='---TEST RUN---'
       ENDIF
 # if defined (PARALLEL)
-      if (myid.eq.0) WRITE(3,*)'---- LOG FILE ---'
+      if (myid.eq.0) WRITE(3,*)'-------------- LOG FILE -----------------'
       if (myid.eq.0) WRITE(3,*)TITLE
       if (myid.eq.0) WRITE(3,*)' --------------input start --------------'
 # else
-      WRITE(3,*)'---- LOG FILE ---'
+      WRITE(3,*)'-------------- LOG FILE -----------------'
       WRITE(3,*)TITLE
-      WRITE(3,*)' --------------input start --------------'     
+      WRITE(3,*)' --------------input start --------------'  
+      WRITE(3,*)'                                         '   
 # endif
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,*)'                                         '
+      if (myid.eq.0) WRITE(3,*)'-------------- PARALLEL -----------------'    
+# endif
+
 
 # if defined (PARALLEL)
 ! parallel info
       CALL READ_INTEGER(PX,FILE_NAME,'PX',ierr)
-      CALL READ_INTEGER(PY,FILE_NAME,'PY',ierr)       
+      IF(ierr == 1) THEN
+        PX = 1
+        if (myid.eq.0)write(*,*) 'No PX sepecified ', 'use PX=1'
+        if (myid.eq.0)WRITE(3,'(A20,A20)')'No PX sepecified ', 'use PX=1'
+      ENDIF
+      CALL READ_INTEGER(PY,FILE_NAME,'PY',ierr)  
+      IF(ierr == 1) THEN
+        PY = 1
+        if (myid.eq.0)write(*,*) 'No PY sepecified ', 'use PY=1'
+        if (myid.eq.0)WRITE(3,'(A20,A20)')'No PY sepecified ', 'use PY=1'
+      ENDIF
       if (myid.eq.0) WRITE(3,'(A7,I3,A7,I3)') 'PX   =',PX,'PY   =', PY
 # endif
+
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,*)'                                         '
+      if (myid.eq.0) WRITE(3,*)'-------------- GRID INFO -----------------'
+# else
+      WRITE(3,*)'                                         '
+      WRITE(3,*)'-------------- GRID INFO -----------------'   
+# endif
+
 ! dimension
       CALL READ_INTEGER(Mglob,FILE_NAME,'Mglob',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'Mglob:', 'NOT DEFINED, STOP'
+         WRITE(3,'(A40,A40)')'Mglob:', 'NOT DEFINED, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'Mglob:', 'NOT DEFINED, STOP'
+         WRITE(3,'(A40,A40)')'Mglob:', 'NOT DEFINED, STOP'
+# endif
+        STOP
+      ENDIF
+
       CALL READ_INTEGER(Nglob,FILE_NAME,'Nglob',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'Nglob:', 'NOT DEFINED, STOP'
+         WRITE(3,'(A40,A40)')'Nglob:', 'NOT DEFINED, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'Nglob:', 'NOT DEFINED, STOP'
+         WRITE(3,'(A40,A40)')'Nglob:', 'NOT DEFINED, STOP'
+# endif
+        STOP
+      ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A7,I8,A7,I8)') 'Mglob=',Mglob,'Nglob=', Nglob
 # else
@@ -172,7 +229,39 @@ SUBROUTINE READ_INPUT
 # if defined (CARTESIAN)
 
       CALL READ_FLOAT(DX,FILE_NAME,'DX',ierr)
+
+      IF(ierr==1)THEN
+         PRINT *,"Did you intend to use Spherical Coordinates?"
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'DX:', 'NOT DEFINED, STOP'
+         WRITE(3,'(A40,A40)')'DX:', 'NOT DEFINED, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'DX:', 'NOT DEFINED, STOP'
+         WRITE(3,'(A40,A40)')'DX:', 'NOT DEFINED, STOP'
+# endif
+        STOP
+      ENDIF
+
+
       CALL READ_FLOAT(DY,FILE_NAME,'DY',ierr)
+
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'DY:', 'NOT DEFINED, STOP'
+         WRITE(3,'(A40,A40)')'DY:', 'NOT DEFINED, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'DY:', 'NOT DEFINED, STOP'
+         WRITE(3,'(A40,A40)')'DY:', 'NOT DEFINED, STOP'
+# endif
+        STOP
+      ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A4,F12.2,A4,F12.2)')'DX=',DX,'DY=',DY
 # else
@@ -181,16 +270,126 @@ SUBROUTINE READ_INPUT
 
 # else
       CALL READ_LOGICAL(StretchGrid,FILE_NAME,'StretchGrid',ierr)   
+     IF(ierr==1)THEN
+       StretchGrid = .FALSE.
+     ENDIF
      if (StretchGrid) then
         CALL READ_STRING(DX_FILE,FILE_NAME,'DX_FILE',ierr)  
+
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'You use StretchGrid ', 'but no DX_FILE found, STOP'
+         WRITE(3,'(A40,A40)')'You use StretchGrid ', 'but no DX_FILE found, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'You use StretchGrid ', 'but no DX_FILE found, STOP'
+         WRITE(3,'(A40,A40)')'You use StretchGrid ', 'but no DX_FILE found, STOP'
+# endif
+        STOP
+      ENDIF
+
         CALL READ_STRING(DY_FILE,FILE_NAME,'DY_FILE',ierr)   
-        CALL READ_STRING(Coriolis_FILE,FILE_NAME,'CORIOLIS_FILE',ierr)    
-     else
+
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'You use StretchGrid ', 'but no DY_FILE found, STOP'
+         WRITE(3,'(A40,A40)')'You use StretchGrid ', 'but no DY_FILE found, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'You use StretchGrid ', 'but no DY_FILE found, STOP'
+         WRITE(3,'(A40,A40)')'You use StretchGrid ', 'but no DY_FILE found, STOP'
+# endif
+        STOP
+      ENDIF
+
+        CALL READ_STRING(Coriolis_FILE,FILE_NAME,'CORIOLIS_FILE',ierr) 
+  
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'You use StretchGrid ', 'but no CORIOLIS_FILE found, STOP'
+         WRITE(3,'(A40,A40)')'You use StretchGrid ', 'but no CORIOLIS_FILE found, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'You use StretchGrid ', 'but no CORIOLIS_FILE found, STOP'
+         WRITE(3,'(A40,A40)')'You use StretchGrid ', 'but no CORIOLIS_FILE found, STOP'
+# endif
+        STOP
+      ENDIF
+ 
+     else  ! not stretch
+
       CALL READ_FLOAT(Lon_West,FILE_NAME,'Lon_West',ierr)
+
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'You use Spherical mode ', 'but no Lon_West found, STOP'
+         WRITE(3,'(A40,A40)')'You use Spherical mode ', 'but no Lon_West found, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'You use Spherical mode ', 'but no Lon_West found, STOP'
+         WRITE(3,'(A40,A40)')'You use Spherical mode ', 'but no Lon_West found, STOP'
+# endif
+        STOP
+      ENDIF
+
       CALL READ_FLOAT(Lat_South,FILE_NAME,'Lat_South',ierr)
+
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'You use Spherical mode ', 'but no Lat_South found, STOP'
+         WRITE(3,'(A40,A40)')'You use Spherical mode ', 'but no Lat_South found, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'You use Spherical mode ', 'but no Lat_South found, STOP'
+         WRITE(3,'(A40,A40)')'You use Spherical mode ', 'but no Lat_South found, STOP'
+# endif
+        STOP
+      ENDIF
+
       CALL READ_FLOAT(Dphi,FILE_NAME,'Dphi',ierr)
+
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'You use Spherical mode ', 'but no Dphi found, STOP'
+         WRITE(3,'(A40,A40)')'You use Spherical mode ', 'but no Dphi found, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'You use Spherical mode ', 'but no Dphi found, STOP'
+         WRITE(3,'(A40,A40)')'You use Spherical mode ', 'but no Dphi found, STOP'
+# endif
+        STOP
+      ENDIF
+ 
       CALL READ_FLOAT(Dtheta,FILE_NAME,'Dtheta',ierr)
-     endif
+
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'You use Spherical mode ', 'but no Dtheta found, STOP'
+         WRITE(3,'(A40,A40)')'You use Spherical mode ', 'but no Dtheta found, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'You use Spherical mode ', 'but no Dtheta found, STOP'
+         WRITE(3,'(A40,A40)')'You use Spherical mode ', 'but no Dtheta found, STOP'
+# endif
+        STOP
+      ENDIF
+
+     endif  ! endif stretch
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A10,F12.2)')'Lon_West=',Lon_West
       if (myid.eq.0) WRITE(3,'(A11,F12.2)')'Lat_South=',Lat_South
@@ -204,45 +403,30 @@ SUBROUTINE READ_INPUT
 # endif
 
 # endif
+  ! end spherical
 
-! result folder
-      CALL READ_STRING(RESULT_FOLDER,FILE_NAME,'RESULT_FOLDER',ierr)
-# if defined (PARALLEL)
-      if (myid.eq.0) WRITE(3,'(A15,A50)')'RESULT_FOLDER:', RESULT_FOLDER
-# else
-      WRITE(3,'(A15,A50)')'RESULT_FOLDER:', RESULT_FOLDER
-# endif
-
-! create result folder
-      MKFOLDER = "mkdir -p "//TRIM(RESULT_FOLDER)
-# if defined (PARALLEL)
-      IF (myid.eq.0) THEN
-# if defined (INTEL)
-        RES = SYSTEM(TRIM(MKFOLDER))
-# else
-        CALL SYSTEM(TRIM(MKFOLDER))
-# endif
-      ENDIF
-# else
-# if defined(INTEL)
-      RES = SYSTEM(TRIM(MKFOLDER))
-# else
-      CALL SYSTEM(TRIM(MKFOLDER))
-# endif
-# endif
-
-! station files
-      CALL READ_INTEGER(NumberStations,FILE_NAME,'NumberStations',ierr)
-      IF(NumberStations>0)THEN
-      CALL READ_STRING(STATIONS_FILE,FILE_NAME,'STATIONS_FILE',ierr)
-      ENDIF
 ! depth 
       CALL READ_STRING(DEPTH_TYPE,FILE_NAME,'DEPTH_TYPE',ierr)
+
+      IF(ierr==1)THEN
+        DEPTH_TYPE = 'FLAT'
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'You dont specify DEPTH_TYPE, use FLAT.'
+         WRITE(3,'(A40)')'You dont specify DEPTH_TYPE, use FLAT.'
+      endif
+# else
+         WRITE(*,'(A40)')'You dont specify DEPTH_TYPE, use FLAT.'
+         WRITE(3,'(A40)')'You dont specify DEPTH_TYPE, use FLAT.'
+# endif
+      ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A12,A50)')'DEPTH_TYPE:', DEPTH_TYPE
 # else
       WRITE(3,'(A12,A50)')'DEPTH_TYPE:', DEPTH_TYPE
 # endif
+
       IF(DEPTH_TYPE(1:3)=='DAT')THEN
         CALL READ_STRING(DEPTH_FILE,FILE_NAME,'DEPTH_FILE',ierr)
 # if defined (PARALLEL)
@@ -250,19 +434,78 @@ SUBROUTINE READ_INPUT
 # else
       WRITE(3,'(A12,A50)')'DEPTH_FILE:', DEPTH_FILE
 # endif
-      ENDIF
-      IF(DEPTH_TYPE(1:3)=='FLA')THEN
+      ENDIF  ! end type=data
+
+    IF(DEPTH_TYPE(1:3)=='FLA')THEN
       CALL READ_FLOAT(DEPTH_FLAT,FILE_NAME,'DEPTH_FLAT',ierr) 
+      
+      IF(ierr==1)THEN
+        DEPTH_FLAT = 10.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'You dont specify DEPTH_FLAT, use 10 m.'
+         WRITE(3,'(A40)')'You dont specify DEPTH_FLAT, use 10 m.'
+      endif
+# else
+         WRITE(*,'(A40)')'You dont specify DEPTH_FLAT, use 10 m.'
+         WRITE(3,'(A40)')'You dont specify DEPTH_FLAT, use 10 m.'
+# endif
+      ENDIF      
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A10,F12.2)')'DEPTH_FLAT=', DEPTH_FLAT  
 # else
       WRITE(3,'(A10,F12.2)')'DEPTH_FLAT=', DEPTH_FLAT 
 # endif
-      ENDIF
+    ENDIF ! endif type=flat
+
+
       IF(DEPTH_TYPE(1:3)=='SLO')THEN
       CALL READ_FLOAT(DEPTH_FLAT,FILE_NAME,'DEPTH_FLAT',ierr) 
+
+      IF(ierr==1)THEN
+        DEPTH_FLAT = 10.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'You dont specify DEPTH_FLAT, use 10 m.'
+         WRITE(3,'(A40)')'You dont specify DEPTH_FLAT, use 10 m.'
+      endif
+# else
+         WRITE(*,'(A40)')'You dont specify DEPTH_FLAT, use 10 m.'
+         WRITE(3,'(A40)')'You dont specify DEPTH_FLAT, use 10 m.'
+# endif
+      ENDIF 
+
       CALL READ_FLOAT(SLP,FILE_NAME,'SLP',ierr) 
+
+      IF(ierr==1)THEN
+        SLP = 0.1_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'You dont specify SLP, use 0.1'
+         WRITE(3,'(A40)')'You dont specify SLP, use 0.1'
+      endif
+# else
+         WRITE(*,'(A40)')'You dont specify SLP, use 0.1'
+         WRITE(3,'(A40)')'You dont specify SLP, use 0.1'
+# endif
+      ENDIF 
+
       CALL READ_FLOAT(Xslp,FILE_NAME,'Xslp',ierr) 
+
+      IF(ierr==1)THEN
+        Xslp = 0.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'You dont specify Xslp, use 0.0'
+         WRITE(3,'(A40)')'You dont specify Xslp, use 0.0'
+      endif
+# else
+         WRITE(*,'(A40)')'You dont specify Xslp, use 0.0'
+         WRITE(3,'(A40)')'You dont specify Xslp, use 0.0'
+# endif
+      ENDIF 
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A10,F12.2)')'DEPTH_FLAT=', DEPTH_FLAT 
       if (myid.eq.0) WRITE(3,'(A5,F12.2)')'SLP=', SLP
@@ -272,12 +515,98 @@ SUBROUTINE READ_INPUT
       WRITE(3,'(A5,F12.2)')'SLP=', SLP
       WRITE(3,'(A6,F12.2)')'Xslp=', Xslp  
 # endif
+      ENDIF  ! endif type=slope
+
+! depth correction
+
+      CALL READ_LOGICAL(BATHY_CORRECTION,FILE_NAME,'BATHY_CORRECTION',ierr)
+      IF(ierr == 1)THEN
+       BATHY_CORRECTION = .FALSE. 
       ENDIF
+      IF(BATHY_CORRECTION)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0)then
+       WRITE(3,'(A40)')'Bathymetry is corrected !'
+       WRITE(*,'(A40)')'Bathymetry is corrected !'
+      endif
+# else
+      WRITE(3,'(A40)')'Bathymetry is corrected !'
+      WRITE(*,'(A40)')'Bathymetry is corrected !'
+# endif 
+      ENDIF
+
 ! time
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,*)'                                         '
+      if (myid.eq.0) WRITE(3,*)'-------------- TIME INFO -----------------'
+# else
+      WRITE(3,*)'                                         '
+      WRITE(3,*)'-------------- TIME INFO -----------------'   
+# endif
+
       CALL READ_FLOAT(TOTAL_TIME,FILE_NAME,'TOTAL_TIME',ierr)
+
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'TOTAL_TIME:', 'NOT FOUND, STOP'
+         WRITE(3,'(A40,A40)')'TOTAL_TIME:', 'NOT FOUND, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'TOTAL_TIME:', 'NOT FOUND, STOP'
+         WRITE(3,'(A40,A40)')'TOTAL_TIME:', 'NOT FOUND, STOP'
+# endif
+        STOP
+      ENDIF
+
       CALL READ_FLOAT(PLOT_INTV,FILE_NAME,'PLOT_INTV',ierr)
+
+      IF(ierr==1)THEN
+        PLOT_INTV = 1.0
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'PLOT_INTV Default:  1.0 s'
+         WRITE(3,'(A40)')'PLOT_INTV Default:  1.0 s'
+      endif
+# else
+         WRITE(*,'(A40)')'PLOT_INTV Default:  1.0 s'
+         WRITE(3,'(A40)')'PLOT_INTV Default:  1.0 s'
+# endif
+       ENDIF
+
       CALL READ_FLOAT(PLOT_INTV_STATION,FILE_NAME,'PLOT_INTV_STATION',ierr)
+
+      IF(ierr==1)THEN
+        PLOT_INTV_STATION = 1.0
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'PLOT_INTV_STATION Default:  1.0 s'
+         WRITE(3,'(A40)')'PLOT_INTV_STATION Default:  1.0 s'
+      endif
+# else
+         WRITE(*,'(A40)')'PLOT_INTV_STATION Default:  1.0 s'
+         WRITE(3,'(A40)')'PLOT_INTV_STATION Default:  1.0 s'
+# endif
+       ENDIF
+
+
       CALL READ_FLOAT(SCREEN_INTV,FILE_NAME,'SCREEN_INTV',ierr)
+      IF(ierr==1)THEN
+        SCREEN_INTV = 1.0
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'SCREEN_INTV Default:  1.0 s'
+         WRITE(3,'(A40)')'SCREEN_INTV Default:  1.0 s'
+      endif
+# else
+         WRITE(*,'(A40)')'SCREEN_INTV Default:  1.0 s'
+         WRITE(3,'(A40)')'SCREEN_INTV Default:  1.0 s'
+# endif
+       ENDIF
+
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A12,F12.2)')'TOTAL_TIME=', TOTAL_TIME
       if (myid.eq.0) WRITE(3,'(A12,F12.2)')'PLOT_INTV= ', PLOT_INTV
@@ -288,27 +617,131 @@ SUBROUTINE READ_INPUT
       WRITE(3,'(A13,F12.2)')'SCREEN_INTV=', SCREEN_INTV
 # endif
 
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,*)'                                         '
+      if (myid.eq.0) WRITE(3,*)'-------------- HOT START -----------------'
+# else
+      WRITE(3,*)'                                         '
+      WRITE(3,*)'-------------- HOT START -----------------'   
+# endif
+
 ! initial uvz
       CALL READ_LOGICAL(INI_UVZ,FILE_NAME,'INI_UVZ',ierr)
-      IF(INI_UVZ)THEN
+      IF(ierr==1)THEN
+        INI_UVZ = .FALSE.
+      ENDIF
+    IF(INI_UVZ)THEN
         CALL READ_STRING(ETA_FILE,FILE_NAME,'ETA_FILE',ierr)
+
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A50)')'You use INI_UVZ, ETA_FILE NOT FOUND, STOP'
+         WRITE(3,'(A50)')'You use INI_UVZ, ETA_FILE NOT FOUND, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A50)')'You use INI_UVZ, ETA_FILE NOT FOUND, STOP'
+         WRITE(3,'(A50)')'You use INI_UVZ, ETA_FILE NOT FOUND, STOP'
+# endif
+        STOP
+      ENDIF
+
         CALL READ_STRING(U_FILE,FILE_NAME,'U_FILE',ierr)
+
+        IF(ierr==1)THEN
+          NO_UV_FILE = .TRUE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'U_FILE Default:  ZERO.'
+         WRITE(3,'(A40)')'U_FILE Default:  ZERO.'
+      endif
+# else
+         WRITE(*,'(A40)')'U_FILE Default:  ZERO.'
+         WRITE(3,'(A40)')'U_FILE Default:  ZERO.'
+# endif
+        ELSE
+          NO_UV_FILE = .FALSE.
+        ENDIF
+
         CALL READ_STRING(V_FILE,FILE_NAME,'V_FILE',ierr)
+
+        IF(ierr==1)THEN
+          NO_UV_FILE = .TRUE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'V_FILE Default:  ZERO.'
+         WRITE(3,'(A40)')'V_FILE Default:  ZERO.'
+      endif
+# else
+         WRITE(*,'(A40)')'V_FILE Default:  ZERO.'
+         WRITE(3,'(A40)')'V_FILE Default:  ZERO.'
+# endif
+        ELSE
+          NO_UV_FILE = .FALSE.
+          IF(NO_UV_FILE) NO_UV_FILE = .TRUE.    ! in case you dont have u file
+        ENDIF
+
         CALL READ_STRING(MASK_FILE,FILE_NAME,'MASK_FILE',ierr)
 
         IF(ierr==1)THEN
           NO_MASK_FILE = .TRUE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'MASK_FILE NOT FOUND, USE NO_MASK option'
+         WRITE(3,'(A40)')'MASK_FILE NOT FOUND, USE NO_MASK option'
+      endif
+# else
+         WRITE(*,'(A40)')'MASK_FILE NOT FOUND, USE NO_MASK option'
+         WRITE(3,'(A40)')'MASK_FILE NOT FOUND, USE NO_MASK option'
+# endif
+
         ELSE
           NO_MASK_FILE = .FALSE.
         ENDIF
 
 	![ykchoi(14.12.24.)
-        !CALL READ_FLOAT(TIME,FILE_NAME,'HotStartTime',ierr)
 	  CALL READ_FLOAT(HotStartTime,FILE_NAME,'HotStartTime',ierr)
+
+      IF(ierr==1)THEN
+        HotStartTime = 0.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'HotStartTime Default:  0.0 s'
+         WRITE(3,'(A40)')'HotStartTime Default:  0.0 s'
+      endif
+# else
+         WRITE(*,'(A40)')'HotStartTime Default:  0.0 s'
+         WRITE(3,'(A40)')'HotStartTime Default:  0.0 s'
+# endif
+       ENDIF
+
 	!ykchoi(14.12.24.)]
         CALL READ_INTEGER(icount,FILE_NAME,'OutputStartNumber',ierr)
-        icount = icount-1
+      IF(ierr==1)THEN
+        icount = 1
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'OutputStartNumber Default:  1'
+         WRITE(3,'(A40)')'OutputStartNumber Default:  1'
+      endif
+# else
+         WRITE(*,'(A40)')'OutputStartNumber Default:  1'
+         WRITE(3,'(A40)')'OutputStartNumber Default:  1'
+# endif
        ENDIF
+
+        icount = icount-1
+
+       ENDIF  ! end initial hot start file
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,*)'                                         '
+      if (myid.eq.0) WRITE(3,*)'-------------- STILL WATER INFO -----------------'
+# else
+      WRITE(3,*)'                                         '
+      WRITE(3,*)'-------------- STILL WATER INFO -----------------'   
+# endif
 
 ! add water level 03/29/2016
 
@@ -317,14 +750,93 @@ SUBROUTINE READ_INPUT
           WaterLevel = 0.0
         ENDIF
 
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A20,F12.5)')'WaterLevel = ', WaterLevel
+# else
+      WRITE(3,'(A20,F12.5)')'WaterLevel = ', WaterLevel
+# endif 
+
 # if defined (WIND)
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,*)'                                         '
+      if (myid.eq.0) WRITE(3,*)'-------------- WIND INFO -----------------'
+# else
+      WRITE(3,*)'                                         '
+      WRITE(3,*)'-------------- WIND INFO -----------------'   
+# endif
+
+! air pressure
+      CALL READ_LOGICAL(AirPressure,FILE_NAME,'AirPressure',ierr)
+
+      IF(ierr==1)THEN
+        AirPressure = .FALSE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'NO air pressure effect'
+         WRITE(3,'(A40)')'NO air pressure effect'
+      endif
+# else
+         WRITE(*,'(A40)')'NO air pressure effect'
+         WRITE(3,'(A40)')'NO air pressure effect'
+# endif
+       ENDIF
+
 ! wind
       CALL READ_LOGICAL(WindForce,FILE_NAME,'WindForce',ierr)
+
+      IF(ierr==1)THEN
+        WindForce = .FALSE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'NO wind effect'
+         WRITE(3,'(A40)')'NO wind effect'
+      endif
+# else
+         WRITE(*,'(A40)')'NO wind effect'
+         WRITE(3,'(A40)')'NO wind effect'
+# endif
+       ENDIF
+
       IF(WindForce)THEN
+# if defined (STORM)
+       ! use Holland
+# else
         CALL READ_STRING(WIND_FILE,FILE_NAME,'WIND_FILE',ierr)
+# endif
+
         CALL READ_FLOAT(Cdw,FILE_NAME,'Cdw',ierr)
+
+      IF(ierr==1)THEN
+        Cdw=0.002_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Cdw Default:  Cdw=0.002'
+         WRITE(3,'(A40)')'Cdw Default:  Cdw=0.002'
+      endif
+# else
+         WRITE(*,'(A40)')'Cdw Default:  Cdw=0.002'
+         WRITE(3,'(A40)')'Cdw Default:  Cdw=0.002'
+# endif
+       ENDIF  
+
         CALL READ_FLOAT(WindCrestPercent,FILE_NAME,'WindCrestPercent',ierr)
-      ENDIF
+
+      IF(ierr==1)THEN
+        WindCrestPercent=1.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'WindCrestPercent Default:  1.0'
+         WRITE(3,'(A40)')'WindCrestPercent Default:  1.0'
+      endif
+# else
+         WRITE(*,'(A40)')'WindCrestPercent Default:  1.0'
+         WRITE(3,'(A40)')'WindCrestPercent Default:  1.0'
+# endif
+       ENDIF 
+
+      ENDIF  ! endif windforce
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A7,F12.5)')'Cdw = ', Cdw
       if (myid.eq.0) WRITE(3,'(A21,F12.5)')'WindCrestPercent = ', WindCrestPercent
@@ -334,8 +846,29 @@ SUBROUTINE READ_INPUT
 # endif  
 # endif 
 
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,*)'                                         '
+      if (myid.eq.0) WRITE(3,*)'-------------- WAVEMAKER -----------------'
+# else
+      WRITE(3,*)'                                         '
+      WRITE(3,*)'-------------- WAVEMAKER -----------------'   
+# endif
+
 ! wavemaker
       CALL READ_STRING(WaveMaker,FILE_NAME,'WAVEMAKER',ierr)
+      IF(ierr==1)THEN
+        WaveMaker = 'nothing'
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'No WaveMaker'
+         WRITE(3,'(A40)')'No WaveMaker'
+      endif
+# else
+         WRITE(*,'(A40)')'No WaveMaker'
+         WRITE(3,'(A40)')'No WaveMaker'
+# endif
+       ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A11,A50)')'WAVEMAKER:', WAVEMAKER
 # else
@@ -344,8 +877,53 @@ SUBROUTINE READ_INPUT
 
         IF(WaveMaker(1:7)=='LEF_SOL')THEN
           CALL READ_FLOAT(AMP_SOLI,FILE_NAME,'AMP',ierr)
+
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'AMP_SOLI NOT FOUND, specify AMP in input.txt'
+         WRITE(3,'(A60)')'AMP_SOLI NOT FOUND, specify AMP in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A60)')'AMP_SOLI NOT FOUND, specify AMP in input.txt'
+         WRITE(3,'(A60)')'AMP_SOLI NOT FOUND, specify AMP in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(DEP_SOLI,FILE_NAME,'DEP',ierr)
+
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'DEP_SOLI NOT FOUND, specify DEP in input.txt'
+         WRITE(3,'(A60)')'DEP_SOLI NOT FOUND, specify DEP in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A60)')'DEP_SOLI NOT FOUND, specify DEP in input.txt'
+         WRITE(3,'(A60)')'DEP_SOLI NOT FOUND, specify DEP in input.txt'
+# endif
+        STOP
+      ENDIF
+
+
           CALL READ_FLOAT(LAG_SOLI,FILE_NAME,'LAGTIME',ierr)
+
+      IF(ierr==1)THEN
+       LAG_SOLI = 0.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'LAGTIME Default:  0.0'
+         WRITE(3,'(A40)')'LAGTIME Default:  0.0'
+      endif
+# else
+         WRITE(*,'(A40)')'LAGTIME Default:  0.0'
+         WRITE(3,'(A40)')'LAGTIME Default:  0.0'
+# endif
+       ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A10,F12.2)')'AMP_SOLI=', AMP_SOLI
       if (myid.eq.0) WRITE(3,'(A10,F12.2)')'DEP_SOLI=', DEP_SOLI
@@ -359,34 +937,202 @@ SUBROUTINE READ_INPUT
 
         IF(WaveMaker(1:7)=='WK_TIME')THEN
         CALL READ_INTEGER(NumWaveComp,FILE_NAME,'NumWaveComp',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'NumWaveComp NOT FOUND, specify NumWaveComp in input.txt'
+         WRITE(3,'(A80)')'NumWaveComp NOT FOUND, specify NumWaveComp in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'NumWaveComp NOT FOUND, specify NumWaveComp in input.txt'
+         WRITE(3,'(A80)')'NumWaveComp NOT FOUND, specify NumWaveComp in input.txt'
+# endif
+        STOP
+      ENDIF
+
         CALL READ_FLOAT(PeakPeriod,FILE_NAME,'PeakPeriod',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'PeakPeriod NOT FOUND, specify PeakPeriod in input.txt'
+         WRITE(3,'(A80)')'PeakPeriod NOT FOUND, specify PeakPeriod in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'PeakPeriod NOT FOUND, specify PeakPeriod in input.txt'
+         WRITE(3,'(A80)')'PeakPeriod NOT FOUND, specify PeakPeriod in input.txt'
+# endif
+        STOP
+      ENDIF
+
         CALL READ_STRING(WaveCompFile,FILE_NAME,'WaveCompFile',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'WaveCompFile NOT FOUND, specify WaveCompFile in input.txt'
+         WRITE(3,'(A80)')'WaveCompFile NOT FOUND, specify WaveCompFile in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'WaveCompFile NOT FOUND, specify WaveCompFile in input.txt'
+         WRITE(3,'(A80)')'WaveCompFile NOT FOUND, specify WaveCompFile in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(Xc_WK,FILE_NAME,'Xc_WK',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
+         WRITE(3,'(A80)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
+         WRITE(3,'(A80)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(Yc_WK,FILE_NAME,'Yc_WK',ierr)
+      IF(ierr==1)THEN
+       Yc_WK = ZERO
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A50)')'Yc_WK defalt: 0.0'
+         WRITE(3,'(A50)')'Yc_WK defalt: 0.0'
+      endif
+# else
+         WRITE(*,'(A50)')'Yc_WK defalt: 0.0'
+         WRITE(3,'(A50)')'Yc_WK defalt: 0.0'
+# endif
+       ENDIF
+
           CALL READ_FLOAT(DEP_WK,FILE_NAME,'DEP_WK',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
+         WRITE(3,'(A80)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
+         WRITE(3,'(A80)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(Time_ramp,FILE_NAME,'Time_ramp',ierr)
+      IF(ierr==1)THEN
+        Time_ramp = 0.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Time_ramp Default:  0.0'
+         WRITE(3,'(A40)')'Time_ramp Default:  0.0'
+      endif
+# else
+         WRITE(*,'(A40)')'Time_ramp Default:  0.0'
+         WRITE(3,'(A40)')'Time_ramp Default:  0.0'
+# endif
+       ENDIF
+
           CALL READ_FLOAT(Delta_WK,FILE_NAME,'Delta_WK',ierr)
+      IF(ierr==1)THEN
+        Delta_WK = 0.5_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Delta_WK Default:  0.5'
+         WRITE(3,'(A40)')'Delta_WK Default:  0.5'
+      endif
+# else
+         WRITE(*,'(A40)')'Delta_WK Default:  0.5'
+         WRITE(3,'(A40)')'Delta_WK Default:  0.5'
+# endif
+       ENDIF
+
+
           CALL READ_FLOAT(Ywidth_WK,FILE_NAME,'Ywidth_WK',ierr)
+      IF(ierr==1)THEN
+        Ywidth_WK = LARGE
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Ywidth_WK Default:  LARGE'
+         WRITE(3,'(A40)')'Ywidth_WK Default:  LARGE'
+      endif
+# else
+         WRITE(*,'(A40)')'Ywidth_WK Default:  LARGE'
+         WRITE(3,'(A40)')'Ywidth_WK Default:  LARGE'
+# endif
+       ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A10,F12.2)')'Xc_WK   =', Xc_WK
+      if (myid.eq.0) WRITE(3,'(A10,F12.2)')'Yc_WK   =', Yc_WK
       if (myid.eq.0) WRITE(3,'(A10,F12.2)')'DEP_WK  =', DEP_WK
       if (myid.eq.0) WRITE(3,'(A11,F12.2)')'Time_ramp=', Time_ramp
       if (myid.eq.0) WRITE(3,'(A11,F12.2)')'Delta_WK=', Delta_WK
       if (myid.eq.0) WRITE(3,'(A11,F12.2)')'Ywidth_WK=', Ywidth_WK
 # else
       WRITE(3,'(A10,F12.2)')'Xc_WK   =', Xc_WK
+      WRITE(3,'(A10,F12.2)')'Yc_WK   =', Yc_WK
       WRITE(3,'(A10,F12.2)')'DEP_WK  =', DEP_WK
       WRITE(3,'(A11,F12.2)')'Time_ramp=', Time_ramp
       WRITE(3,'(A11,F12.2)')'Delta_WK=', Delta_WK
       WRITE(3,'(A11,F12.2)')'Ywidth_WK=', Ywidth_WK
 # endif
 
-        ENDIF
+        ENDIF  ! end WK_TIME
 
         IF(WaveMaker(1:7)=='INI_SOL')THEN
+
           CALL READ_FLOAT(AMP_SOLI,FILE_NAME,'AMP',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'AMP_SOLI NOT FOUND, specify AMP in input.txt'
+         WRITE(3,'(A60)')'AMP_SOLI NOT FOUND, specify AMP in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A60)')'AMP_SOLI NOT FOUND, specify AMP in input.txt'
+         WRITE(3,'(A60)')'AMP_SOLI NOT FOUND, specify AMP in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(DEP_SOLI,FILE_NAME,'DEP',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'DEP_SOLI NOT FOUND, specify DEP in input.txt'
+         WRITE(3,'(A60)')'DEP_SOLI NOT FOUND, specify DEP in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A60)')'DEP_SOLI NOT FOUND, specify DEP in input.txt'
+         WRITE(3,'(A60)')'DEP_SOLI NOT FOUND, specify DEP in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(XWAVEMAKER,FILE_NAME,'XWAVEMAKER',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'XWAVEMAKER NOT FOUND, specify XWAVEMAKER in input.txt'
+         WRITE(3,'(A80)')'XWAVEMAKER NOT FOUND, specify XWAVEMAKER in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'XWAVEMAKER NOT FOUND, specify XWAVEMAKER in input.txt'
+         WRITE(3,'(A80)')'XWAVEMAKER NOT FOUND, specify XWAVEMAKER in input.txt'
+# endif
+        STOP
+      ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A10,F12.2)')'AMP_SOLI=', AMP_SOLI
       if (myid.eq.0) WRITE(3,'(A10,F12.2)')'DEP_SOLI=', DEP_SOLI
@@ -394,13 +1140,84 @@ SUBROUTINE READ_INPUT
       WRITE(3,'(A10,F12.2)')'AMP_SOLI=', AMP_SOLI
       WRITE(3,'(A10,F12.2)')'DEP_SOLI=', DEP_SOLI
 # endif
-        ENDIF
+        ENDIF  ! end initial solitary
+
         IF(WaveMaker(1:6)=='N_WAVE')THEN
           CALL READ_FLOAT(x1_Nwave,FILE_NAME,'x1_Nwave',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'x1_Nwave NOT FOUND, specify x1_Nwave in input.txt'
+         WRITE(3,'(A80)')'x1_Nwave NOT FOUND, specify x1_Nwave in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'x1_Nwave NOT FOUND, specify x1_Nwave in input.txt'
+         WRITE(3,'(A80)')'x1_Nwave NOT FOUND, specify x1_Nwave in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(x2_Nwave,FILE_NAME,'x2_Nwave',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'x2_Nwave NOT FOUND, specify x2_Nwave in input.txt'
+         WRITE(3,'(A80)')'x2_Nwave NOT FOUND, specify x2_Nwave in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'x2_Nwave NOT FOUND, specify x2_Nwave in input.txt'
+         WRITE(3,'(A80)')'x2_Nwave NOT FOUND, specify x2_Nwave in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(a0_Nwave,FILE_NAME,'a0_Nwave',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'a0_Nwave NOT FOUND, specify a0_Nwave in input.txt'
+         WRITE(3,'(A80)')'a0_Nwave NOT FOUND, specify a0_Nwave in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'a0_Nwave NOT FOUND, specify a0_Nwave in input.txt'
+         WRITE(3,'(A80)')'a0_Nwave NOT FOUND, specify a0_Nwave in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(gamma_Nwave,FILE_NAME,'gamma_Nwave',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'gamma_Nwave NOT FOUND, specify gamma_Nwave in input.txt'
+         WRITE(3,'(A80)')'gamma_Nwave NOT FOUND, specify gamma_Nwave in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'gamma_Nwave NOT FOUND, specify gamma_Nwave in input.txt'
+         WRITE(3,'(A80)')'gamma_Nwave NOT FOUND, specify gamma_Nwave in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(dep_Nwave,FILE_NAME,'dep_Nwave',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'dep_Nwave NOT FOUND, specify dep_Nwave in input.txt'
+         WRITE(3,'(A80)')'dep_Nwave NOT FOUND, specify dep_Nwave in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'dep_Nwave NOT FOUND, specify dep_Nwave in input.txt'
+         WRITE(3,'(A80)')'dep_Nwave NOT FOUND, specify dep_Nwave in input.txt'
+# endif
+        STOP
+      ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A10,F12.2)')'x1_Nwave=', x1_Nwave
       if (myid.eq.0) WRITE(3,'(A10,F12.2)')'x2_Nwave=', x2_Nwave
@@ -414,13 +1231,69 @@ SUBROUTINE READ_INPUT
       WRITE(3,'(A13,F12.2)')'gamma_Nwave=', gamma_Nwave
       WRITE(3,'(A11,F12.2)')'dep_Nwave=', dep_Nwave
 # endif
-        ENDIF
+        ENDIF  ! end N_wave
 
         IF(WaveMaker(1:7)=='INI_REC')THEN
           CALL READ_FLOAT(AMP_SOLI,FILE_NAME,'AMP',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A50)')'AMP NOT FOUND, specify AMP in input.txt'
+         WRITE(3,'(A50)')'AMP NOT FOUND, specify AMP in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A50)')'AMP NOT FOUND, specify AMP in input.txt'
+         WRITE(3,'(A50)')'AMP NOT FOUND, specify AMP in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(Xc,FILE_NAME,'Xc',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Xc NOT FOUND, specify Xc in input.txt'
+         WRITE(3,'(A40)')'Xc NOT FOUND, specify Xc in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40)')'Xc NOT FOUND, specify Xc in input.txt'
+         WRITE(3,'(A40)')'Xc NOT FOUND, specify Xc in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(Yc,FILE_NAME,'Yc',ierr)
+      IF(ierr==1)THEN
+       Yc = ZERO
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Yc NOT FOUND, specify Yc in input.txt'
+         WRITE(3,'(A40)')'Yc NOT FOUND, specify Yc in input.txt'
+      endif
+# else
+         WRITE(*,'(A40)')'Yc NOT FOUND, specify Yc in input.txt'
+         WRITE(3,'(A40)')'Yc NOT FOUND, specify Yc in input.txt'
+# endif
+      ENDIF
+
+
           CALL READ_FLOAT(WID,FILE_NAME,'WID',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A50)')'WID NOT FOUND, specify WID in input.txt'
+         WRITE(3,'(A50)')'WID NOT FOUND, specify WID in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A50)')'WID NOT FOUND, specify WID in input.txt'
+         WRITE(3,'(A50)')'WID NOT FOUND, specify WID in input.txt'
+# endif
+        STOP
+      ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A10,F12.2)')'AMP     =', AMP_SOLI
       if (myid.eq.0) WRITE(3,'(A10,F12.2)')'Xc      =', Xc
@@ -432,14 +1305,71 @@ SUBROUTINE READ_INPUT
       WRITE(3,'(A10,F12.2)')'Yc      =', Yc
       WRITE(3,'(A10,F12.2)')'WID     =', WID
 # endif
-        ENDIF
+        ENDIF ! endif rectangular hump
 
         IF(WaveMaker(1:7)=='INI_GAU'.OR.&
            WaveMaker(1:7)=='INI_DIP')THEN
+
           CALL READ_FLOAT(AMP_SOLI,FILE_NAME,'AMP',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A50)')'AMP NOT FOUND, specify AMP in input.txt'
+         WRITE(3,'(A50)')'AMP NOT FOUND, specify AMP in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A50)')'AMP NOT FOUND, specify AMP in input.txt'
+         WRITE(3,'(A50)')'AMP NOT FOUND, specify AMP in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(Xc,FILE_NAME,'Xc',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A50)')'Xc NOT FOUND, specify Xc in input.txt'
+         WRITE(3,'(A50)')'Xc NOT FOUND, specify Xc in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A50)')'Xc NOT FOUND, specify Xc in input.txt'
+         WRITE(3,'(A50)')'Xc NOT FOUND, specify Xc in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(Yc,FILE_NAME,'Yc',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A50)')'Yc NOT FOUND, specify Yc in input.txt'
+         WRITE(3,'(A50)')'Yc NOT FOUND, specify Yc in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A50)')'Yc NOT FOUND, specify Yc in input.txt'
+         WRITE(3,'(A50)')'Yc NOT FOUND, specify Yc in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(WID,FILE_NAME,'WID',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A50)')'WID NOT FOUND, specify WID in input.txt'
+         WRITE(3,'(A50)')'WID NOT FOUND, specify WID in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A50)')'WID NOT FOUND, specify WID in input.txt'
+         WRITE(3,'(A50)')'WID NOT FOUND, specify WID in input.txt'
+# endif
+        STOP
+      ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A10,F12.2)')'AMP     =', AMP_SOLI
       if (myid.eq.0) WRITE(3,'(A10,F12.2)')'Xc      =', Xc
@@ -451,20 +1381,143 @@ SUBROUTINE READ_INPUT
       WRITE(3,'(A10,F12.2)')'Yc      =', Yc
       WRITE(3,'(A12,F12.2)')'WID(gamma)=', WID
 # endif
-        ENDIF
+        ENDIF ! endif gaussian hump
 
         IF(WaveMaker(1:6)=='WK_REG')THEN
           CALL READ_FLOAT(Xc_WK,FILE_NAME,'Xc_WK',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
+         WRITE(3,'(A60)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A60)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
+         WRITE(3,'(A60)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(Yc_WK,FILE_NAME,'Yc_WK',ierr)
+      IF(ierr==1)THEN
+       Yc_WK = ZERO
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Yc_WK defalt: 0.0'
+         WRITE(3,'(A40)')'Yc_WK defalt: 0.0'
+      endif
+# else
+         WRITE(*,'(A40)')'Yc_WK defalt: 0.0'
+         WRITE(3,'(A40)')'Yc_WK defalt: 0.0'
+# endif
+       ENDIF
+
+
           CALL READ_FLOAT(Tperiod,FILE_NAME,'Tperiod',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'Tperiod NOT FOUND, specify Tperiod in input.txt'
+         WRITE(3,'(A60)')'Tperiod NOT FOUND, specify Tperiod in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A60)')'Tperiod NOT FOUND, specify Tperiod in input.txt'
+         WRITE(3,'(A60)')'Tperiod NOT FOUND, specify Tperiod in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(AMP_WK,FILE_NAME,'AMP_WK',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'AMP_WK NOT FOUND, specify AMP_WK in input.txt'
+         WRITE(3,'(A60)')'AMP_WK NOT FOUND, specify AMP_WK in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A60)')'AMP_WK NOT FOUND, specify AMP_WK in input.txt'
+         WRITE(3,'(A60)')'AMP_WK NOT FOUND, specify AMP_WK in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(DEP_WK,FILE_NAME,'DEP_WK',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
+         WRITE(3,'(A60)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A60)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
+         WRITE(3,'(A60)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(Theta_WK,FILE_NAME,'Theta_WK',ierr)
+      IF(ierr==1)THEN
+        Theta_WK = 0.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Theta_WK Default:  0.0'
+         WRITE(3,'(A40)')'Theta_WK Default:  0.0'
+      endif
+# else
+         WRITE(*,'(A40)')'Theta_WK Default:  0.0'
+         WRITE(3,'(A40)')'Theta_WK Default:  0.0'
+# endif
+       ENDIF
+
           CALL READ_FLOAT(Time_ramp,FILE_NAME,'Time_ramp',ierr)
+      IF(ierr==1)THEN
+        Time_ramp = 0.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Time_ramp Default:  0.0'
+         WRITE(3,'(A40)')'Time_ramp Default:  0.0'
+      endif
+# else
+         WRITE(*,'(A40)')'Time_ramp Default:  0.0'
+         WRITE(3,'(A40)')'Time_ramp Default:  0.0'
+# endif
+       ENDIF
+
           CALL READ_FLOAT(Delta_WK,FILE_NAME,'Delta_WK',ierr)
+      IF(ierr==1)THEN
+        Delta_WK = 0.5_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Delta_WK Default:  0.5'
+         WRITE(3,'(A40)')'Delta_WK Default:  0.5'
+      endif
+# else
+         WRITE(*,'(A40)')'Delta_WK Default:  0.5'
+         WRITE(3,'(A40)')'Delta_WK Default:  0.5'
+# endif
+       ENDIF
+
           CALL READ_FLOAT(Ywidth_WK,FILE_NAME,'Ywidth_WK',ierr)
+      IF(ierr==1)THEN
+        Ywidth_WK = LARGE
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Ywidth_WK Default:  LARGE'
+         WRITE(3,'(A40)')'Ywidth_WK Default:  LARGE'
+      endif
+# else
+         WRITE(*,'(A40)')'Ywidth_WK Default:  LARGE'
+         WRITE(3,'(A40)')'Ywidth_WK Default:  LARGE'
+# endif
+       ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A10,F12.2)')'Xc_WK   =', Xc_WK
+      if (myid.eq.0) WRITE(3,'(A10,F12.2)')'Yc_WK   =', Yc_WK
       if (myid.eq.0) WRITE(3,'(A10,F12.2)')'Tperiod =', Tperiod
       if (myid.eq.0) WRITE(3,'(A10,F12.2)')'AMP_WK  =', AMP_WK
       if (myid.eq.0) WRITE(3,'(A10,F12.2)')'DEP_WK  =', DEP_WK
@@ -474,6 +1527,7 @@ SUBROUTINE READ_INPUT
       if (myid.eq.0) WRITE(3,'(A11,F12.2)')'Ywidth_WK=', Ywidth_WK
 # else
       WRITE(3,'(A10,F12.2)')'Xc_WK   =', Xc_WK
+      WRITE(3,'(A10,F12.2)')'Yc_WK   =', Yc_WK
       WRITE(3,'(A10,F12.2)')'Tperiod =', Tperiod
       WRITE(3,'(A10,F12.2)')'AMP_WK  =', AMP_WK
       WRITE(3,'(A10,F12.2)')'DEP_WK  =', DEP_WK
@@ -482,18 +1536,142 @@ SUBROUTINE READ_INPUT
       WRITE(3,'(A11,F12.2)')'Delta_WK=', Delta_WK
       WRITE(3,'(A11,F12.2)')'Ywidth_WK=', Ywidth_WK
 # endif
-        ENDIF
+        ENDIF  ! endif WK_REG
+
         IF(WaveMaker(1:6)=='WK_IRR'.OR.WaveMaker(1:6)=='TMA_1D'  &
            .OR.WaveMaker(1:6)=='JON_1D'.OR.WaveMaker(1:6)=='JON_2D')THEN
+
           CALL READ_FLOAT(Xc_WK,FILE_NAME,'Xc_WK',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
+         WRITE(3,'(A60)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A60)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
+         WRITE(3,'(A60)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(Yc_WK,FILE_NAME,'Yc_WK',ierr)
+      IF(ierr==1)THEN
+       Yc_WK = ZERO
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Yc_WK defalt: 0.0'
+         WRITE(3,'(A40)')'Yc_WK defalt: 0.0'
+      endif
+# else
+         WRITE(*,'(A40)')'Yc_WK defalt: 0.0'
+         WRITE(3,'(A40)')'Yc_WK defalt: 0.0'
+# endif
+      ENDIF
+
           CALL READ_FLOAT(DEP_WK,FILE_NAME,'DEP_WK',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
+         WRITE(3,'(A60)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A60)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
+         WRITE(3,'(A60)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(Time_ramp,FILE_NAME,'Time_ramp',ierr)
+      IF(ierr==1)THEN
+        Time_ramp = 0.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Time_ramp Default:  0.0'
+         WRITE(3,'(A40)')'Time_ramp Default:  0.0'
+      endif
+# else
+         WRITE(*,'(A40)')'Time_ramp Default:  0.0'
+         WRITE(3,'(A40)')'Time_ramp Default:  0.0'
+# endif
+       ENDIF
+
           CALL READ_FLOAT(Delta_WK,FILE_NAME,'Delta_WK',ierr)
+      IF(ierr==1)THEN
+        Delta_WK = 0.5_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Delta_WK Default:  0.5'
+         WRITE(3,'(A40)')'Delta_WK Default:  0.5'
+      endif
+# else
+         WRITE(*,'(A40)')'Delta_WK Default:  0.5'
+         WRITE(3,'(A40)')'Delta_WK Default:  0.5'
+# endif
+       ENDIF
+
           CALL READ_FLOAT(FreqPeak,FILE_NAME,'FreqPeak',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'FreqPeak NOT FOUND, specify FreqPeak in input.txt'
+         WRITE(3,'(A80)')'FreqPeak NOT FOUND, specify FreqPeak in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'FreqPeak NOT FOUND, specify FreqPeak in input.txt'
+         WRITE(3,'(A80)')'FreqPeak NOT FOUND, specify FreqPeak in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(FreqMin,FILE_NAME,'FreqMin',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'FreqMin NOT FOUND, specify FreqMin in input.txt'
+         WRITE(3,'(A80)')'FreqMin NOT FOUND, specify FreqMin in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'FreqMin NOT FOUND, specify FreqMin in input.txt'
+         WRITE(3,'(A80)')'FreqMin NOT FOUND, specify FreqMin in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(FreqMax,FILE_NAME,'FreqMax',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'FreqMax NOT FOUND, specify FreqMax in input.txt'
+         WRITE(3,'(A80)')'FreqMax NOT FOUND, specify FreqMax in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'FreqMax NOT FOUND, specify FreqMax in input.txt'
+         WRITE(3,'(A80)')'FreqMax NOT FOUND, specify FreqMax in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(Hmo,FILE_NAME,'Hmo',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A50)')'Hmo NOT FOUND, specify Hmo in input.txt'
+         WRITE(3,'(A50)')'Hmo NOT FOUND, specify Hmo in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A50)')'Hmo NOT FOUND, specify Hmo in input.txt'
+         WRITE(3,'(A50)')'Hmo NOT FOUND, specify Hmo in input.txt'
+# endif
+        STOP
+      ENDIF
           CALL READ_FLOAT(GammaTMA,FILE_NAME,'GammaTMA',ierr)
           IF(ierr==1)THEN
              GammaTMA = 3.3
@@ -562,8 +1740,23 @@ SUBROUTINE READ_INPUT
          ENDIF ! 1D or not
 
           CALL READ_FLOAT(Ywidth_WK,FILE_NAME,'Ywidth_WK',ierr)
+      IF(ierr==1)THEN
+        Ywidth_WK = LARGE
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A50)')'Ywidth_WK Default:  LARGE'
+         WRITE(3,'(A50)')'Ywidth_WK Default:  LARGE'
+      endif
+# else
+         WRITE(*,'(A50)')'Ywidth_WK Default:  LARGE'
+         WRITE(3,'(A50)')'Ywidth_WK Default:  LARGE'
+# endif
+       ENDIF
+
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A12,F12.2)')'Xc_WK   =  ', Xc_WK
+      if (myid.eq.0) WRITE(3,'(A10,F12.2)')'Yc_WK   =', Yc_WK
       if (myid.eq.0) WRITE(3,'(A11,F12.2)')'Ywidth_WK=', Ywidth_WK
       if (myid.eq.0) WRITE(3,'(A12,F12.2)')'DEP_WK  =  ', DEP_WK
       if (myid.eq.0) WRITE(3,'(A12,F12.2)')'Time_ramp= ', Time_ramp
@@ -579,6 +1772,7 @@ SUBROUTINE READ_INPUT
       if (myid.eq.0) WRITE(3,'(A13,F12.2)')'Sigma_Theta=', Sigma_Theta
 # else
       WRITE(3,'(A12,F12.2)')'Xc_WK   =  ', Xc_WK
+      WRITE(3,'(A10,F12.2)')'Yc_WK   =', Yc_WK
       WRITE(3,'(A11,F12.2)')'Ywidth_WK=', Ywidth_WK
       WRITE(3,'(A12,F12.2)')'DEP_WK  =  ', DEP_WK
       WRITE(3,'(A12,F12.2)')'Time_ramp= ', Time_ramp
@@ -593,7 +1787,7 @@ SUBROUTINE READ_INPUT
       WRITE(3,'(A12,F12.2)')'ThetaPeak= ', ThetaPeak
       WRITE(3,'(A13,F12.2)')'Sigma_Theta=', Sigma_Theta
 # endif
-        ENDIF
+        ENDIF ! endif wk_irr 
 
        CALL READ_LOGICAL(ETA_LIMITER,FILE_NAME,'ETA_LIMITER',ierr)
        IF(ETA_LIMITER)THEN
@@ -603,28 +1797,134 @@ SUBROUTINE READ_INPUT
 
         IF(WaveMaker(1:9)=='WK_DATA2D')THEN
           CALL READ_FLOAT(Xc_WK,FILE_NAME,'Xc_WK',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
+         WRITE(3,'(A80)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
+         WRITE(3,'(A80)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(Yc_WK,FILE_NAME,'Yc_WK',ierr)
+      IF(ierr==1)THEN
+         Yc_WK = ZERO
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'Yc_WK NOT FOUND, specify Yc_WK in input.txt'
+         WRITE(3,'(A80)')'Yc_WK NOT FOUND, specify Yc_WK in input.txt'
+      endif
+# else
+         WRITE(*,'(A80)')'Yc_WK NOT FOUND, specify Yc_WK in input.txt'
+         WRITE(3,'(A80)')'Yc_WK NOT FOUND, specify Yc_WK in input.txt'
+# endif
+      ENDIF
+
           CALL READ_FLOAT(DEP_WK,FILE_NAME,'DEP_WK',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
+         WRITE(3,'(A80)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
+         WRITE(3,'(A80)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(Time_ramp,FILE_NAME,'Time_ramp',ierr)
+      IF(ierr==1)THEN
+        Time_ramp = 0.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A50)')'Time_ramp Default:  0.0'
+         WRITE(3,'(A50)')'Time_ramp Default:  0.0'
+      endif
+# else
+         WRITE(*,'(A50)')'Time_ramp Default:  0.0'
+         WRITE(3,'(A50)')'Time_ramp Default:  0.0'
+# endif
+       ENDIF
+
           CALL READ_FLOAT(Delta_WK,FILE_NAME,'Delta_WK',ierr)
+      IF(ierr==1)THEN
+        Delta_WK = 0.5_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A50)')'Delta_WK Default:  0.5'
+         WRITE(3,'(A50)')'Delta_WK Default:  0.5'
+      endif
+# else
+         WRITE(*,'(A50)')'Delta_WK Default:  0.5'
+         WRITE(3,'(A50)')'Delta_WK Default:  0.5'
+# endif
+       ENDIF
+
           CALL READ_STRING(WaveCompFile,FILE_NAME,'WaveCompFile',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'WaveCompFile NOT FOUND, specify WaveCompFile in input.txt'
+         WRITE(3,'(A80)')'WaveCompFile NOT FOUND, specify WaveCompFile in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'WaveCompFile NOT FOUND, specify WaveCompFile in input.txt'
+         WRITE(3,'(A80)')'WaveCompFile NOT FOUND, specify WaveCompFile in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(Ywidth_WK,FILE_NAME,'Ywidth_WK',ierr)
+      IF(ierr==1)THEN
+        Ywidth_WK = LARGE
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A50)')'Ywidth_WK Default:  LARGE'
+         WRITE(3,'(A50)')'Ywidth_WK Default:  LARGE'
+      endif
+# else
+         WRITE(*,'(A50)')'Ywidth_WK Default:  LARGE'
+         WRITE(3,'(A50)')'Ywidth_WK Default:  LARGE'
+# endif
+       ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A12,F12.2)')'Xc_WK   =  ', Xc_WK
+      if (myid.eq.0) WRITE(3,'(A10,F12.2)')'Yc_WK   =', Yc_WK
       if (myid.eq.0) WRITE(3,'(A11,F12.2)')'Ywidth_WK=', Ywidth_WK
       if (myid.eq.0) WRITE(3,'(A12,F12.2)')'DEP_WK  =  ', DEP_WK
       if (myid.eq.0) WRITE(3,'(A12,F12.2)')'Time_ramp= ', Time_ramp
       if (myid.eq.0) WRITE(3,'(A12,F12.2)')'Delta_WK=  ', Delta_WK
 # else
       WRITE(3,'(A12,F12.2)')'Xc_WK   =  ', Xc_WK
+      WRITE(3,'(A10,F12.2)')'Yc_WK   =', Yc_WK
       WRITE(3,'(A11,F12.2)')'Ywidth_WK=', Ywidth_WK
       WRITE(3,'(A12,F12.2)')'DEP_WK  =  ', DEP_WK
       WRITE(3,'(A12,F12.2)')'Time_ramp= ', Time_ramp
       WRITE(3,'(A12,F12.2)')'Delta_WK=  ', Delta_WK
 # endif
-        ENDIF
+        ENDIF ! end ierr
 
-! absorbing generating wavemaker
+       CALL READ_LOGICAL(EqualEnergy,FILE_NAME,'EqualEnergy',ierr)
+        IF(ierr==1)THEN
+             EqualEnergy = .FALSE.
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A50)') 'EqualEnergy NOT USED in frequency domain'
+# else
+      WRITE(3,'(A50)')'EqualEnergy NOT USED in frequency domain'
+# endif
+          ENDIF 
+
+! absorbing generating wavemaker, more tests needed 
      IF(WaveMaker(1:3)=='ABS') THEN
 
        CALL READ_LOGICAL(WAVE_DATA,FILE_NAME,'WAVE_DATA',ierr)
@@ -704,9 +2004,21 @@ SUBROUTINE READ_INPUT
       ENDIF ! end if data or tma
      ENDIF ! end absorbing-generating
 
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,*)'                                         '
+      if (myid.eq.0) WRITE(3,*)'-------------- PERIODIC BC -----------------'
+# else
+      WRITE(3,*)'                                         '
+      WRITE(3,*)'-------------- PERIODIC BC -----------------'   
+# endif
+
 # if defined (CARTESIAN)
 ! south-north periodic boundary condition
       CALL READ_LOGICAL(PERIODIC,FILE_NAME,'PERIODIC',ierr)
+      IF(ierr==1)THEN
+        PERIODIC = .FALSE.
+      ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A11,L2)')'PERIODIC:', PERIODIC
 # else
@@ -714,34 +2026,192 @@ SUBROUTINE READ_INPUT
 # endif
 # endif
 
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,*)'                                         '
+      if (myid.eq.0) WRITE(3,*)'-------------- SPONGE -----------------'
+# else
+      WRITE(3,*)'                                         '
+      WRITE(3,*)'-------------- SPONGE -----------------'   
+# endif
+
       CALL READ_LOGICAL(DIFFUSION_SPONGE,FILE_NAME,'DIFFUSION_SPONGE',ierr)
+      IF(ierr==1)THEN
+        DIFFUSION_SPONGE = .FALSE.
+      ENDIF
+
       CALL READ_LOGICAL(DIRECT_SPONGE,FILE_NAME,'DIRECT_SPONGE',ierr)
+      IF(ierr==1)THEN
+        DIRECT_SPONGE = .FALSE.
+      ENDIF
+
       CALL READ_LOGICAL(FRICTION_SPONGE,FILE_NAME,'FRICTION_SPONGE',ierr)
+      IF(ierr==1)THEN
+        FRICTION_SPONGE = .FALSE.
+      ENDIF
+
+      IF(DIRECT_SPONGE)THEN
+
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'DIRECT_SPONGE IS USED'
+         WRITE(3,'(A40)')'DIRECT_SPONGE IS USED'
+      endif
+# else
+         WRITE(*,'(A40)')'DIRECT_SPONGE IS USED'
+         WRITE(3,'(A40)')'DIRECT_SPONGE IS USED'
+# endif
+       ENDIF
+
       IF(DIFFUSION_SPONGE)THEN
+
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'DIFFUSION_SPONGE IS USED'
+         WRITE(3,'(A40)')'DIFFUSION_SPONGE IS USED'
+      endif
+# else
+         WRITE(*,'(A40)')'DIFFUSION_SPONGE IS USED'
+         WRITE(3,'(A40)')'DIFFUSION_SPONGE IS USED'
+# endif
+
         CALL READ_FLOAT(Csp,FILE_NAME,'Csp',ierr)
+      IF(ierr==1)THEN
+        Csp = 0.1_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Csp Default:  0.1'
+         WRITE(3,'(A40)')'Csp Default:  0.1'
+      endif
+# else
+         WRITE(*,'(A40)')'Csp Default:  0.1'
+         WRITE(3,'(A40)')'Csp Default:  0.1'
+# endif
+       ENDIF
+
 # if defined (PARALLEL)
         if (myid.eq.0) WRITE(3,'(A22,F12.2)')'DIFFUSION_SPONGE Csp=', Csp
 # else
         WRITE(3,'(A22,F12.2)')'DIFFUSION_SPONGE Csp=', Csp
 # endif
-      ENDIF
+      ENDIF ! end diffusion_sponge
 
       IF(FRICTION_SPONGE)THEN
+
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'FRICTION_SPONGE IS USED'
+         WRITE(3,'(A40)')'FRICTION_SPONGE IS USED'
+      endif
+# else
+         WRITE(*,'(A40)')'FRICTION_SPONGE IS USED'
+         WRITE(3,'(A40)')'FRICTION_SPONGE IS USED'
+# endif
+
         CALL READ_FLOAT(CDsponge,FILE_NAME,'CDsponge',ierr)
+      IF(ierr==1)THEN
+        CDsponge = 5.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'CDsponge Default:  5.0'
+         WRITE(3,'(A40)')'CDsponge Default:  5.0'
+      endif
+# else
+         WRITE(*,'(A40)')'CDsponge Default:  5.0'
+         WRITE(3,'(A40)')'CDsponge Default:  5.0'
+# endif
+       ENDIF
+
 # if defined (PARALLEL)
         if (myid.eq.0) WRITE(3,'(A26,F12.2)')'FRICTION_SPONGE CDsponge=', CDsponge
 # else
         WRITE(3,'(A26,F12.2)')'FRICTION_SPONGE CDsponge=', CDsponge
 # endif
-      ENDIF
+      ENDIF  ! endif friction_sponge
 
       IF(DIFFUSION_SPONGE.OR.DIRECT_SPONGE.OR.FRICTION_SPONGE)THEN
         CALL READ_FLOAT(Sponge_west_width,FILE_NAME,'Sponge_west_width',ierr)
+      IF(ierr==1)THEN
+        Sponge_west_width = 0.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Sponge_west_width Default:  0.0'
+         WRITE(3,'(A40)')'Sponge_west_width Default:  0.0'
+      endif
+# else
+         WRITE(*,'(A40)')'Sponge_west_width Default:  0.0'
+         WRITE(3,'(A40)')'Sponge_west_width Default:  0.0'
+# endif
+       ENDIF
+
         CALL READ_FLOAT(Sponge_east_width,FILE_NAME,'Sponge_east_width',ierr)
+      IF(ierr==1)THEN
+        Sponge_east_width = 0.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Sponge_east_width Default:  0.0'
+         WRITE(3,'(A40)')'Sponge_east_width Default:  0.0'
+      endif
+# else
+         WRITE(*,'(A40)')'Sponge_east_width Default:  0.0'
+         WRITE(3,'(A40)')'Sponge_east_width Default:  0.0'
+# endif
+       ENDIF
+
         CALL READ_FLOAT(Sponge_south_width,FILE_NAME,'Sponge_south_width',ierr)
+      IF(ierr==1)THEN
+        Sponge_south_width = 0.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Sponge_south_width Default:  0.0'
+         WRITE(3,'(A40)')'Sponge_south_width Default:  0.0'
+      endif
+# else
+         WRITE(*,'(A40)')'Sponge_south_width Default:  0.0'
+         WRITE(3,'(A40)')'Sponge_south_width Default:  0.0'
+# endif
+       ENDIF
+
         CALL READ_FLOAT(Sponge_north_width,FILE_NAME,'Sponge_north_width',ierr)
+      IF(ierr==1)THEN
+        Sponge_north_width = 0.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Sponge_north_width Default:  0.0'
+         WRITE(3,'(A40)')'Sponge_north_width Default:  0.0'
+      endif
+# else
+         WRITE(*,'(A40)')'Sponge_north_width Default:  0.0'
+         WRITE(3,'(A40)')'Sponge_north_width Default:  0.0'
+# endif
+       ENDIF
+
         CALL READ_FLOAT(R_sponge,FILE_NAME,'R_sponge',ierr)
+      IF(ierr==1)THEN
+        R_sponge = 0.85_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'R_sponge Default:  0.85'
+         WRITE(3,'(A40)')'R_sponge Default:  0.85'
+      endif
+# else
+         WRITE(*,'(A40)')'R_sponge Default:  0.85'
+         WRITE(3,'(A40)')'R_sponge Default:  0.85'
+# endif
+       ENDIF
+
         CALL READ_FLOAT(A_sponge,FILE_NAME,'A_sponge',ierr)
+      IF(ierr==1)THEN
+        A_sponge = 5.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'A_sponge Default:  5.0'
+         WRITE(3,'(A40)')'A_sponge Default:  5.0'
+      endif
+# else
+         WRITE(*,'(A40)')'A_sponge Default:  5.0'
+         WRITE(3,'(A40)')'A_sponge Default:  5.0'
+# endif
+       ENDIF
 
 # if defined (PARALLEL)
         if (myid.eq.0) WRITE(3,'(A20,F12.2)')'Sponge_west_width =', Sponge_west_width
@@ -758,7 +2228,15 @@ SUBROUTINE READ_INPUT
         WRITE(3,'(A20,F12.2)')'R_sponge          =', R_sponge
         WRITE(3,'(A20,F12.2)')'A_sponge          =', A_sponge
 # endif
-       ENDIF
+       ENDIF ! endif sponge
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,*)'                                         '
+      if (myid.eq.0) WRITE(3,*)'-------- OBSTACLE and BREAKWATER -----------------'
+# else
+      WRITE(3,*)'                                         '
+      WRITE(3,*)'-------- OBSTACLE and BREAKWATER -----------------'   
+# endif
 
 ! obstacle structures
       CALL READ_STRING(OBSTACLE_FILE,FILE_NAME,'OBSTACLE_FILE',ierr)
@@ -778,21 +2256,125 @@ SUBROUTINE READ_INPUT
 # endif
       ENDIF
 
+! breakwater
+      CALL READ_STRING(BREAKWATER_FILE,FILE_NAME,'BREAKWATER_FILE',ierr)
+      IF(ierr==1)THEN
+        BREAKWATER=.FALSE.
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A20,A5)')'BREAKWATER_FILE:', 'NO'
+# else
+      WRITE(3,'(A20,A5)')'BREAKWATER_FILE:', 'NO'
+# endif
+      ELSE
+        BREAKWATER=.TRUE.
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A20,A50)')'BREAKWATER_FILE:', BREAKWATER_FILE
+# else
+      WRITE(3,'(A20,A50)')'BREAKWATER_FILE:', BREAKWATER_FILE
+# endif
+      ENDIF
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,*)'                                         '
+      if (myid.eq.0) WRITE(3,*)'-------------- PHYSICS -----------------'
+# else
+      WRITE(3,*)'                                         '
+      WRITE(3,*)'-------------- PHYSICS -----------------'   
+# endif
+
 ! physics
           CALL READ_LOGICAL(DISPERSION,FILE_NAME,'DISPERSION',ierr)
+      IF(ierr==1)THEN
+        DISPERSION = .TRUE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'DISPERSION Default:  DISPERSION'
+         WRITE(3,'(A40)')'DISPERSION Default:  DISPERSION'
+      endif
+# else
+         WRITE(*,'(A40)')'DISPERSION Default:  DISPERSION'
+         WRITE(3,'(A40)')'DISPERSION Default:  DISPERSION'
+# endif
+       ENDIF
+
           CALL READ_FLOAT(Gamma1,FILE_NAME,'Gamma1',ierr)
+      IF(ierr==1)THEN
+        Gamma1 = 1.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Gamma1 Default:  1.0: DISPERSION'
+         WRITE(3,'(A40)')'Gamma1 Default:  1.0: DISPERSION'
+      endif
+# else
+         WRITE(*,'(A40)')'Gamma1 Default:  1.0: DISPERSION'
+         WRITE(3,'(A40)')'Gamma1 Default:  1.0: DISPERSION'
+# endif
+       ENDIF
+
 # if defined (CARTESIAN)
           CALL READ_FLOAT(Gamma2,FILE_NAME,'Gamma2',ierr)
+      IF(ierr==1)THEN
+        Gamma2 = 1.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A50)')'Gamma2 Default:  1.0: Full nonlinear'
+         WRITE(3,'(A50)')'Gamma2 Default:  1.0: Full nonlinear'
+      endif
+# else
+         WRITE(*,'(A50)')'Gamma2 Default:  1.0: Full nonlinear'
+         WRITE(3,'(A50)')'Gamma2 Default:  1.0: Full nonlinear'
+# endif
+       ENDIF
+
           CALL READ_FLOAT(Beta_ref,FILE_NAME,'Beta_ref',ierr)
+      IF(ierr==1)THEN
+        Beta_ref = - 0.531_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Beta_ref Default:  -0.531'
+         WRITE(3,'(A40)')'Beta_ref Default:  -0.531'
+      endif
+# else
+         WRITE(*,'(A40)')'Beta_ref Default:  -0.531'
+         WRITE(3,'(A40)')'Beta_ref Default:  -0.531'
+# endif
+       ENDIF
+
 # endif
 # if defined (ZALPHA)
           CALL READ_FLOAT(Beta_ref,FILE_NAME,'Beta_ref',ierr)
-# endif
-          CALL READ_FLOAT(Gamma3,FILE_NAME,'Gamma3',ierr)
+      IF(ierr==1)THEN
+        Beta_ref = 0.531_SP
 # if defined (PARALLEL)
-      if (myid.eq.0) WRITE(3,'(A8)')'Physics'
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Beta_ref Default:  0.531'
+         WRITE(3,'(A40)')'Beta_ref Default:  0.531'
+      endif
 # else
-      WRITE(3,'(A8)')'Physics'
+         WRITE(*,'(A40)')'Beta_ref Default:  0.531'
+         WRITE(3,'(A40)')'Beta_ref Default:  0.531'
+# endif
+       ENDIF
+# endif
+
+          CALL READ_FLOAT(Gamma3,FILE_NAME,'Gamma3',ierr)
+      IF(ierr==1)THEN
+        Gamma3 = 1.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'Gamma3 Default:  1.0: NOT fully linear'
+         WRITE(3,'(A60)')'Gamma3 Default:  1.0: NOT fully linear'
+      endif
+# else
+         WRITE(*,'(A60)')'Gamma3 Default:  1.0: NOT fully linear'
+         WRITE(3,'(A60)')'Gamma3 Default:  1.0: NOT fully linear'
+# endif
+       ENDIF
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A20)')'Summary of Physics'
+# else
+      WRITE(3,'(A20)')'Summary of Physics'
 # endif
 
 # if defined (PARALLEL)
@@ -814,71 +2396,170 @@ SUBROUTINE READ_INPUT
 # endif
 
       CALL READ_LOGICAL(VISCOSITY_BREAKING,FILE_NAME,'VISCOSITY_BREAKING',ierr)
+      IF(ierr==1)THEN
+        VISCOSITY_BREAKING = .FALSE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'VISCOSITY_BREAKING Default:  SWE Breaking'
+         WRITE(3,'(A60)')'VISCOSITY_BREAKING Default:  SWE Breaking'
+      endif
+# else
+         WRITE(*,'(A60)')'VISCOSITY_BREAKING Default:  SWE Breaking'
+         WRITE(3,'(A60)')'VISCOSITY_BREAKING Default:  SWE Breaking'
+# endif
+       ENDIF
+
       IF(VISCOSITY_BREAKING)THEN
 # if defined (PARALLEL)
-       if (myid.eq.0) WRITE(3,*)'VISCOSITY_BREAKING'
+       if (myid.eq.0) WRITE(3,*)'VISCOSITY_BREAKING IS USED'
 # else
-       WRITE(3,*)'VISCOSITY_BREAKING'
+       WRITE(3,*)'VISCOSITY_BREAKING IS USED'
 # endif    
       ENDIF
 
       CALL READ_FLOAT(SWE_ETA_DEP,FILE_NAME,'SWE_ETA_DEP',ierr)
+      IF(ierr==1)THEN
+        SWE_ETA_DEP = 0.80_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'SWE_ETA_DEP Default:  0.8'
+         WRITE(3,'(A40)')'SWE_ETA_DEP Default:  0.8'
+      endif
+# else
+         WRITE(*,'(A40)')'SWE_ETA_DEP Default:  0.8'
+         WRITE(3,'(A40)')'SWE_ETA_DEP Default:  0.8'
+# endif
+       ENDIF
+
+
+      IF(VISCOSITY_BREAKING)THEN
+        ! say nothing
+      ELSE
 # if defined (PARALLEL)
        if (myid.eq.0) WRITE(3,'(A13,F12.2)')'SWE_ETA_DEP=', SWE_ETA_DEP
 # else
        WRITE(3,'(A13,F12.2)')'SWE_ETA_DEP=', SWE_ETA_DEP
 # endif
+      ENDIF
+
       CALL READ_LOGICAL(IN_Cd,FILE_NAME,'Friction_Matrix',ierr)
-      CALL READ_STRING(CD_FILE,FILE_NAME,'Cd_file',ierr)  
+      IF(ierr==1)THEN
+        IN_Cd = .FALSE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A50)')'Friction_Matrix Default:  constant Cd'
+         WRITE(3,'(A50)')'Friction_Matrix Default:  constant Cd'
+      endif
+# else
+         WRITE(*,'(A50)')'Friction_Matrix Default:  constant Cd'
+         WRITE(3,'(A50)')'Friction_Matrix Default:  constant Cd'
+# endif
+       ENDIF
+
+    IF(IN_Cd)THEN
+        CALL READ_STRING(CD_FILE,FILE_NAME,'Cd_file',ierr) 
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'Cd_file NOT FOUND, Please specify Cd_file in input.txt'
+         WRITE(3,'(A80)')'Cd_file NOT FOUND, Please specify Cd_file in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'Cd_file NOT FOUND, Please specify Cd_file in input.txt'
+         WRITE(3,'(A80)')'Cd_file NOT FOUND, Please specify Cd_file in input.txt'
+# endif
+        STOP
+      ELSE
+# if defined (PARALLEL)
+       if (myid.eq.0) WRITE(3,'(A15,A50)')'CD_FILE:', CD_FILE
+# else
+       WRITE(3,'(A15,A50)')'CD_FILE:', CD_FILE
+# endif
+      ENDIF
+
+    ENDIF ! endif IN_Cd
+
+ 
       CALL READ_FLOAT(Cd_fixed,FILE_NAME,'Cd',ierr)
+      IF(ierr==1)THEN
+        Cd_fixed = 0.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Cd_fixed Default:  0.0'
+         WRITE(3,'(A40)')'Cd_fixed Default:  0.0'
+      endif
+# else
+         WRITE(*,'(A40)')'Cd_fixed Default:  0.0'
+         WRITE(3,'(A40)')'Cd_fixed Default:  0.0'
+# endif
+       ENDIF
      
 # if defined (PARALLEL)
        if (myid.eq.0) WRITE(3,'(A13,F12.2)')'Cd_fixed         =', Cd_fixed
-       if (myid.eq.0) WRITE(3,'(A15,A50)')'CD_FILE:', CD_FILE
 # else
        WRITE(3,'(A13,F12.2)')'Cd_fixed         =', Cd_fixed
-       WRITE(3,'(A15,A50)')'CD_FILE:', CD_FILE
 # endif
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,*)'                                         '
+      if (myid.eq.0) WRITE(3,*)'-------------- NUMERICS -----------------'
+# else
+      WRITE(3,*)'                                         '
+      WRITE(3,*)'-------------- NUMERICS -----------------'   
+# endif
+
 ! numerics schemes
       CALL READ_STRING(Time_Scheme,FILE_NAME,'Time_Scheme',ierr)
       IF(ierr==1)THEN
-        !write(*,*) 'Please define Time_Scheme in ', FILE_NAME
+        Time_Scheme = 'Runge_Kutta'
 # if defined (PARALLEL)
-      if (myid.eq.0) WRITE(3,'(A13,A50)')'TIME_SCHEME:', 'NOT DEFINED, STOP'
-       call MPI_FINALIZE ( ier )
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Time_Scheme Default:  Runge_Kutta'
+         WRITE(3,'(A40)')'Time_Scheme Default:  Runge_Kutta'
+      endif
 # else
-      WRITE(3,'(A13,A50)')'TIME_SCHEME:', 'NOT DEFINED, STOP'
+         WRITE(*,'(A40)')'Time_Scheme Default:  Runge_Kutta'
+         WRITE(3,'(A40)')'Time_Scheme Default:  Runge_Kutta'
 # endif
-        STOP
-      ENDIF
+       ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A13,A50)')'TIME_SCHEME:', TIME_SCHEME
 # else
       WRITE(3,'(A13,A50)')'TIME_SCHEME:', TIME_SCHEME
 # endif
+
       CALL READ_STRING(CONSTR,FILE_NAME,'CONSTRUCTION',ierr)
       IF(ierr==1)THEN
 # if defined (PARALLEL)
-      if (myid.eq.0) WRITE(3,'(A14,A50)')'CONSTRUCTION', 'NOT DEFINED, USE DEFAULT'
+      if (myid.eq.0) WRITE(3,'(A14,A50)')'CONSTRUCTION', 'NOT DEFINED, USE HLL'
 # else
-      WRITE(3,'(A14,A50)')'CONSTRUCTION', 'NOT DEFINED, USE DEFAULT'
+      WRITE(3,'(A14,A50)')'CONSTRUCTION', 'NOT DEFINED, USE HLL'
 # endif
         CONSTR='HLLC'
       ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A14,A50)')'CONSTRUCTION:', CONSTR
 # else
       WRITE(3,'(A14,A50)')'CONSTRUCTION:', CONSTR
 # endif
+
       CALL READ_STRING(HIGH_ORDER,FILE_NAME,'HIGH_ORDER',ierr)
       IF(ierr==1)THEN
 # if defined (PARALLEL)
-      if (myid.eq.0) WRITE(3,'(A12,A50)')'HIGH_ORDER', 'NOT DEFINED, USE DEFAULT'
+      if (myid.eq.0)then
+        WRITE(*,'(A12,A50)')'HIGH_ORDER', 'NOT DEFINED, USE FOURTH-ORDER'
+        WRITE(3,'(A12,A50)')'HIGH_ORDER', 'NOT DEFINED, USE FOURTH-ORDER'
+      endif
 # else
-      WRITE(3,'(A12,A50)')'HIGH_ORDER', 'NOT DEFINED, USE DEFAULT'
+      WRITE(*,'(A12,A50)')'HIGH_ORDER', 'NOT DEFINED, USE FOURTH-ORDER'
+      WRITE(3,'(A12,A50)')'HIGH_ORDER', 'NOT DEFINED, USE FOURTH-ORDER'
 # endif
         HIGH_ORDER='FOURTH'        
       ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A12,A50)')'HIGH_ORDER:', HIGH_ORDER
 # else
@@ -886,60 +2567,219 @@ SUBROUTINE READ_INPUT
 # endif
 ! CFL
       CALL READ_FLOAT(CFL,FILE_NAME,'CFL',ierr)
+      IF(ierr==1)THEN
+        CFL = 0.5_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'CFL Default:  0.5'
+         WRITE(3,'(A40)')'CFL Default:  0.5'
+      endif
+# else
+         WRITE(*,'(A40)')'CFL Default:  0.5'
+         WRITE(3,'(A40)')'CFL Default:  0.5'
+# endif
+       ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A5,F12.2)')'CFL=', CFL
 # else
       WRITE(3,'(A5,F12.2)')'CFL=', CFL
 # endif
+
+! DT_fixed
+      CALL READ_FLOAT(DT_fixed,FILE_NAME,'DT_fixed',ierr)
+      IF (ierr.ne.1) THEN
+      FIXED_DT = .TRUE.
+# if defined (PARALLEL)
+      if (myid.eq.0) then
+           WRITE(3,'(A80)') 'use fixed DT, but judged by CFL. IF not satisfy CLF, DT/2...'
+           WRITE(3,'(A12,F12.2)')'DT_fixed= ', DT_fixed
+      endif
+# else
+      WRITE(3,'(A80)') 'use fixed DT, but judged by CFL. IF not satisfy CLF, DT/2...'
+      WRITE(3,'(A12,F12.2)')'DT_fixed= ', DT_fixed
+# endif
+      ENDIF ! ierr\=1
+  
 ! Froude Number Cap
       CALL READ_FLOAT(FroudeCap,FILE_NAME,'FroudeCap',ierr)
+      IF(ierr==1)THEN
+        FroudeCap = 3.0_SP
 # if defined (PARALLEL)
-      if (myid.eq.0) WRITE(3,'(A5,F12.2)')'FroudeCap=', FroudeCap
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'FroudeCap Default:  3.0'
+         WRITE(3,'(A40)')'FroudeCap Default:  3.0'
+      endif
 # else
-      WRITE(3,'(A5,F12.2)')'FroudeCap=', FroudeCap
+         WRITE(*,'(A40)')'FroudeCap Default:  3.0'
+         WRITE(3,'(A40)')'FroudeCap Default:  3.0'
 # endif
+       ENDIF
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A12,F12.2)')'FroudeCap=', FroudeCap
+# else
+      WRITE(3,'(A12,F12.2)')'FroudeCap=', FroudeCap
+# endif
+
 ! MinDepth etc
       CALL READ_FLOAT(MinDepth,FILE_NAME,'MinDepth',ierr)
+      IF(ierr==1)THEN
+        MinDepth = 0.1_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'MinDepth Default:  0.1 m'
+         WRITE(3,'(A40)')'MinDepth Default:  0.1 m'
+      endif
+# else
+         WRITE(*,'(A40)')'MinDepth Default:  0.1 m'
+         WRITE(3,'(A40)')'MinDepth Default:  0.1 m'
+# endif
+       ENDIF
+
+      CALL READ_FLOAT(MinDepthFrc,FILE_NAME,'MinDepthFrc',ierr)
+      IF(ierr==1)THEN
+        MinDepthFrc = 0.1_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'MinDepthFrc Default:  0.1 m'
+         WRITE(3,'(A40)')'MinDepthFrc Default:  0.1 m'
+      endif
+# else
+         WRITE(*,'(A40)')'MinDepthFrc Default:  0.1 m'
+         WRITE(3,'(A40)')'MinDepthFrc Default:  0.1 m'
+# endif
+       ENDIF
+
+!  merge two parameters into the minimum one
+       MinDepthFrc=MIN(MinDepthFrc,MinDepth)
+       MinDepth=MinDepthFrc
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A40)')'USE MIN(MinDepthFrc, MinDepth)'
+# else
+      WRITE(3,'(A40)')'USE MIN(MinDepthFrc, MinDepth)'
+# endif
+
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A10,F12.6)')'MinDepth=', MinDepth
 # else
       WRITE(3,'(A10,F12.6)')'MinDepth=', MinDepth
 # endif
-      CALL READ_FLOAT(MinDepthFrc,FILE_NAME,'MinDepthFrc',ierr)
+
 # if defined (PARALLEL)
-      if (myid.eq.0) WRITE(3,'(A13,F12.2)')'MinDepthFrc=', MinDepthFrc
+      if (myid.eq.0) WRITE(3,'(A13,F12.6)')'MinDepthFrc=', MinDepthFrc
 # else
       WRITE(3,'(A13,F12.2)')'MinDepthFrc=', MinDepthFrc
 # endif
 
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,*)'                                         '
+      if (myid.eq.0) WRITE(3,*)'--------- WAVE BREAKING -----------------'
+# else
+      WRITE(3,*)'                                         '
+      WRITE(3,*)'-------- WAVE BREAKING -----------------'   
+# endif
+
 ! show breaking
       CALL READ_LOGICAL(SHOW_BREAKING,FILE_NAME,'SHOW_BREAKING',ierr)
+      IF(ierr==1)THEN
+        SHOW_BREAKING = .TRUE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'SHOW_BREAKING Default:  TRUE'
+         WRITE(3,'(A40)')'SHOW_BREAKING Default:  TRUE'
+      endif
+# else
+         WRITE(*,'(A40)')'SHOW_BREAKING Default:  TRUE'
+         WRITE(3,'(A40)')'SHOW_BREAKING Default:  TRUE'
+# endif
+       ENDIF
 	
       IF(VISCOSITY_BREAKING) SHOW_BREAKING = .TRUE.
 
       IF(SHOW_BREAKING)THEN
       CALL READ_FLOAT(Cbrk1,FILE_NAME,'Cbrk1',ierr)
+      IF(ierr==1)THEN
+        Cbrk1 = 0.65_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Cbrk1 Default:  0.65'
+         WRITE(3,'(A40)')'Cbrk1 Default:  0.65'
+      endif
+# else
+         WRITE(*,'(A40)')'Cbrk1 Default:  0.65'
+         WRITE(3,'(A40)')'Cbrk1 Default:  0.65'
+# endif
+       ENDIF
+
+      IF(VISCOSITY_BREAKING)THEN
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A8,F12.6)')'Cbrk1 =', Cbrk1
 # else
       WRITE(3,'(A8,F12.6)')'Cbrk1 =', Cbrk1
 # endif
+      ENDIF
+
       CALL READ_FLOAT(Cbrk2,FILE_NAME,'Cbrk2',ierr)
+      IF(ierr==1)THEN
+        Cbrk2 = 0.35_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'Cbrk2 Default:  0.35'
+         WRITE(3,'(A40)')'Cbrk2 Default:  0.35'
+      endif
+# else
+         WRITE(*,'(A40)')'Cbrk2 Default:  0.35'
+         WRITE(3,'(A40)')'Cbrk2 Default:  0.35'
+# endif
+       ENDIF
+
+      IF(VISCOSITY_BREAKING)THEN
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A8,F12.6)')'Cbrk2 =', Cbrk2
 # else
       WRITE(3,'(A8,F12.6)')'Cbrk2 =', Cbrk2
 # endif
+      ENDIF
+
       CALL READ_FLOAT(WAVEMAKER_Cbrk,FILE_NAME,'WAVEMAKER_Cbrk',ierr)
+      IF(ierr==1)THEN
+        WAVEMAKER_Cbrk = 1.0_SP
 # if defined (PARALLEL)
-      if (myid.eq.0) WRITE(3,'(A8,F17.6)')'WAVEMAKER_Cbrk =', WAVEMAKER_Cbrk
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'WAVEMAKER_Cbrk Default:  1.0'
+         WRITE(3,'(A40)')'WAVEMAKER_Cbrk Default:  1.0'
+      endif
 # else
-      WRITE(3,'(A8,F17.6)')'WAVEMAKER_Cbrk =', WAVEMAKER_Cbrk
+         WRITE(*,'(A40)')'WAVEMAKER_Cbrk Default:  1.0'
+         WRITE(3,'(A40)')'WAVEMAKER_Cbrk Default:  1.0'
+# endif
+       ENDIF
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A18,F17.6)')'WAVEMAKER_Cbrk =', WAVEMAKER_Cbrk
+# else
+      WRITE(3,'(A18,F17.6)')'WAVEMAKER_Cbrk =', WAVEMAKER_Cbrk
 # endif
       ENDIF
 
 	![ykchoi(08.18.2015) : for viscosity of wavemaker
       CALL READ_LOGICAL(WAVEMAKER_VIS,FILE_NAME,'WAVEMAKER_VIS',ierr)  
+      IF(ierr==1)THEN
+        WAVEMAKER_VIS = .FALSE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'WAVEMAKER_VIS Default:  FALSE'
+         WRITE(3,'(A40)')'WAVEMAKER_VIS Default:  FALSE'
+      endif
+# else
+         WRITE(*,'(A40)')'WAVEMAKER_VIS Default:  FALSE'
+         WRITE(3,'(A40)')'WAVEMAKER_VIS Default:  FALSE'
+# endif
+       ENDIF
 	
 	IF( VISCOSITY_BREAKING .AND. WAVEMAKER_VIS ) THEN
 # if defined (PARALLEL)
@@ -965,6 +2805,7 @@ SUBROUTINE READ_INPUT
 # endif    
       ENDIF
 
+!  suggest dont use wavemaker_vis 04/30
       IF(WAVEMAKER_VIS)THEN
       CALL READ_FLOAT(visbrk,FILE_NAME,'visbrk',ierr)
 	CALL READ_FLOAT(WAVEMAKER_visbrk,FILE_NAME,'WAVEMAKER_visbrk',ierr)
@@ -976,29 +2817,175 @@ SUBROUTINE READ_INPUT
       WRITE(3,'(A20,F12.6)')'WAVEMAKER_visbrk =', WAVEMAKER_visbrk
 # endif
 	ENDIF
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,*)'                                         '
+      if (myid.eq.0) WRITE(3,*)'-------- WAVE-AVERAGED PROPERTY -----------------'
+# else
+      WRITE(3,*)'                                         '
+      WRITE(3,*)'------- WAVE-AVERAGED PROPERTY -----------------'   
+# endif
+
       CALL READ_FLOAT(T_INTV_mean,FILE_NAME,'T_INTV_mean',ierr)
+      IF(ierr==1)THEN
+        T_INTV_mean = LARGE
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'T_INTV_mean Default:  LARGE'
+         WRITE(3,'(A40)')'T_INTV_mean Default:  LARGE'
+      endif
+# else
+         WRITE(*,'(A40)')'T_INTV_mean Default:  LARGE'
+         WRITE(3,'(A40)')'T_INTV_mean Default:  LARGE'
+# endif
+       ENDIF
+
+	CALL READ_FLOAT(STEADY_TIME,FILE_NAME,'STEADY_TIME',ierr)
+      IF(ierr==1)THEN
+        STEADY_TIME = LARGE
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'STEADY_TIME Default:  LARGE'
+         WRITE(3,'(A40)')'STEADY_TIME Default:  LARGE'
+      endif
+# else
+         WRITE(*,'(A40)')'STEADY_TIME Default:  LARGE'
+         WRITE(3,'(A40)')'STEADY_TIME Default:  LARGE'
+# endif
+       ENDIF
+
       CALL READ_FLOAT(C_smg,FILE_NAME,'C_smg',ierr)
+      IF(ierr==1)THEN
+        C_smg = 0.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'C_smg Default:  0.0'
+         WRITE(3,'(A40)')'C_smg Default:  0.0'
+      endif
+# else
+         WRITE(*,'(A40)')'C_smg Default:  0.0'
+         WRITE(3,'(A40)')'C_smg Default:  0.0'
+# endif
+       ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A14,F12.6)')'T_INTV_mean =', T_INTV_mean
+      if (myid.eq.0) WRITE(3,'(A14,F12.6)')'STEADY_TIME =', STEADY_TIME
       if (myid.eq.0) WRITE(3,'(A8,F12.6)')'C_smg =', C_smg
 # else
       WRITE(3,'(A14,F12.6)')'T_INTV_mean =', T_INTV_mean
+      WRITE(3,'(A14,F12.6)')'STEADY_TIME =', STEADY_TIME
       WRITE(3,'(A8,F12.6)')'C_smg =', C_smg
 # endif
 	
       CALL READ_FLOAT(nu_bkg,FILE_NAME,'nu_bkg',ierr)
+      IF(ierr==1)THEN
+        nu_bkg = 0.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'nu_bkg Default:  0.0'
+         WRITE(3,'(A40)')'nu_bkg Default:  0.0'
+      endif
+# else
+         WRITE(*,'(A40)')'nu_bkg Default:  0.0'
+         WRITE(3,'(A40)')'nu_bkg Default:  0.0'
+# endif
+       ENDIF
 
 # if defined (COUPLING)
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,*)'                                         '
+      if (myid.eq.0) WRITE(3,*)'-------------- COUPLING -----------------'
+# else
+      WRITE(3,*)'                                         '
+      WRITE(3,*)'-------------- COUPLING -----------------'   
+# endif
+
       CALL READ_STRING(COUPLING_FILE,FILE_NAME,'COUPLING_FILE',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'You use coupling option, specify COUPLING_FILE in input.txt'
+         WRITE(3,'(A80)')'You use coupling option, specify COUPLING_FILE in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'You use coupling option, specify COUPLING_FILE in input.txt'
+         WRITE(3,'(A80)')'You use coupling option, specify COUPLING_FILE in input.txt'
+# endif
+        STOP
+      ENDIF
+
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A15,A50)')'COUPLING_FILE:', COUPLING_FILE
 # else
       WRITE(3,'(A15,A50)')'COUPLING_FILE:', COUPLING_FILE
 # endif
 # endif
+  ! end coupling file
+
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,*)'                                         '
+      if (myid.eq.0) WRITE(3,*)'-------------- OUTPUT INFO -----------------'
+# else
+      WRITE(3,*)'                                         '
+      WRITE(3,*)'-------------- OUTPUT INFO -----------------'   
+# endif
+
+! result folder
+      CALL READ_STRING(RESULT_FOLDER,FILE_NAME,'RESULT_FOLDER',ierr)
+      IF(ierr==1)THEN
+        RESULT_FOLDER = './output/'
+      ENDIF
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A15,A50)')'RESULT_FOLDER:', RESULT_FOLDER
+# else
+      WRITE(3,'(A15,A50)')'RESULT_FOLDER:', RESULT_FOLDER
+# endif
+
+! create result folder
+      MKFOLDER = "mkdir -p "//TRIM(RESULT_FOLDER)
+# if defined (PARALLEL)
+      IF (myid.eq.0) THEN
+# if defined (INTEL)
+        RES = SYSTEM(TRIM(MKFOLDER))
+# else
+        CALL SYSTEM(TRIM(MKFOLDER))
+# endif
+      ENDIF
+# else
+# if defined(INTEL)
+      RES = SYSTEM(TRIM(MKFOLDER))
+# else
+      CALL SYSTEM(TRIM(MKFOLDER))
+# endif
+# endif
+
+! station files
+      CALL READ_INTEGER(NumberStations,FILE_NAME,'NumberStations',ierr)
+      IF(NumberStations>0)THEN
+      CALL READ_STRING(STATIONS_FILE,FILE_NAME,'STATIONS_FILE',ierr)
+      ENDIF
 
 ! output parameters
       CALL READ_INTEGER(OUTPUT_RES,FILE_NAME,'OUTPUT_RES',ierr)
+      IF(ierr==1)THEN
+        OUTPUT_RES = 1
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'OUTPUT_RES NOT FOUND, OUTPUT_RES=1: full resolution'
+         WRITE(3,'(A60)')'OUTPUT_RES NOT FOUND, OUTPUT_RES=1: full resolution'
+      endif
+# else
+         WRITE(*,'(A60)')'OUTPUT_RES NOT FOUND, OUTPUT_RES=1: full resolution'
+         WRITE(3,'(A60)')'OUTPUT_RES NOT FOUND, OUTPUT_RES=1: full resolution'
+# endif
+       ENDIF
+
 # if defined (PARALLEL)
        if (myid.eq.0) WRITE(3,'(A15,I10)')'OUTPUT_RES',OUTPUT_RES
 # else
@@ -1038,8 +3025,20 @@ SUBROUTINE READ_INPUT
 
 !ykchoi
 !	CALL READ_FLOAT(EtaBlowVal,FILE_NAME,'EtaBlowVal',ierr)
+      IF(ierr==1)THEN
+        EtaBlowVal = 10.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'EtaBlowVal Default:  100xmax_depth'
+         WRITE(3,'(A40)')'EtaBlowVal Default:  100xmax_depth'
+      endif
+# else
+         WRITE(*,'(A40)')'EtaBlowVal Default:  100xmax_depth'
+         WRITE(3,'(A40)')'EtaBlowVal Default:  100xmax_depth'
+# endif
+       ENDIF
+
 !  fyshi set blowup value is 100xmax_depth in init.F  
-	CALL READ_FLOAT(STEADY_TIME,FILE_NAME,'STEADY_TIME',ierr)
 
 # if defined (PARALLEL)
       if (myid.eq.0)   then
@@ -1080,9 +3079,13 @@ SUBROUTINE READ_INPUT
 
 ! 
 # if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,*)'                                         '
       if (myid.eq.0) WRITE(3,*)' --------------input end --------------' 
+      if (myid.eq.0) WRITE(3,*)'                                         '
 # else
+      WRITE(3,*)'                                         '
       WRITE(3,*)' --------------input end --------------' 
+      WRITE(3,*)'                                         '
 # endif
 
 END SUBROUTINE READ_INPUT
@@ -1414,6 +3417,9 @@ SUBROUTINE PREVIEW
 # if defined (VESSEL)
      USE VESSEL_MODULE
 # endif
+# if defined(STORM)
+     USE STORM_MODULE
+# endif
 
      IMPLICIT NONE
 
@@ -1455,9 +3461,11 @@ SUBROUTINE PREVIEW
     	  write(file_name(5:5),'(I1)')itmp5   !ykchoi
 
      IF(ICOUNT==1)THEN
-     IF(OUT_DEPTH)THEN
+     IF(OUT_DEPTH.OR.BREAKWATER)THEN
         TMP_NAME = TRIM(FDIR)//'dep.out'
         call PutFile(TMP_NAME,DEPTH)
+        TMP_NAME = TRIM(FDIR)//'cd_breakwater.out'
+        call PutFile(TMP_NAME,CD_breakwater)
      ENDIF
      ENDIF
 ![ykchoi
@@ -1544,11 +3552,29 @@ SUBROUTINE PREVIEW
 !        TMP_NAME = TRIM(FDIR)//'etat_'//TRIM(FILE_NAME)
 !         call PutFile(TMP_NAME,etat) 
       ENDIF
+
+# if defined (STORM)
+    IF(OUT_STORM)THEN
+        TMP_NAME = TRIM(FDIR)//'Pstorm_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,StormPressureTotal)
+        TMP_NAME = TRIM(FDIR)//'Ustorm_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,WindU2D)
+        TMP_NAME = TRIM(FDIR)//'Vstorm_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,WindV2D)
+    ENDIF
+# endif
      
 # if defined (VESSEL)
      IF(OUT_VESSEL)THEN
+# if defined (VESSEL_PANEL_SOURCE)
+        TMP_NAME = TRIM(FDIR)//'Fves_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,VesselFluxGradient)
+# else
         TMP_NAME = TRIM(FDIR)//'Pves_'//TRIM(FILE_NAME)
         call PutFile(TMP_NAME,VesselPressureTotal)
+# endif
+   ! end panel source
+
      ENDIF
 # endif
 
@@ -1635,19 +3661,25 @@ END SUBROUTINE PREVIEW_MEAN
 !
 !    HISTORY:
 !    05/01/2010  Fengyan Shi
-!
+!    05/08/2017  Young-Kwang Choi
 !-------------------------------------------------------------------------------------
-SUBROUTINE GetFile (FILE,PHI)
+
+SUBROUTINE GetFile(FILE,PHI)
      USE GLOBAL
      IMPLICIT NONE
 
-     INTEGER :: l
-     ! could be max. procs
-     INTEGER,DIMENSION(NumberProcessor) :: npxs,npys
-     REAL(SP),DIMENSION(NumberProcessor) :: xx
      REAL(SP),DIMENSION(MGlob+2*Nghost,NGlob+2*Nghost) :: PHIGLOB
      CHARACTER(LEN=80) FILE
      REAL(SP),DIMENSION(Mloc,Nloc),INTENT(OUT) :: PHI
+
+![-------ykchoi (08/May/2017)
+     INTEGER :: irank, lenx, leny, lenxy, ireq
+     INTEGER :: Nista, Niend, Njsta, Njend
+     INTEGER :: istanum, iendnum, jstanum, jendnum
+     INTEGER, ALLOCATABLE :: Nistas(:), Niends(:), Njstas(:), Njends(:)
+     INTEGER :: istatus(mpi_status_size)
+     REAL(SP), ALLOCATABLE :: xx(:,:)
+! -------ykchoi (08/May/2017) ]
 
 ! TEMP
 
@@ -1676,25 +3708,62 @@ SUBROUTINE GetFile (FILE,PHI)
         ENDDO
      endif
 
-     call MPI_Gather(npx,1,MPI_INTEGER,npxs,1,MPI_INTEGER,&
-          0,MPI_COMM_WORLD,ier)
-     call MPI_Gather(npy,1,MPI_INTEGER,npys,1,MPI_INTEGER,&
-          0,MPI_COMM_WORLD,ier)
+![-------ykchoi (08/May/2017)
+     Nista = iista + Nghost;
+     Niend = iiend + Nghost;
+     Njsta = jjsta + Nghost;
+     Njend = jjend + Nghost;
 
-     do i=1,Mloc
-     do j=1,Nloc
-        if (myid.eq.0) then
-           do l=1,px*py
-              xx(l) = PHIGLOB(i+npxs(l)*(Iend-Ibeg+1),&
-                   j+npys(l)*(Jend-Jbeg+1))
-           enddo
-        endif
-        call MPI_Scatter(xx,1,MPI_SP,&
-             PHI(i,j),1,MPI_SP,0,MPI_COMM_WORLD,ier)
+     allocate( Nistas(nprocs), Niends(nprocs), Njstas(nprocs), Njends(nprocs) )
+
+     call MPI_Gather( Nista, 1, MPI_INTEGER, Nistas, 1, MPI_INTEGER, &
+                      0, MPI_COMM_WORLD, ier )
+     call MPI_Gather( Niend, 1, MPI_INTEGER, Niends, 1, MPI_INTEGER, &
+                      0, MPI_COMM_WORLD, ier )
+     call MPI_Gather( Njsta, 1, MPI_INTEGER, Njstas, 1, MPI_INTEGER, &
+                      0, MPI_COMM_WORLD, ier )
+     call MPI_Gather( Njend, 1, MPI_INTEGER, Njends, 1, MPI_INTEGER, &
+                      0, MPI_COMM_WORLD, ier )
+
+     if( myid == 0 )then
+	 PHI = PHIGLOB( 1:Mloc, 1:Nloc )
+     endif
+
+     do irank=1, px*py-1
+	  if( myid == 0 ) then
+	    istanum = Nistas(irank+1) - Nghost
+	    iendnum = Niends(irank+1) + Nghost
+	    jstanum = Njstas(irank+1) - Nghost
+          jendnum = Njends(irank+1) + Nghost
+
+	    lenx = iendnum - istanum + 1
+	    leny = jendnum - jstanum + 1
+	    lenxy = lenx*leny
+	    allocate( xx(lenx, leny) )
+
+	    xx = PHIGLOB( istanum:iendnum, jstanum:jendnum )
+	    call mpi_isend( xx, lenxy, mpi_sp, irank, 1, mpi_comm_world, ireq, ier )
+	    call mpi_wait( ireq, istatus, ier )
+          deallocate( xx )
+
+	  elseif( myid == irank ) then
+	    
+	    lenx = Niend-Nista+1+2*Nghost
+	    leny = Njend-Njsta+1+2*Nghost
+	    lenxy = lenx*leny
+
+	    call mpi_irecv( PHI, lenxy, mpi_sp, 0, 1, mpi_comm_world, ireq, ier )
+	    call mpi_wait( ireq, istatus, ier )
+
+	  endif
      enddo
-     enddo
+
+     deallocate( Nistas, Niends, Njstas, Njends )
+
+! -------ykchoi (08/May/2017) ]
 
 END SUBROUTINE Getfile
+
 # endif
 
 # if defined (PARALLEL)
@@ -1704,23 +3773,33 @@ END SUBROUTINE Getfile
 !
 !    HISTORY:
 !      05/01/2010  Fengyan Shi
-!
+!      05/06/2017  Young-Kwang Choi 
 !-------------------------------------------------------------------------------------
 
-SUBROUTINE PutFile (FILE,PHI)
+SUBROUTINE PutFile(FILE,PHI)
      USE GLOBAL
      IMPLICIT NONE
 
-     INTEGER :: l
-     ! could be max. procs
-     INTEGER,DIMENSION(NumberProcessor) :: npxs,npys
-     REAL(SP),DIMENSION(NumberProcessor) :: xx
-     REAL(SP),DIMENSION(MGlob+2*Nghost,NGlob+2*Nghost) :: PHIGLOB
+![-------ykchoi (06/May/2017)
+      !INTEGER :: l
+      ! could be max. procs
+      !INTEGER,DIMENSION(NumberProcessor) :: npxs,npys
+	!REAL(SP),DIMENSION(NumberProcessor) :: xx
+     INTEGER :: irank, lenx, leny, lenxy, ireq
+     INTEGER, ALLOCATABLE :: iistas(:), iiends(:), jjstas(:), jjends(:)
+     INTEGER :: istatus(mpi_status_size)
+
+     REAL(SP), ALLOCATABLE :: LocalPHI(:,:)
+     REAL(SP), ALLOCATABLE :: xx(:,:)
+     
+      !REAL(SP),DIMENSION(MGlob+2*Nghost,NGlob+2*Nghost) :: PHIGLOB   
+     REAL(SP),DIMENSION( MGlob, NGlob ) :: PHIGLOB
+!-------ykchoi (06/May/2017)]
      CHARACTER(LEN=80) FILE
      REAL(SP),DIMENSION(Mloc,Nloc),INTENT(IN) :: PHI
      LOGICAL :: FirstCallPutFile = .TRUE.
      SAVE  FirstCallPutFile
-
+     
 ! first time call 
      IF(FirstCallPutFile)THEN
         FirstCallPutFile = .FALSE.
@@ -1731,43 +3810,75 @@ SUBROUTINE PutFile (FILE,PHI)
         write(FORMAT_LEN(14:14),'(A1)') ')'
      ENDIF
 
-     call MPI_Gather(npx,1,MPI_INTEGER,npxs,1,MPI_INTEGER,&
-          0,MPI_COMM_WORLD,ier)
-     call MPI_Gather(npy,1,MPI_INTEGER,npys,1,MPI_INTEGER,&
-          0,MPI_COMM_WORLD,ier)
+![-------ykchoi (06/May/2017)
+      !call MPI_Gather(npx,1,MPI_INTEGER,npxs,1,MPI_INTEGER,&
+      !    0,MPI_COMM_WORLD,ier)
+      !call MPI_Gather(npy,1,MPI_INTEGER,npys,1,MPI_INTEGER,&
+      !    0,MPI_COMM_WORLD,ier)
+     ALLOCATE( LocalPHI(Mloc-2*Nghost, Nloc-2*Nghost) )
+     LocalPHI=PHI(Ibeg:Iend,Jbeg:Jend)
 
-     do i=1,Mloc
-     do j=1,Nloc
-        call MPI_Gather(PHI(i,j),1,MPI_SP,&
-             xx,1,MPI_SP,0,MPI_COMM_WORLD,ier)
+     allocate( iistas(nprocs), iiends(nprocs), jjstas(nprocs), jjends(nprocs) ) 
 
-        if (j.eq.1) call MPI_Barrier(MPI_COMM_WORLD,ier)
+     call MPI_Gather( iista, 1, MPI_INTEGER, iistas, 1, MPI_INTEGER, &
+                      0, MPI_COMM_WORLD, ier )
+     call MPI_Gather( iiend, 1, MPI_INTEGER, iiends, 1, MPI_INTEGER, &
+                      0, MPI_COMM_WORLD, ier )
+     call MPI_Gather( jjsta, 1, MPI_INTEGER, jjstas, 1, MPI_INTEGER, &
+                      0, MPI_COMM_WORLD, ier )
+     call MPI_Gather( jjend, 1, MPI_INTEGER, jjends, 1, MPI_INTEGER, &
+                      0, MPI_COMM_WORLD, ier )
+      
+     if( myid == 0 ) then
+	 PHIGLOB( iista:iiend, jjsta:jjend ) = LocalPHI
+     endif
 
-        if (myid.eq.0) then
-           do l=1,px*py
-              PHIGLOB(i+npxs(l)*(Iend-Ibeg+1),&
-                   j+npys(l)*(Jend-Jbeg+1)) = xx(l)
-           enddo
-        endif
+     do irank=1, px*py-1  	  
+	  
+	  if( myid == 0 ) then
+	    lenx = iiends(irank+1) - iistas(irank+1) + 1 
+	    leny = jjends(irank+1) - jjstas(irank+1) + 1
+	    lenxy = lenx*leny
+	    allocate( xx(lenx, leny) )
+	  
+	    call mpi_irecv( xx, lenxy, mpi_sp, irank, 1, mpi_comm_world, ireq, ier )
+	    call mpi_wait( ireq, istatus, ier )
+	    
+		PHIGLOB( iistas(irank+1):iiends(irank+1), jjstas(irank+1):jjends(irank+1) ) = xx
+		deallocate( xx )
+
+        elseif( myid == irank ) then
+	    
+		lenxy = ( iiend-iista+1 )*( jjend-jjsta+1 )
+	    call mpi_isend( LocalPHI, lenxy, mpi_sp, 0, 1, mpi_comm_world, ireq, ier )
+	    call mpi_wait( ireq, istatus, ier )
+
+        endif	  
+
      enddo
-     enddo
+
+     deallocate(LocalPHI, iistas, iiends, jjstas, jjends)
 
      if (myid.eq.0) then
         OPEN(1,FILE=TRIM(FILE))
-        DO J=Nghost+1,NGlob+NGhost,OUTPUT_RES
-           WRITE(1,FORMAT_LEN)(real(PHIGLOB(I,J)),I=Nghost+1,MGlob+Nghost,OUTPUT_RES)
-        ENDDO
+	  DO J=1,NGlob,OUTPUT_RES
+	     WRITE(1,FORMAT_LEN)(real(PHIGLOB(I,J)),I=1,MGlob,OUTPUT_RES)
+	  ENDDO
+        !DO J=Nghost+1,NGlob+NGhost,OUTPUT_RES
+        !   WRITE(1,FORMAT_LEN)(real(PHIGLOB(I,J)),I=Nghost+1,MGlob+Nghost,OUTPUT_RES)
+        !ENDDO
 !100  FORMAT(5000E16.6)
 !100   FORMAT(FORMAT_LEN)
         CLOSE(1)
      endif
+!-------ykchoi (06/May/2017)]
 
 END SUBROUTINE Putfile
 
 # else
 !-------------------------------------------------------------------------------------
 !
-!    GetFile is subroutine for print-out of field data
+!    PutFile is subroutine for print-out of field data
 !
 !    HISTORY:
 !      05/01/2010  Fengyan Shi

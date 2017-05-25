@@ -436,16 +436,30 @@ END SUBROUTINE phi_int_exch
 !    HISTORY: 09/24/2011 Fengyan Shi
 !
 !-------------------------------------------------------------------------------------
-SUBROUTINE DISTRIBUTE_VarGlob (VarGlob,PHI)
+!-------------------------------------------------------------------------------------
+!
+!    DISTRIBUTE_VarGlob is subroutine to distribute global variable into local variable 
+!
+!    HISTORY: 09/24/2011 Fengyan Shi
+!             05/08/2017 Young-Kwang Choi 
+!-------------------------------------------------------------------------------------
+SUBROUTINE DISTRIBUTE_VarGlob(VarGlob,PHI)
      USE GLOBAL
      IMPLICIT NONE
 
-     INTEGER :: l
-     INTEGER,DIMENSION(NumberProcessor) :: npxs,npys
-     REAL(SP),DIMENSION(NumberProcessor) :: xx
+! -------ykchoi (08/May/2017) ]
      REAL(SP),DIMENSION(MGlob,NGlob),INTENT(IN) :: VarGlob
      REAL(SP),DIMENSION(MGlob+2*Nghost,NGlob+2*Nghost) :: PHIGLOB
      REAL(SP),DIMENSION(Mloc,Nloc),INTENT(OUT) :: PHI
+
+![-------ykchoi (08/May/2017)
+     INTEGER :: irank, lenx, leny, lenxy, ireq
+     INTEGER :: Nista, Niend, Njsta, Njend
+     INTEGER :: istanum, iendnum, jstanum, jendnum
+     INTEGER, ALLOCATABLE :: Nistas(:), Niends(:), Njstas(:), Njends(:)
+     INTEGER :: istatus(mpi_status_size)
+     REAL(SP), ALLOCATABLE :: xx(:,:)
+! -------ykchoi (08/May/2017) ]
 
 ! TEMP
 
@@ -474,26 +488,60 @@ SUBROUTINE DISTRIBUTE_VarGlob (VarGlob,PHI)
         ENDDO
      endif
 
-     call MPI_Gather(npx,1,MPI_INTEGER,npxs,1,MPI_INTEGER,&
-          0,MPI_COMM_WORLD,ier)
-     call MPI_Gather(npy,1,MPI_INTEGER,npys,1,MPI_INTEGER,&
-          0,MPI_COMM_WORLD,ier)
+![-------ykchoi (08/May/2017)
+     Nista = iista + Nghost;
+     Niend = iiend + Nghost;
+     Njsta = jjsta + Nghost;
+     Njend = jjend + Nghost;
 
-     do i=1,Mloc
-     do j=1,Nloc
-        if (myid.eq.0) then
-           do l=1,px*py
-              xx(l) = PHIGLOB(i+npxs(l)*(Iend-Ibeg+1),&
-                   j+npys(l)*(Jend-Jbeg+1))
-           enddo
-        endif
-        call MPI_Scatter(xx,1,MPI_SP,&
-             PHI(i,j),1,MPI_SP,0,MPI_COMM_WORLD,ier)
-     enddo
+     allocate( Nistas(nprocs), Niends(nprocs), Njstas(nprocs), Njends(nprocs) )
+
+     call MPI_Gather( Nista, 1, MPI_INTEGER, Nistas, 1, MPI_INTEGER, &
+                      0, MPI_COMM_WORLD, ier )
+     call MPI_Gather( Niend, 1, MPI_INTEGER, Niends, 1, MPI_INTEGER, &
+                      0, MPI_COMM_WORLD, ier )
+     call MPI_Gather( Njsta, 1, MPI_INTEGER, Njstas, 1, MPI_INTEGER, &
+                      0, MPI_COMM_WORLD, ier )
+     call MPI_Gather( Njend, 1, MPI_INTEGER, Njends, 1, MPI_INTEGER, &
+                      0, MPI_COMM_WORLD, ier )
+
+     if( myid == 0 )then
+	 PHI = PHIGLOB( 1:Mloc, 1:Nloc )
+     endif
+
+     do irank=1, px*py-1
+	  if( myid == 0 ) then
+	    istanum = Nistas(irank+1) - Nghost
+	    iendnum = Niends(irank+1) + Nghost
+	    jstanum = Njstas(irank+1) - Nghost
+          jendnum = Njends(irank+1) + Nghost
+
+	    lenx = iendnum - istanum + 1
+	    leny = jendnum - jstanum + 1
+	    lenxy = lenx*leny
+	    allocate( xx(lenx, leny) )
+
+	    xx = PHIGLOB( istanum:iendnum, jstanum:jendnum )
+	    call mpi_isend( xx, lenxy, mpi_sp, irank, 1, mpi_comm_world, ireq, ier )
+	    call mpi_wait( ireq, istatus, ier )
+          deallocate( xx )
+
+	  elseif( myid == irank ) then
+	    
+	    lenx = Niend-Nista+1+2*Nghost
+	    leny = Njend-Njsta+1+2*Nghost
+	    lenxy = lenx*leny
+
+	    call mpi_irecv( PHI, lenxy, mpi_sp, 0, 1, mpi_comm_world, ireq, ier )
+	    call mpi_wait( ireq, istatus, ier )
+
+	  endif
      enddo
 
+     deallocate( Nistas, Niends, Njstas, Njends )
 
 END SUBROUTINE DISTRIBUTE_VarGlob
+
 # endif
 
   

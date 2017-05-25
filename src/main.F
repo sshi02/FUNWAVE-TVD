@@ -138,6 +138,10 @@ Program FUNWAVE_TVD
      USE VESSEL_MODULE
 # endif
 
+# if defined (STORM)
+     USE STORM_MODULE
+# endif
+
      IMPLICIT NONE
 
      INTEGER::ISTAGE
@@ -169,6 +173,10 @@ Program FUNWAVE_TVD
 
 # if defined (VESSEL)
      CALL VESSEL_INITIAL
+# endif
+
+# if defined (STORM)
+     CALL STORM_INITIAL
 # endif
 
 ! time integration
@@ -212,6 +220,10 @@ Program FUNWAVE_TVD
 
 # if defined (VESSEL)
        CALL VESSEL_FORCING
+# endif
+
+# if defined (STORM)
+       CALL STORM_FORCING
 # endif
 
      ! 3-ORDER RUNGE-KUTTA TIME STEPPING
@@ -261,7 +273,6 @@ Program FUNWAVE_TVD
         CALL MAX_MIN_PROPERTY
       ENDIF
          
-
       CALL OUTPUT
 
       CALL CHECK_BLOWUP

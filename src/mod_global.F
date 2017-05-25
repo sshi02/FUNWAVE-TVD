@@ -66,6 +66,8 @@ MODULE GLOBAL
        INTEGER, DIMENSION(2) :: dims, coords
        LOGICAL, DIMENSION(2) :: periods
        LOGICAL :: reorder = .true.
+       INTEGER :: nprocs                 !ykchoi(04/May/2017)
+       INTEGER :: iista, iiend, jjsta, jjend !ykchoi(04/May/2017)
 # endif
        INTEGER :: px,py
 
@@ -94,6 +96,7 @@ MODULE GLOBAL
        CHARACTER(LEN=80) DY_FILE
        CHARACTER(LEN=80) Coriolis_FILE
        CHARACTER(LEN=80) OBSTACLE_FILE
+       CHARACTER(LEN=80) BREAKWATER_FILE
        CHARACTER(LEN=80) RESULT_FOLDER
        CHARACTER(LEN=80) STATIONS_FILE
        CHARACTER(LEN=80) WaveMaker
@@ -105,6 +108,7 @@ MODULE GLOBAL
        !ykchoi(14.12.24)]
 
        LOGICAL :: NO_MASK_FILE = .TRUE.
+       LOGICAL :: NO_UV_FILE = .TRUE.
 
         CHARACTER(LEN=14)::FORMAT_LEN=' '
 
@@ -124,7 +128,8 @@ MODULE GLOBAL
        REAL(SP) :: Lon_West,Lat_South,Dphi,Dtheta
 # endif
        REAL(SP)::  DT,TIME,TOTAL_TIME,PLOT_INTV,PLOT_COUNT,&
-                  SCREEN_INTV,SCREEN_COUNT
+                  SCREEN_INTV,SCREEN_COUNT, &
+                   DT_fixed
        REAL(SP) :: HOTSTART_INTV,HOTSTART_COUNT
        INTEGER :: icount=0  ! for output file number
        INTEGER :: icount_mean=0  ! for output mean file number
@@ -136,6 +141,13 @@ MODULE GLOBAL
        REAL(SP) :: CFL=0.15_SP
        REAL(SP) :: FroudeCap=10.0_SP
        REAL(SP) :: SWE_ETA_DEP=0.7_SP
+
+       LOGICAL :: BATHY_CORRECTION = .FALSE.
+       LOGICAL :: BREAKWATER = .FALSE.
+
+       REAL(SP),DIMENSION(:,:),ALLOCATABLE :: &
+                BreakWaterWidth,CD_breakwater
+
 
 ! switch for dispersion
 !   gamma1 is for extra M term
@@ -154,6 +166,7 @@ MODULE GLOBAL
        LOGICAL :: DISP_TIME_LEFT=.FALSE. 
        LOGICAL :: StretchGrid = .FALSE.
                  ! put time derivative dispersion term on left
+       LOGICAL :: FIXED_DT = .FALSE.
 
 ! some local variables
        REAL(SP),DIMENSION(:,:),ALLOCATABLE :: &
@@ -210,6 +223,7 @@ MODULE GLOBAL
 ! wetting and drying
         INTEGER,DIMENSION(:,:),ALLOCATABLE :: MASK,MASK_STRUC,MASK9
 ! wave maker
+        LOGICAL :: EqualEnergy = .FALSE.
         REAL(SP)::AMP_SOLI,DEP_SOLI,LAG_SOLI, CPH_SOLI,XWAVEMAKER, &
                   Xc,Yc, WID,Xc_WK,Tperiod,AMP_WK,DEP_WK,Theta_WK, &
                   rlamda,Time_ramp,D_gen,Beta_gen,Width_WK,Delta_WK,&
@@ -344,6 +358,7 @@ MODULE GLOBAL
 # if defined (WIND)
 ! wind
        LOGICAL :: WindForce = .TRUE.
+       LOGICAL :: AirPressure = .TRUE.
        CHARACTER(LEN=80) WIND_FILE
        INTEGER :: NumTimeWindData
        REAL(SP), DIMENSION(:,:),ALLOCATABLE :: WindU2D,WindV2D

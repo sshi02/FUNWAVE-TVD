@@ -135,7 +135,7 @@ SUBROUTINE ALLOCATE_VARIABLES
                MASK(Mloc,Nloc),DepthNode(Mloc1,Nloc1), &
                MASK_STRUC(Mloc,Nloc),MASK9(Mloc,Nloc), &
                tmp4preview(Mloc,Nloc),Int2Flo(Mloc,Nloc),&
-               Cd(Mloc,Nloc) &
+               Cd(Mloc,Nloc),CD_breakwater(Mloc,Nloc) &
               )
 ! updating variables
       ALLOCATE(Eta(Mloc,Nloc),Eta0(Mloc,Nloc), &
@@ -218,6 +218,7 @@ END SUBROUTINE ALLOCATE_VARIABLES
 SUBROUTINE INITIALIZATION
      USE GLOBAL
      USE INPUT_READ
+     USE BATHY_CORRECTION_MODULE
 # if defined(INTEL)
      USE IFPORT
 # endif
@@ -622,6 +623,11 @@ SUBROUTINE INITIALIZATION
      ENDDO  
 # endif  
 
+! correction bathymetry
+    IF (BATHY_CORRECTION)THEN
+      CALL CORRECTION 
+    ENDIF
+
 ! re-construct Depth
 
      DO J=1,Nloc
@@ -865,7 +871,99 @@ SUBROUTINE INITIALIZATION
      CLOSE(1)
 # endif
      ENDIF
-       
+
+! read breakwater 
+     IF(BREAKWATER)THEN
+
+  INQUIRE(FILE=TRIM(BREAKWATER_FILE),EXIST=FILE_EXIST)
+  IF(.NOT.FILE_EXIST)THEN
+# if defined (PARALLEL)
+   IF(MYID==0)  &
+   WRITE(*,*) TRIM(BREAKWATER_FILE), ' specified in input.txt but CANNOT BE FOUND. STOP'
+   CALL MPI_FINALIZE (ier)
+   STOP
+# else
+    WRITE(*,*) TRIM(BREAKWATER_FILE), ' specified in input.txt but CANNOT BE FOUND. STOP'
+    STOP
+# endif
+  ENDIF
+
+! we have to use global for width 
+     ALLOCATE(BreakWaterWidth(Mglob+2*Nghost,Nglob+2*Nghost))
+     BreakWaterWidth = 0.0_SP     
+
+# if defined (PARALLEL)
+     if (myid.eq.0) then
+        OPEN(1,FILE=TRIM(BREAKWATER_FILE))
+        DO J=Nghost+1,NGlob+NGhost
+           READ(1,*)(BreakWaterWidth(I,J),I=Nghost+1,MGlob+Nghost)
+        ENDDO
+        CLOSE(1)
+! ghost cells
+        DO I=Nghost+1,MGlob+Nghost
+           DO J=1,Nghost
+              BreakWaterWidth(I,J)=BreakWaterWidth(I,Nghost+1)
+           ENDDO
+           DO J=NGlob+Nghost+1,NGlob+2*Nghost
+              BreakWaterWidth(I,J)=BreakWaterWidth(I,NGlob+Nghost)
+           ENDDO
+        ENDDO
+        DO J=1,NGlob+2*Nghost
+           DO I=1,Nghost
+              BreakWaterWidth(I,J)=BreakWaterWidth(Nghost+1,J)
+           ENDDO
+           DO I=MGlob+Nghost+1,MGlob+2*Nghost
+              BreakWaterWidth(I,J)=BreakWaterWidth(MGlob+Nghost,J)
+           ENDDO
+        ENDDO
+     endif
+
+# else
+     OPEN(1,FILE=TRIM(BREAKWATER_FILE))
+
+       DO J=Jbeg,Jend
+        READ(1,*)(BreakWaterWidth(I,J),I=Ibeg,Iend)
+       ENDDO
+
+     CLOSE(1)
+
+
+! ghost cells
+     DO I=Ibeg,Iend
+       DO J=1,Nghost
+        BreakWaterWidth(I,J)=BreakWaterWidth(I,Jbeg)
+       ENDDO
+       DO J=Jend+1,Nloc
+        BreakWaterWidth(I,J)=BreakWaterWidth(I,Jend)
+       ENDDO
+     ENDDO
+
+     DO J=1,Nloc
+       DO I=1,Nghost
+        BreakWaterWidth(I,J)=BreakWaterWidth(Ibeg,J)
+       ENDDO
+       DO I=Iend+1,Mloc
+        BreakWaterWidth(I,J)=BreakWaterWidth(Iend,J)
+       ENDDO
+     ENDDO  
+
+# endif
+     CALL CALCULATE_CD_BREAKWATER
+
+     DEALLOCATE(BreakWaterWidth)
+
+     ENDIF  ! endif breakwater
+! end breakwater
+
+
+# if defined (STORM)
+   ! use holland wind field in mod_storm.F
+      ALLOCATE(WindU2D(Mloc,Nloc),WindV2D(Mloc,Nloc),MASK_WIND(Mloc,Nloc))
+      WindU2D=ZERO
+      WindV2D=ZERO
+      MASK_WIND=0
+# else
+
 # if defined (WIND)
 ! wind force ! now constant wind, can use WindU2D for 2D applications
         ALLOCATE(WindU2D(Mloc,Nloc),WindV2D(Mloc,Nloc),MASK_WIND(Mloc,Nloc))
@@ -910,6 +1008,9 @@ SUBROUTINE INITIALIZATION
        CLOSE(2)
       ENDIF
 # endif 
+
+# endif 
+  ! end holland wind
 
      DO J=1,Nloc
      DO I=1,Mloc
@@ -1012,6 +1113,8 @@ SUBROUTINE INITIAL_UVZ
       REAL(SP),DIMENSION(Mloc,Nloc) :: rMASK
       LOGICAL :: FILE_EXIST
 
+IF(.NOT.NO_UV_FILE)THEN
+
   INQUIRE(FILE=TRIM(U_FILE),EXIST=FILE_EXIST)
   IF(.NOT.FILE_EXIST)THEN
 # if defined (PARALLEL)
@@ -1037,6 +1140,8 @@ SUBROUTINE INITIAL_UVZ
 # endif
   ENDIF
 
+ENDIF
+
   INQUIRE(FILE=TRIM(ETA_FILE),EXIST=FILE_EXIST)
   IF(.NOT.FILE_EXIST)THEN
 # if defined (PARALLEL)
@@ -1049,16 +1154,24 @@ SUBROUTINE INITIAL_UVZ
 # endif
   ENDIF
 
-
 # if defined (PARALLEL)
+IF(.NOT.NO_UV_FILE)THEN
       CALL GetFile(U_FILE,U)
       CALL GetFile(V_FILE,V)
+ELSE
+      U=ZERO
+      V=ZERO
+ENDIF
+
       CALL GetFile(ETA_FILE,ETA)
+
       IF(.NOT.NO_MASK_FILE)THEN
       CALL GetFile(MASK_FILE,rMASK)
       ENDIF
+
 # else
 
+IF(.NOT.NO_UV_FILE)THEN
       OPEN(1,FILE=TRIM(U_FILE))
        DO J=Nghost+1,Nloc-Nghost
         READ(1,*)(U(I,J),I=Nghost+1,Mloc-Nghost)
@@ -1070,6 +1183,10 @@ SUBROUTINE INITIAL_UVZ
         READ(1,*)(V(I,J),I=Nghost+1,Mloc-Nghost)
        ENDDO
       CLOSE(1)
+ELSE
+      U=ZERO
+      V=ZERO
+ENDIF
 
       OPEN(1,FILE=TRIM(ETA_FILE))
        DO J=Nghost+1,Nloc-Nghost
@@ -1089,6 +1206,8 @@ SUBROUTINE INITIAL_UVZ
 
      IF(.NOT.NO_MASK_FILE)THEN
       MASK=INT(rMASK)
+     ELSE
+      MASK = 1
      ENDIF
 
 END SUBROUTINE INITIAL_UVZ

@@ -287,14 +287,35 @@ SUBROUTINE CAL_DISPERSION
                 +(Beta_1-1.0_SP/2.0_SP)*DEPTH(I,J)*(DUxx(I,J)+DVxy(I,J))
        V4(I,J)=(1.0_SP/3.0_SP-Beta_1+0.5_SP*Beta_1*Beta_1)*DEPTH(I,J)*DEPTH(I,J)*(Uxy(I,J)+Vyy(I,J)) &
                 +(Beta_1-1.0_SP/2.0_SP)*DEPTH(I,J)*(DUxy(I,J)+DVyy(I,J))      
+
+       !------[ykchoi (04/14/2017)
+       IF(gamma2>ZERO)THEN
+	   UxxVxy = Uxx(I,J) + Vxy(I,J)
+	   UxyVyy = Uxy(I,J) + Vyy(I,J)
+
+	   HUxxHVxy = DUxx(I,J) + DVxy(I,J)
+	   HUxyHVyy = DUxy(I,J) + DVyy(I,J)
+
+	   rh = Depth(I,J)
+	   reta = Eta(I,J)
+
+  	   ken1 = ( 1.0_SP/6.0_SP - Beta_1 + Beta_1*Beta_1 )*rh*reta*Beta_2   &
+	         + ( 1.0_SP/2.0_SP*Beta_1*Beta_1 - 1.0_SP/6.0_SP )*reta*reta*Beta_2*Beta_2
+	   ken2 = ( Beta_1 - 1.0_SP/2.0_SP )*reta*Beta_2
+
+	   U4(I,J) = U4(I,J) + gamma2*MASK9(I,J)*( ken1*UxxVxy + ken2*HUxxHVxy )
+	   V4(I,J) = V4(I,J) + gamma2*MASK9(I,J)*( ken1*UxyVyy + ken2*HUxyHVyy )
+	 ENDIF
+	 !------ykchoi (04/14/2017)]
 # endif
 
 # if defined (ZALPHA)
-       U4(I,J)=(1.0_SP/3.0_SP-Beta_1+0.5_SP*Beta_1*Beta_1)*DEPTH(I,J)*DEPTH(I,J)*(Uxx(I,J)+Vxy(I,J)) &
+       U4(I,J)=(1.0_SP/3.0_SP-Beta_1+0.5_SP*Beta_1*Beta_1)  &
+               *DEPTH(I,J)*DEPTH(I,J)*(Uxx(I,J)+Vxy(I,J)) &
                 +(Beta_1-1.0_SP/2.0_SP)*DEPTH(I,J)*(DUxx(I,J)+DVxy(I,J))
-       V4(I,J)=(1.0_SP/3.0_SP-Beta_1+0.5_SP*Beta_1*Beta_1)*DEPTH(I,J)*DEPTH(I,J)*(Uxy(I,J)+Vyy(I,J)) &
+       V4(I,J)=(1.0_SP/3.0_SP-Beta_1+0.5_SP*Beta_1*Beta_1)  &
+               *DEPTH(I,J)*DEPTH(I,J)*(Uxy(I,J)+Vyy(I,J)) &
                 +(Beta_1-1.0_SP/2.0_SP)*DEPTH(I,J)*(DUxy(I,J)+DVyy(I,J))
-
 # endif
 
 
@@ -375,15 +396,6 @@ SUBROUTINE CAL_DISPERSION
         rhx=(Depth(I+1,J)-Depth(I-1,J))/2.0_SP/DX
         rhy=(Depth(I,J+1)-Depth(I,J-1))/2.0_SP/DY
         reta=Eta(I,J)
-
-         ken1=(1.0_SP/6.0_SP-Beta_1+Beta_1*Beta_1)*rh*reta*Beta_2  &
-                +(1.0_SP/2.0_SP*Beta_1*Beta_1-1.0_SP/6.0_SP)*reta*reta*Beta_2*Beta_2
-         ken2=(Beta_1-1.0_SP/2.0_SP)*reta*Beta_2
-
-        U4(I,J)=U4(I,J)+gamma2*MASK9(I,J)*(ken1*UxxVxy &
-                +ken2*HUxxHVxy)
-        V4(I,J)=V4(I,J)+gamma2*MASK9(I,J)*(ken1*UxyVyy &
-                +ken2*HUxyHVyy)
 
         U1pp(I,J)=-reta*Beta_2*ETAx(I,J)*Beta_2*(Utx(I,J)+Vty(I,J)) - 0.5_SP*reta*reta*Beta_2*Beta_2*(Utxx(I,J)+Vtxy(I,J))&
                   -ETAx(I,J)*Beta_2*(DUtx(I,J)+DVty(I,J)) -reta*Beta_2*(DUtxx(I,J)+DVtxy(I,J))
