@@ -355,19 +355,6 @@ MODULE GLOBAL
 ! ocean basin domain and slope > 1:5
        LOGICAL :: SLOPE_CTR = .FALSE.
        REAL(SP) :: MAX_SLOPE
-# if defined (WIND)
-! wind
-       LOGICAL :: WindForce = .TRUE.
-       LOGICAL :: AirPressure = .TRUE.
-       CHARACTER(LEN=80) WIND_FILE
-       INTEGER :: NumTimeWindData
-       REAL(SP), DIMENSION(:,:),ALLOCATABLE :: WindU2D,WindV2D
-       REAL(SP),DIMENSION(:),ALLOCATABLE :: TimeWind
-       REAL(SP),DIMENSION(:),ALLOCATABLE :: WU,WV
-       REAL(SP) :: Cdw,WindCrestPercent
-       INTEGER :: icount_winddata = 1   
-       INTEGER,DIMENSION(:,:),ALLOCATABLE :: MASK_WIND     
-# endif
 
 ! absorbing-generating wavemaker
        REAL(SP) :: Dep_Ser,WidthWaveMaker,&

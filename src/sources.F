@@ -58,8 +58,8 @@ SUBROUTINE SourceTerms
 # if defined (VESSEL)
      USE VESSEL_MODULE
 # endif
-# if defined (STORM)
-     USE STORM_MODULE
+# if defined (METEO)
+     USE METEO_MODULE
 # endif
 
      IMPLICIT NONE
@@ -254,7 +254,7 @@ SUBROUTINE SourceTerms
                     *Depth(I,J)             
        ENDIF
 
-# if defined (WIND)
+# if defined (METEO)
        IF(WindForce)THEN
           SourceX(I,J)=SourceX(I,J)+MASK_WIND(I,J)*RHO_AW*Cdw*WindU2D(I,J) &
                 *SQRT(WindU2D(I,J)*WindU2D(I,J) &
@@ -432,7 +432,7 @@ SUBROUTINE SourceTerms
 # endif
 # endif
 
-# if defined (STORM)
+# if defined (METEO)
     IF(AirPressure)THEN
       SourceX = SourceX + StormPressureX
       SourceY = SourceY + StormPressureY   

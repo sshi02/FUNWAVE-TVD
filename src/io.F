@@ -53,8 +53,8 @@ SUBROUTINE OUTPUT
 # if defined(VESSEL)
      USE VESSEL_MODULE
 # endif
-# if defined(STORM)
-     USE STORM_MODULE
+# if defined(METEO)
+     USE METEO_MODULE
 # endif
 
     IMPLICIT NONE
@@ -755,95 +755,6 @@ SUBROUTINE READ_INPUT
       WRITE(3,'(A20,F12.5)')'WaterLevel = ', WaterLevel
 # endif 
 
-# if defined (WIND)
-
-# if defined (PARALLEL)
-      if (myid.eq.0) WRITE(3,*)'                                         '
-      if (myid.eq.0) WRITE(3,*)'-------------- WIND INFO -----------------'
-# else
-      WRITE(3,*)'                                         '
-      WRITE(3,*)'-------------- WIND INFO -----------------'   
-# endif
-
-! air pressure
-      CALL READ_LOGICAL(AirPressure,FILE_NAME,'AirPressure',ierr)
-
-      IF(ierr==1)THEN
-        AirPressure = .FALSE.
-# if defined (PARALLEL)
-      if (myid.eq.0) THEN
-         WRITE(*,'(A40)')'NO air pressure effect'
-         WRITE(3,'(A40)')'NO air pressure effect'
-      endif
-# else
-         WRITE(*,'(A40)')'NO air pressure effect'
-         WRITE(3,'(A40)')'NO air pressure effect'
-# endif
-       ENDIF
-
-! wind
-      CALL READ_LOGICAL(WindForce,FILE_NAME,'WindForce',ierr)
-
-      IF(ierr==1)THEN
-        WindForce = .FALSE.
-# if defined (PARALLEL)
-      if (myid.eq.0) THEN
-         WRITE(*,'(A40)')'NO wind effect'
-         WRITE(3,'(A40)')'NO wind effect'
-      endif
-# else
-         WRITE(*,'(A40)')'NO wind effect'
-         WRITE(3,'(A40)')'NO wind effect'
-# endif
-       ENDIF
-
-      IF(WindForce)THEN
-# if defined (STORM)
-       ! use Holland
-# else
-        CALL READ_STRING(WIND_FILE,FILE_NAME,'WIND_FILE',ierr)
-# endif
-
-        CALL READ_FLOAT(Cdw,FILE_NAME,'Cdw',ierr)
-
-      IF(ierr==1)THEN
-        Cdw=0.002_SP
-# if defined (PARALLEL)
-      if (myid.eq.0) THEN
-         WRITE(*,'(A40)')'Cdw Default:  Cdw=0.002'
-         WRITE(3,'(A40)')'Cdw Default:  Cdw=0.002'
-      endif
-# else
-         WRITE(*,'(A40)')'Cdw Default:  Cdw=0.002'
-         WRITE(3,'(A40)')'Cdw Default:  Cdw=0.002'
-# endif
-       ENDIF  
-
-        CALL READ_FLOAT(WindCrestPercent,FILE_NAME,'WindCrestPercent',ierr)
-
-      IF(ierr==1)THEN
-        WindCrestPercent=1.0_SP
-# if defined (PARALLEL)
-      if (myid.eq.0) THEN
-         WRITE(*,'(A40)')'WindCrestPercent Default:  1.0'
-         WRITE(3,'(A40)')'WindCrestPercent Default:  1.0'
-      endif
-# else
-         WRITE(*,'(A40)')'WindCrestPercent Default:  1.0'
-         WRITE(3,'(A40)')'WindCrestPercent Default:  1.0'
-# endif
-       ENDIF 
-
-      ENDIF  ! endif windforce
-
-# if defined (PARALLEL)
-      if (myid.eq.0) WRITE(3,'(A7,F12.5)')'Cdw = ', Cdw
-      if (myid.eq.0) WRITE(3,'(A21,F12.5)')'WindCrestPercent = ', WindCrestPercent
-# else
-      WRITE(3,'(A7,F12.5)')'Cdw = ', Cdw
-      WRITE(3,'(A21,F12.5)')'WindCrestPercent = ', WindCrestPercent
-# endif  
-# endif 
 
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,*)'                                         '
@@ -3416,8 +3327,8 @@ SUBROUTINE PREVIEW
 # if defined (VESSEL)
      USE VESSEL_MODULE
 # endif
-# if defined(STORM)
-     USE STORM_MODULE
+# if defined(METEO)
+     USE METEO_MODULE
 # endif
 
      IMPLICIT NONE
@@ -3552,8 +3463,10 @@ SUBROUTINE PREVIEW
 !         call PutFile(TMP_NAME,etat) 
       ENDIF
 
-# if defined (STORM)
-    IF(OUT_STORM)THEN
+# if defined (METEO)
+   IF(OUT_METEO)THEN
+
+    IF(WindHollandModel)THEN
         TMP_NAME = TRIM(FDIR)//'Pstorm_'//TRIM(FILE_NAME)
         call PutFile(TMP_NAME,StormPressureTotal)
         TMP_NAME = TRIM(FDIR)//'Ustorm_'//TRIM(FILE_NAME)
@@ -3561,6 +3474,13 @@ SUBROUTINE PREVIEW
         TMP_NAME = TRIM(FDIR)//'Vstorm_'//TRIM(FILE_NAME)
         call PutFile(TMP_NAME,WindV2D)
     ENDIF
+
+    IF(SlideModel)THEN
+        TMP_NAME = TRIM(FDIR)//'Pstorm_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,StormPressureTotal)      
+    ENDIF
+
+  ENDIF
 # endif
      
 # if defined (VESSEL)

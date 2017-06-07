@@ -159,6 +159,10 @@ SUBROUTINE ALLOCATE_VARIABLES
         UbarOld(Mloc,Nloc),VbarOld(Mloc,Nloc),EtaOld(Mloc,Nloc) )
 # endif
 
+  ! HeightMax will be used not only in output but also meteo module
+        ALLOCATE(HeightMax(Mloc,Nloc))
+        HeightMax=ZERO
+
       ALLOCATE(WaveMaker_Mass(Mloc,Nloc))
       WaveMaker_Mass = ZERO
 
@@ -182,10 +186,6 @@ SUBROUTINE ALLOCATE_VARIABLES
        nu_sponge=ZERO
       ENDIF
 
-      IF(OUT_Hmax)THEN
-        ALLOCATE(HeightMax(Mloc,Nloc))
-        HeightMax=ZERO
-      ENDIF
       IF(OUT_Hmin)THEN
         ALLOCATE(HeightMin(Mloc,Nloc))
         HeightMin=ZERO
@@ -571,15 +571,18 @@ SUBROUTINE INITIALIZATION
   ENDIF
 
 # else
+
   IF(DEPTH_TYPE(1:3)=='SLO') THEN
 # if defined (CARTESIAN)
-    IF(INT(Xslp/DX)>Mloc.OR.INT(Xslp/DX)<1)THEN
+! dont need this
+!    IF(INT(Xslp/DX)>Mloc.OR.INT(Xslp/DX)<1)THEN
 # else
-    IF(INT(Xslp/DX(1,1))>Mloc.OR.INT(Xslp/DX(1,1))<1)THEN
+!    IF(INT(Xslp/DX(1,1))>Mloc.OR.INT(Xslp/DX(1,1))<1)THEN
 # endif
-      WRITE(*,*)'Please reset Xslp, STOP!'
-      STOP
-    ENDIF
+!      WRITE(*,*)'Please reset Xslp, STOP!'
+!      STOP
+!    ENDIF
+
     DO J=Jbeg,Jend
      DO I=Ibeg,Iend
       Depth(I,J) = Depth_FLat
@@ -954,63 +957,6 @@ SUBROUTINE INITIALIZATION
 
      ENDIF  ! endif breakwater
 ! end breakwater
-
-
-# if defined (STORM)
-   ! use holland wind field in mod_storm.F
-      ALLOCATE(WindU2D(Mloc,Nloc),WindV2D(Mloc,Nloc),MASK_WIND(Mloc,Nloc))
-      WindU2D=ZERO
-      WindV2D=ZERO
-      MASK_WIND=0
-# else
-
-# if defined (WIND)
-! wind force ! now constant wind, can use WindU2D for 2D applications
-        ALLOCATE(WindU2D(Mloc,Nloc),WindV2D(Mloc,Nloc),MASK_WIND(Mloc,Nloc))
-      WindU2D=ZERO
-      WindV2D=ZERO
-      MASK_WIND=0
-      IF(WindForce)THEN
-
-  INQUIRE(FILE=TRIM(WIND_FILE),EXIST=FILE_EXIST)
-  IF(.NOT.FILE_EXIST)THEN
-# if defined (PARALLEL)
-   IF(MYID==0) &
-    WRITE(*,*) TRIM(WIND_FILE), ' specified in input.txt but does not exist,stop'
-   CALL MPI_FINALIZE (ier)
-   STOP
-# else
-    WRITE(*,*) TRIM(WIND_FILE), ' specified in input.txt but does not exist,stop'
-    STOP
-# endif
-  ENDIF
-
-
-! ONLY FOR SERIAL CODE NOW
-
-# if defined (PARALLEL)
-      if (myid==0)then
-        WRITE(*,*)'This option only for serial code now, STOP'
-      endif
-      call MPI_FINALIZE ( ier )
-# endif
-
-
-       OPEN(2,FILE=TRIM(WIND_FILE))
-         READ(2,*)WHAT
-         READ(2,*)NumTimeWindData
-         ALLOCATE (TimeWind(NumTimeWindData),WU(NumTimeWindData),&
-                WV(NumTimeWindData))
-         DO I=1,NumTimeWindData
-           READ(2,*,END=111)TimeWind(I),WU(I),WV(I)
-         ENDDO
-111    CONTINUE
-       CLOSE(2)
-      ENDIF
-# endif 
-
-# endif 
-  ! end holland wind
 
      DO J=1,Nloc
      DO I=1,Mloc

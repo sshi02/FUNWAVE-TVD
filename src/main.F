@@ -138,8 +138,8 @@ Program FUNWAVE_TVD
      USE VESSEL_MODULE
 # endif
 
-# if defined (STORM)
-     USE STORM_MODULE
+# if defined (METEO)
+     USE METEO_MODULE
 # endif
 
      IMPLICIT NONE
@@ -175,8 +175,8 @@ Program FUNWAVE_TVD
      CALL VESSEL_INITIAL
 # endif
 
-# if defined (STORM)
-     CALL STORM_INITIAL
+# if defined (METEO)
+     CALL METEO_INITIAL
 # endif
 
 ! time integration
@@ -222,8 +222,8 @@ Program FUNWAVE_TVD
        CALL VESSEL_FORCING
 # endif
 
-# if defined (STORM)
-       CALL STORM_FORCING
+# if defined (METEO)
+       CALL METEO_FORCING
 # endif
 
      ! 3-ORDER RUNGE-KUTTA TIME STEPPING
@@ -235,16 +235,9 @@ Program FUNWAVE_TVD
 
        CALL FLUXES
 
-# if defined (WIND)
-        IF(WindForce)THEN
-          CALL WIND_EFFECT
-        ENDIF
-# endif
-
        CALL SourceTerms   ! put sourceterms after fluxes in order to get eta_t
 
        CALL ESTIMATE_HUV(ISTAGE)     
-
 
        CALL WAVE_BREAKING
        
@@ -272,7 +265,7 @@ Program FUNWAVE_TVD
       IF (OUT_Hmax.OR.OUT_Hmin.OR.OUT_Umax.OR.OUT_MFmax.OR.OUT_VORmax)THEN
         CALL MAX_MIN_PROPERTY
       ENDIF
-         
+        
       CALL OUTPUT
 
       CALL CHECK_BLOWUP

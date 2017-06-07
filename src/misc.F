@@ -295,77 +295,6 @@ SUBROUTINE ESTIMATE_DT(M,N,DX,DY,U,V,H,MinDepthFrc,DT,CFL,TIME)
 
 END SUBROUTINE ESTIMATE_DT
 
-# if defined (WIND)
-!-------------------------------------------------------------------------------------
-!
-!    WIND_EFFECT is subroutine to update wind and mask_wind 
-!        based on Chen et al., 2004
-!
-!    HISTORY: 
-!        09/16/2011 Fengyan Shi
-!
-!-------------------------------------------------------------------------------------
-SUBROUTINE WIND_EFFECT
-    USE GLOBAL
-    IMPLICIT NONE
-     REAL(SP)::Celerity,WaveAngle
-
-# if defined (STORM)
-   ! use holland
-# else
-
-! time series wind
-      IF(TIME>TimeWind(icount_winddata).AND. &
-               icount_winddata<NumTimeWindData)THEN
-        icount_winddata=icount_winddata+1
-      ENDIF
-      IF(icount_winddata>1)THEN  ! wind start
-       IF(TIME>TimeWind(icount_winddata))THEN
-        tmp2=ZERO
-       ELSE
-        tmp2=(TimeWind(icount_winddata)-TIME) &
-           /(TimeWind(icount_winddata)-TimeWind(icount_winddata-1))
-       ENDIF
-       WindU2D=WU(icount_winddata)*(1.0_SP-tmp2)&
-                       +WU(icount_winddata-1)*tmp2
-       WindV2D=WV(icount_winddata)*(1.0_SP-tmp2)&
-                       +WV(icount_winddata-1)*tmp2
-      ENDIF
-
-! adjusted by wave celerity based on Chen et al. 2004
-
-     DO J=1,Nloc
-     DO I=1,Mloc
-
-     tmp3=SQRT(GRAV*MAX(MinDepthFrc,H(I,J)))
-     tmp1=MAX(SQRT(ETAx(I,J)*ETAx(I,J)+ETAy(I,J)*ETAy(I,J)),SMALL)
-
-     Celerity=MIN(ABS(ETAt(I,J))/tmp1,SQRT(GRAV*ABS(H(I,J))))
-     WaveAngle=ATAN2(ETAy(I,J),ETAx(I,J))
-
-     WindU2D(I,J)=WindU2D(I,J)-Celerity*COS(WaveAngle)
-     WindV2D(I,J)=WindV2D(I,J)-Celerity*SIN(WaveAngle)
-
-     ENDDO
-     ENDDO
-# endif
-  ! end holland
-
-! mask_wind
-# if defined (STORM)
-     MASK_WIND=1
-# else
-     MASK_WIND=1
-     DO J=1,Nloc
-     DO I=1,Mloc
-      IF(ETA(I,J)<HeightMax(I,J)*(1-WindCrestPercent))MASK_WIND(I,J)=0
-     ENDDO
-     ENDDO
-# endif
-
-END SUBROUTINE WIND_EFFECT
-# endif 
-
 !-------------------------------------------------------------------------------------
 !
 !    MAX_MIN_PROPERTY is subroutine to calculate Max and Min properties 
@@ -377,12 +306,19 @@ END SUBROUTINE WIND_EFFECT
 !-------------------------------------------------------------------------------------
 SUBROUTINE MAX_MIN_PROPERTY
     USE GLOBAL
+# if defined (METEO)
+    USE METEO_MODULE
+# endif
     IMPLICIT NONE
     REAL(SP) :: maxv, MaxAbsEta
 
       DO J=1,Nloc
       DO I=1,Mloc
+# if defined (METEO)
+       IF(OUT_Hmax.OR.WindForce)THEN
+# else
        IF(OUT_Hmax)THEN
+# endif
         IF(MASK(I,J).GT.0)THEN
         IF(Eta(I,J).GT.HeightMax(I,J)) HeightMax(I,J)=Eta(I,J)
         ENDIF
