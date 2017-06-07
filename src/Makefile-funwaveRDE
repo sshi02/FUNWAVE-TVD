@@ -18,14 +18,14 @@
 #             FLAG_9 = -DZALPHA
 #             FLAG_10 = -DMANNING
 #             FLAG_11 = -DSPHERICAL_IJ_STATION
+#             FLAG_12 = -DVESSEL
 
 #--------------------------------------------------------------------------
 #  mpi defs 
 #--------------------------------------------------------------------------
          CPP      = /usr/bin/cpp 
          CPPFLAGS = $(DEF_FLAGS)
-         FC       = mpif90
-#         FC       = /usr/local/bin/mpif90
+         FC       = /usr/local/mpich/bin/mpif90
          DEBFLGS  = 
          OPT      = 
          CLIB     = 
@@ -60,12 +60,12 @@
 .F.o:
 	$(CPP) $(CPPARGS) $*.F > $*.f90
 	$(FC)  -c $(FFLAGS) $(INCS) $*.f90
-#	\rm $*.f90
+	/bin/rm $*.f90
 #--------------------------------------------------------------------------
 #  FUNWAVE-TVD Source Code.
 #--------------------------------------------------------------------------
 
-MODS  = mod_param.F	mod_global.F	mod_input.F \
+MODS  = mod_param.F	mod_global.F	mod_input.F mod_vessel.F \
 
 MAIN  = main.F bc.F fluxes.F init.F io.F tridiagnal.F       \
         breaker.F derivatives.F dispersion.F etauv_solver.F \
