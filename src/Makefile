@@ -66,7 +66,7 @@
 #--------------------------------------------------------------------------
 
 MODS  = mod_param.F mod_global.F mod_input.F mod_vessel.F mod_bathy_correction.F \
-        mod_meteo.F
+        mod_meteo.F mod_parallel_field_io.F
 
 MAIN  = main.F bc.F fluxes.F init.F io.F tridiagnal.F       \
         breaker.F derivatives.F dispersion.F etauv_solver.F \

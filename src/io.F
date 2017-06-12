@@ -46,6 +46,7 @@
 !    OUTPUT is subroutine for screen, station, and field print-out
 !
 !    HISTORY:
+!      12/06/2017  Michael-Angelo Y.-H. Lam
 !      01/10/2011  Fengyan SHi
 !-------------------------------------------------------------------------------------
 SUBROUTINE OUTPUT
@@ -3706,102 +3707,22 @@ END SUBROUTINE Getfile
 !      05/06/2017  Young-Kwang Choi 
 !-------------------------------------------------------------------------------------
 
-SUBROUTINE PutFile(FILE,PHI)
+SUBROUTINE PutFile(FILE_NAME,PHI)
      USE GLOBAL
+     USE PARALLEL_FIELD_IO
      IMPLICIT NONE
 
-![-------ykchoi (06/May/2017)
-      !INTEGER :: l
-      ! could be max. procs
-      !INTEGER,DIMENSION(NumberProcessor) :: npxs,npys
-	!REAL(SP),DIMENSION(NumberProcessor) :: xx
-     INTEGER :: irank, lenx, leny, lenxy, ireq
-     INTEGER, ALLOCATABLE :: iistas(:), iiends(:), jjstas(:), jjends(:)
-     INTEGER :: istatus(mpi_status_size)
-
-     REAL(SP), ALLOCATABLE :: LocalPHI(:,:)
-     REAL(SP), ALLOCATABLE :: xx(:,:)
-     
-      !REAL(SP),DIMENSION(MGlob+2*Nghost,NGlob+2*Nghost) :: PHIGLOB   
-     REAL(SP),DIMENSION( MGlob, NGlob ) :: PHIGLOB
-!-------ykchoi (06/May/2017)]
-     CHARACTER(LEN=80) FILE
+     CHARACTER(LEN=80) FILE_NAME
      REAL(SP),DIMENSION(Mloc,Nloc),INTENT(IN) :: PHI
-     LOGICAL :: FirstCallPutFile = .TRUE.
-     SAVE  FirstCallPutFile
-     
-! first time call 
-     IF(FirstCallPutFile)THEN
-        FirstCallPutFile = .FALSE.
-! format length
-        write(FORMAT_LEN(1:1),'(A1)') '('
-        write(FORMAT_LEN(2:8),'(I7)') Mglob
-        write(FORMAT_LEN(9:13),'(A5)') 'E16.6'
-        write(FORMAT_LEN(14:14),'(A1)') ')'
-     ENDIF
 
-![-------ykchoi (06/May/2017)
-      !call MPI_Gather(npx,1,MPI_INTEGER,npxs,1,MPI_INTEGER,&
-      !    0,MPI_COMM_WORLD,ier)
-      !call MPI_Gather(npy,1,MPI_INTEGER,npys,1,MPI_INTEGER,&
-      !    0,MPI_COMM_WORLD,ier)
-     ALLOCATE( LocalPHI(Mloc-2*Nghost, Nloc-2*Nghost) )
-     LocalPHI=PHI(Ibeg:Iend,Jbeg:Jend)
-
-     allocate( iistas(nprocs), iiends(nprocs), jjstas(nprocs), jjends(nprocs) ) 
-
-     call MPI_Gather( iista, 1, MPI_INTEGER, iistas, 1, MPI_INTEGER, &
-                      0, MPI_COMM_WORLD, ier )
-     call MPI_Gather( iiend, 1, MPI_INTEGER, iiends, 1, MPI_INTEGER, &
-                      0, MPI_COMM_WORLD, ier )
-     call MPI_Gather( jjsta, 1, MPI_INTEGER, jjstas, 1, MPI_INTEGER, &
-                      0, MPI_COMM_WORLD, ier )
-     call MPI_Gather( jjend, 1, MPI_INTEGER, jjends, 1, MPI_INTEGER, &
-                      0, MPI_COMM_WORLD, ier )
-      
-     if( myid == 0 ) then
-	 PHIGLOB( iista:iiend, jjsta:jjend ) = LocalPHI
-     endif
-
-     do irank=1, px*py-1  	  
-	  
-	  if( myid == 0 ) then
-	    lenx = iiends(irank+1) - iistas(irank+1) + 1 
-	    leny = jjends(irank+1) - jjstas(irank+1) + 1
-	    lenxy = lenx*leny
-	    allocate( xx(lenx, leny) )
-	  
-	    call mpi_irecv( xx, lenxy, mpi_sp, irank, 1, mpi_comm_world, ireq, ier )
-	    call mpi_wait( ireq, istatus, ier )
-	    
-		PHIGLOB( iistas(irank+1):iiends(irank+1), jjstas(irank+1):jjends(irank+1) ) = xx
-		deallocate( xx )
-
-        elseif( myid == irank ) then
-	    
-		lenxy = ( iiend-iista+1 )*( jjend-jjsta+1 )
-	    call mpi_isend( LocalPHI, lenxy, mpi_sp, 0, 1, mpi_comm_world, ireq, ier )
-	    call mpi_wait( ireq, istatus, ier )
-
-        endif	  
-
-     enddo
-
-     deallocate(LocalPHI, iistas, iiends, jjstas, jjends)
-
-     if (myid.eq.0) then
-        OPEN(1,FILE=TRIM(FILE))
-	  DO J=1,NGlob,OUTPUT_RES
-	     WRITE(1,FORMAT_LEN)(real(PHIGLOB(I,J)),I=1,MGlob,OUTPUT_RES)
-	  ENDDO
-        !DO J=Nghost+1,NGlob+NGhost,OUTPUT_RES
-        !   WRITE(1,FORMAT_LEN)(real(PHIGLOB(I,J)),I=Nghost+1,MGlob+Nghost,OUTPUT_RES)
-        !ENDDO
-!100  FORMAT(5000E16.6)
-!100   FORMAT(FORMAT_LEN)
-        CLOSE(1)
-     endif
-!-------ykchoi (06/May/2017)]
+     SELECT CASE (TRIM(FIELD_TYPE_IO))
+      CASE ('ASCII')
+         WRITE(*,*) 'ASCII Case'
+         CALL PutFileASCII(FILE_NAME,PHI)
+      CASE DEFAULT
+         !Defaults to ASCII case for non-valid input
+         CALL PutFileASCII(FILE_NAME,PHI)
+     END SELECT
 
 END SUBROUTINE Putfile
 
