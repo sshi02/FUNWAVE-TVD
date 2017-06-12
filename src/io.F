@@ -2988,7 +2988,17 @@ SUBROUTINE READ_INPUT
       endif
 # endif
 
-! 
+![mayhl 17/06/12
+! Note: Serial code only output is ASCII
+# if defined (PARALLEL)
+      CALL READ_STRING(FIELD_TYPE_IO,FILE_NAME,'FIELD_TYPE_IO',ierr)
+
+      IF(ierr.EQ.1) THEN
+         FIELD_TYPE_IO = 'ASCII'
+      ENDIF
+# endif
+! mayhl]
+ 
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,*)'                                         '
       if (myid.eq.0) WRITE(3,*)' --------------input end --------------' 
