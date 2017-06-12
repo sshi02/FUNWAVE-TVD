@@ -1,7 +1,7 @@
 #-----------BEGIN MAKEFILE-------------------------------------------------
             SHELL         = /bin/sh
-            DEF_FLAGS     = -P -C -traditional 
-            EXEC          = mytvd
+            DEF_FLAGS     = -P -traditional 
+            EXEC          = funwave_gnu
 #==========================================================================
 #--------------------------------------------------------------------------
 #        PRECISION          DEFAULT PRECISION: SINGLE                     
@@ -18,19 +18,14 @@
 #             FLAG_9 = -DZALPHA
 #             FLAG_10 = -DMANNING
 #             FLAG_11 = -DSPHERICAL_IJ_STATION
-#              FLAG_12 = -DVESSEL
-#              FLAG_13 = -DVIS_KENNEDY
-#              FLAG_14 = -DVESSEL_PANEL_SOURCE
-#              FLAG_15 = -DREALISTIC_VESSEL_BODY
-              FLAG_16 = -DMETEO
-#              FLAG_17 = -DWIND
+#             FLAG_12 = -DVESSEL
+
 #--------------------------------------------------------------------------
 #  mpi defs 
 #--------------------------------------------------------------------------
          CPP      = /usr/bin/cpp 
          CPPFLAGS = $(DEF_FLAGS)
          FC       = mpif90
-#         FC        = /usr/local/mpi/intel/openmpi-1.8.4/bin/mpif90
          DEBFLGS  = 
          OPT      = 
          CLIB     = 
@@ -65,7 +60,7 @@
 .F.o:
 	$(CPP) $(CPPARGS) $*.F > $*.f90
 	$(FC)  -c $(FFLAGS) $(INCS) $*.f90
-#	\rm $*.f90
+	/bin/rm $*.f90
 #--------------------------------------------------------------------------
 #  FUNWAVE-TVD Source Code.
 #--------------------------------------------------------------------------
@@ -88,7 +83,7 @@ OBJS = $(SRCS:.F=.o)
 
 $(EXEC):	$(OBJS)
 		$(FC) $(FFLAGS) $(LDFLAGS) -o $(EXEC) $(OBJS) $(LIBS)
-#	mv $(EXEC) ../work/.
+		mv $(EXEC) ../bin/
 #--------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------
