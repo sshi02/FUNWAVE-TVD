@@ -134,7 +134,7 @@ SUBROUTINE READ_INPUT
 # endif
 
       FDIR=TRIM(RESULT_FOLDER)
-	OPEN(10000,FILE='time_dt.out',STATUS='UNKNOWN')
+	OPEN(10000,FILE='time_dt.txt',STATUS='UNKNOWN')
 
       OPEN(3,FILE='LOG.txt')   
 
@@ -3384,9 +3384,9 @@ SUBROUTINE PREVIEW
 
      IF(ICOUNT==1)THEN
      IF(OUT_DEPTH.OR.BREAKWATER)THEN
-        TMP_NAME = TRIM(FDIR)//'dep.out'
+        TMP_NAME = TRIM(FDIR)//'dep'
         call PutFile(TMP_NAME,DEPTH)
-        TMP_NAME = TRIM(FDIR)//'cd_breakwater.out'
+        TMP_NAME = TRIM(FDIR)//'cd_breakwater'
         call PutFile(TMP_NAME,CD_breakwater)
      ENDIF
      ENDIF
@@ -3715,13 +3715,16 @@ SUBROUTINE PutFile(FILE_NAME,PHI)
      CHARACTER(LEN=80) FILE_NAME
      REAL(SP),DIMENSION(Mloc,Nloc),INTENT(IN) :: PHI
 
+     CHARACTER(LEN=80)::TMP_NAME=' '
+
      SELECT CASE (TRIM(FIELD_TYPE_IO))
       CASE ('ASCII')
-         WRITE(*,*) 'ASCII Case'
-         CALL PutFileASCII(FILE_NAME,PHI)
+         TMP_NAME = TRIM(FILE_NAME)//'.txt'
+         CALL PutFileASCII(TMP_NAME,PHI)
       CASE DEFAULT
          !Defaults to ASCII case for non-valid input
-         CALL PutFileASCII(FILE_NAME,PHI)
+         TMP_NAME = TRIM(FILE_NAME)//'.txt'
+         CALL PutFileASCII(TMP_NAME,PHI)
      END SELECT
 
 END SUBROUTINE Putfile

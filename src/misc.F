@@ -147,7 +147,7 @@ SUBROUTINE INDEX
                      0, mpi_comm_world, ier )
 
     if( myid == 0 ) then
-      open(500, file='Grid_Range.out', status='unknown')
+      open(500, file='Grid_Range.txt', status='unknown')
 	write(500,'(A)')'Core#  istart#  iend#  jstart#  jend#'
 	do irank=0,nprocs-1
 	   write(500,'(5(i6,1x))') irank, iistas(irank+1), iiends(irank+1), &
