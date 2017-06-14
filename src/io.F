@@ -3721,6 +3721,9 @@ SUBROUTINE PutFile(FILE_NAME,PHI)
       CASE ('ASCII')
          TMP_NAME = TRIM(FILE_NAME)//'.txt'
          CALL PutFileASCII(TMP_NAME,PHI)
+      CASE ('BINARY')
+         TMP_NAME = TRIM(FILE_NAME)//'.bin'
+         Call PutFileBinary(TMP_NAME,PHI)
       CASE DEFAULT
          !Defaults to ASCII case for non-valid input
          TMP_NAME = TRIM(FILE_NAME)//'.txt'

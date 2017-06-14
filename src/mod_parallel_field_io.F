@@ -154,4 +154,68 @@ SUBROUTINE PutFileASCII(FILE,PHI)
 
 END SUBROUTINE PutfileASCII
 
+! Code derived from William D. Gropp lecture slides 33 
+! http://wgropp.cs.illinois.edu/courses/cs598-s16/lectures/lecture33.pdf
+SUBROUTINE PutFileBinary(FILE_NAME,PHI)
+    
+     IMPLICIT NONE
+     CHARACTER(LEN=80), INTENT(IN) :: FILE_NAME
+     REAL(SP),DIMENSION(Mloc,Nloc), INTENT(IN) :: PHI
+     REAL(SP),DIMENSION(Mloc,Nloc) :: PHITEST
+
+     INTEGER ::  file_handler, ierr , istatus  , mem_type_loc , file_type_glob
+     INTEGER(8) :: offset
+     INTEGER , DIMENSION(ndims) ::  sizes_loc , subsizes_loc , start_index_loc
+     INTEGER , DIMENSION(ndims) ::  sizes_glob , subsizes_glob , start_index_glob
+
+     offset = 0
+
+
+     ! Defines each nodes subdomain 'PHI' and the surrounding ghost points
+     ! Used to extract data minus ghost points
+     sizes_loc(1) = Mloc 
+     sizes_loc(2) = Nloc
+
+     subsizes_loc(1) =  sizes_loc(1) - 2*Nghost
+     subsizes_loc(2) =  sizes_loc(2) - 2*Nghost
+
+     start_index_loc(1) = Nghost  ! 0 start index even in Fortran
+     start_index_loc(2) = Nghost  ! 0 start index even in Fortran
+
+     ! Defines the mapping between subdomains (minus ghost points)
+     ! to the global domain
+     sizes_glob(1) = Mglob
+     sizes_glob(2) = Nglob
+
+     subsizes_glob(1) =   subsizes_loc(1) 
+     subsizes_glob(2) =   subsizes_loc(2)
+
+     start_index_glob(1) = iista - 1 ! 0 start index even in Fortran 
+     start_index_glob(2) = jjsta - 1 ! 0 start index even in Fortran
+
+
+     CALL MPI_TYPE_CREATE_SUBARRAY(ndims, sizes_loc , subsizes_loc , &
+                                   start_index_loc , MPI_ORDER_FORTRAN, mpi_sp , mem_type_loc, ierr)
+     CALL MPI_TYPE_COMMIT(mem_type_loc, ierr)
+
+
+     CALL MPI_TYPE_CREATE_SUBARRAY(ndims, sizes_glob , subsizes_glob , &
+                                   start_index_glob , MPI_ORDER_FORTRAN, mpi_sp , file_type_glob , ierr)
+     CALL MPI_TYPE_COMMIT(file_type_glob, ierr)
+
+
+     CALL MPI_FILE_OPEN(comm2d , FILE_NAME , & 
+                           MPI_MODE_WRONLY + MPI_MODE_CREATE, & 
+                           MPI_INFO_NULL, file_handler , ierr) 
+
+     CALL MPI_FILE_SET_VIEW( file_handler , offset , mpi_sp , file_type_glob , 'native' , MPI_INFO_NULL, ierr)
+
+
+     CALL MPI_FILE_WRITE_ALL(file_handler, PHI , 1, mem_type_loc , istatus, ierr)
+
+     CALL MPI_FILE_CLOSE(file_handler, ierr )
+
+
+END SUBROUTINE PutfileBinary
+
 END MODULE PARALLEL_FIELD_IO
