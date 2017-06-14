@@ -3719,14 +3719,14 @@ SUBROUTINE PutFile(FILE_NAME,PHI)
 
      SELECT CASE (TRIM(FIELD_TYPE_IO))
       CASE ('ASCII')
-         TMP_NAME = TRIM(FILE_NAME)//'.txt'
+         TMP_NAME = TRIM(FILE_NAME)
          CALL PutFileASCII(TMP_NAME,PHI)
       CASE ('BINARY')
-         TMP_NAME = TRIM(FILE_NAME)//'.bin'
+         TMP_NAME = TRIM(FILE_NAME)
          Call PutFileBinary(TMP_NAME,PHI)
       CASE DEFAULT
          !Defaults to ASCII case for non-valid input
-         TMP_NAME = TRIM(FILE_NAME)//'.txt'
+         TMP_NAME = TRIM(FILE_NAME)
          CALL PutFileASCII(TMP_NAME,PHI)
      END SELECT
 
