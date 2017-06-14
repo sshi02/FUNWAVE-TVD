@@ -204,14 +204,14 @@ SUBROUTINE PutFileBinary(FILE_NAME,PHI)
      CALL MPI_TYPE_COMMIT(file_type_glob, ierr)
 
 
-     CALL MPI_FILE_OPEN(comm2d , FILE_NAME , & 
+     CALL MPI_FILE_OPEN(MPI_COMM_WORLD, FILE_NAME , & 
                            MPI_MODE_WRONLY + MPI_MODE_CREATE, & 
                            MPI_INFO_NULL, file_handler , ierr) 
 
      CALL MPI_FILE_SET_VIEW( file_handler , offset , mpi_sp , file_type_glob , 'native' , MPI_INFO_NULL, ierr)
 
 
-     CALL MPI_FILE_WRITE_ALL(file_handler, PHI , 1, mem_type_loc , istatus, ierr)
+     CALL MPI_FILE_WRITE_ALL(file_handler, PHI , 1, mem_type_loc , MPI_STATUS_IGNORE, ierr)
 
      CALL MPI_FILE_CLOSE(file_handler, ierr )
 
