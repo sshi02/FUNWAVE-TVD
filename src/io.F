@@ -2992,11 +2992,11 @@ SUBROUTINE READ_INPUT
 ![mayhl 17/06/12
 ! Note: Serial code only output is ASCII
 # if defined (PARALLEL)
-      CALL READ_STRING(FIELD_TYPE_IO,FILE_NAME,'FIELD_TYPE_IO',ierr)
+      CALL READ_STRING(FIELD_IO_TYPE,FILE_NAME,'FIELD_IO_TYPE',ierr)
 
-      IF(ierr.EQ.1) THEN
-         FIELD_TYPE_IO = 'ASCII'
-      ENDIF
+      IF(ierr.EQ.1) FIELD_IO_TYPE = 'ASCII'
+      
+      IF (myid.EQ.0) WRITE(3,*) 'FIELD_TYPE_IO = ' , FIELD_IO_TYPE
 # endif
 ! mayhl]
  
@@ -3717,7 +3717,7 @@ SUBROUTINE PutFile(FILE_NAME,PHI)
 
      CHARACTER(LEN=80)::TMP_NAME=' '
 
-     SELECT CASE (TRIM(FIELD_TYPE_IO))
+     SELECT CASE (TRIM(FIELD_IO_TYPE))
       CASE ('ASCII')
          CALL PutFileASCII(FILE_NAME,PHI)
       CASE ('BINARY')
