@@ -2859,6 +2859,21 @@ SUBROUTINE READ_INPUT
       WRITE(3,'(A15,A50)')'RESULT_FOLDER:', RESULT_FOLDER
 # endif
 
+![mayhl 17/06/12
+! Note 1: Serial code only output is ASCII
+! Note 2: Placing code after result folder creation seems to delay
+!         writing to LOG.txt till after simulation is completed.
+# if defined (PARALLEL)
+      CALL READ_STRING(FIELD_IO_TYPE,FILE_NAME,'FIELD_IO_TYPE',ierr)
+
+      IF(ierr.EQ.1) FIELD_IO_TYPE = 'ASCII'
+      
+      IF (myid.EQ.0) WRITE(3,*) 'FIELD_TYPE_IO = ' , FIELD_IO_TYPE
+# endif
+! mayhl]
+ 
+
+
 ! create result folder
       MKFOLDER = "mkdir -p "//TRIM(RESULT_FOLDER)
 # if defined (PARALLEL)
@@ -2989,17 +3004,7 @@ SUBROUTINE READ_INPUT
       endif
 # endif
 
-![mayhl 17/06/12
-! Note: Serial code only output is ASCII
-# if defined (PARALLEL)
-      CALL READ_STRING(FIELD_IO_TYPE,FILE_NAME,'FIELD_IO_TYPE',ierr)
 
-      IF(ierr.EQ.1) FIELD_IO_TYPE = 'ASCII'
-      
-      IF (myid.EQ.0) WRITE(3,*) 'FIELD_TYPE_IO = ' , FIELD_IO_TYPE
-# endif
-! mayhl]
- 
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,*)'                                         '
       if (myid.eq.0) WRITE(3,*)' --------------input end --------------' 
