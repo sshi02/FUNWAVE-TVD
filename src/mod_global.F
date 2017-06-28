@@ -103,6 +103,7 @@ MODULE GLOBAL
        CHARACTER(LEN=80) Time_Scheme
        CHARACTER(LEN=80) CONSTR
        CHARACTER(LEN=80) HIGH_ORDER
+       CHARACTER(LEN=80) FIELD_IO_TYPE !mayhl 17/06/12
        ![ykchoi(14.12.24)
        REAL(SP) :: HotStartTime
        !ykchoi(14.12.24)]
