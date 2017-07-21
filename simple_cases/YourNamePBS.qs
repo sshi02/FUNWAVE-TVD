@@ -35,7 +35,7 @@ vpkg_require openmpi/1.4.4-gcc
 #
 # The MPI program to execute and any arguments to it:
 #
-MY_EXE="./funwave"
+MY_EXE="./funwave_mills"
 
 #
 # Ask Open MPI to do processor binding?
