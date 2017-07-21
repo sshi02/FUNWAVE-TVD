@@ -1,6 +1,6 @@
 clear all
 
-fdir='/Users/fengyanshi/tmp1/'
+fdir='../results/'
 
 dep=load('../bathy/depth_a15.txt');
 
@@ -9,7 +9,9 @@ x=[0:m-1]*1;
 y=[0:n-1]*2;
 [xx,yy]=meshgrid(x,y);
 
-set(gcf,'units','inches','paperunits','inches','papersize', [7 17],'position',[1 1 8 12],'paperposition',[0 0 6 12]);
+wid=8;
+len=5;
+set(gcf,'units','inches','paperunits','inches','papersize', [wid len],'position',[0 0 wid len],'paperposition',[0 0 wid len]);
 
 nstart=input('nstart');
 nend=input('nend');
@@ -32,7 +34,7 @@ dep(mask<1)=NaN;
 u(mask<1)=NaN;
 v(mask<1)=NaN;
 
-ax=[0 250 0 2000];
+ax=[0 250 0 500];
 clf
 
 subplot(131)

@@ -78,6 +78,8 @@ Hmo = 1.00
 GammaTMA = 3.3
 ThetaPeak = 30.0
 Sigma_Theta = 10.0
+Nfreq = 100
+Ntheta = 50
 EqualEnergy = T
   ! ---------------- PERIODIC BOUNDARY CONDITION --------- 
   ! South-North periodic boundary condition 
