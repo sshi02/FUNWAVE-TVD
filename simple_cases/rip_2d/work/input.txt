@@ -2,14 +2,14 @@
   ! NOTE: all input parameter are capital sensitive 
   ! --------------------TITLE------------------------------------- 
   ! title only for log file 
-TITLE = inlet_shoal_beach
+TITLE = 2D_beach
   ! -------------------PARALLEL INFO----------------------------- 
    !  
    !    PX,PY - processor numbers in X and Y 
    !    NOTE: make sure consistency with mpirun -np n (px*py) 
    !     
- PX = 4
- PY = 4
+ PX = 2
+ PY = 2
    ! --------------------DEPTH------------------------------------- 
    ! Depth types, DEPTH_TYPE=DATA: from depth file 
    !              DEPTH_TYPE=FLAT: idealized flat, need depth_flat 
@@ -17,35 +17,27 @@ TITLE = inlet_shoal_beach
    !                                 need slope,SLP starting point, Xslp 
    !                                 and depth_flat 
  DEPTH_TYPE = DATA 
- DEPTH_FILE = depth.txt 
- !BATHY_CORRECTION = T
- !SmoothBelowDepth = -1.0
- !SlopeCap = 1.0
-
- !BREAKWATER_FILE = breakwater.txt
-
+ DEPTH_FILE = ../bathy/depth_a15.txt
    ! -------------------PRINT--------------------------------- 
    ! PRINT*, 
    ! result folder 
- RESULT_FOLDER = output/ 
- 
-
+RESULT_FOLDER = output/ 
    ! ------------------DIMENSION----------------------------- 
    ! global grid dimension 
  Mglob = 512
- Nglob = 1024 
+ Nglob = 250 
 
    ! ----------------- TIME---------------------------------- 
    ! time: total computational time/ plot time / screen interval  
    ! all in seconds 
- TOTAL_TIME = 7200.0 
- PLOT_INTV = 300.0 
+ TOTAL_TIME = 1000.0 
+ PLOT_INTV = 100.0 
  PLOT_INTV_STATION = 0.5 
- SCREEN_INTV = 300.0 
+ SCREEN_INTV = 100.0 
 
    ! -----------------GRID---------------------------------- 
    ! if use spherical grid, in decimal degrees 
- DX = 2.0 
+ DX = 1.0 
  DY = 2.0 
    ! ----------------WAVEMAKER------------------------------ 
    !  wave maker 
@@ -62,25 +54,18 @@ TITLE = inlet_shoal_beach
    !                 and then use Wei and Kirby 1999  
    !          need input WaveCompFile (including 3 columns: per,amp,pha) 
    !          NumWaveComp,PeakPeriod,DEP_WK,Xc_WK,Ywidth_WK 
-  ! wave components based on fft time series
 WAVEMAKER = WK_IRR
-Time_ramp = 1.0
-Delta_WK = 0.6    ! width parameter 0.3-0.6
-DEP_WK = 10.0
-Xc_WK = 250.0
-Yc_WK = 0.0
-Ywidth_WK = 20000.0
-  ! Wei and Kirby irregular wave
-FreqPeak = 0.1
+DEP_WK = 13.0 
+Xc_WK = 425.0 
+Yc_WK = 0.0 
+FreqPeak = 0.1 
 FreqMin = 0.03
-FreqMax = 0.3
-Hmo = 1.00
-GammaTMA = 3.3
-ThetaPeak = 30.0
-Sigma_Theta = 10.0
-Nfreq = 100
-Ntheta = 50
-EqualEnergy = T
+FreqMax = 0.5 
+Hmo = 1.0 
+GammaTMA = 5.0 
+ThetaPeak = 0.0 
+Sigma_Theta = 10.0 
+
   ! ---------------- PERIODIC BOUNDARY CONDITION --------- 
   ! South-North periodic boundary condition 
   ! 
@@ -94,8 +79,8 @@ FRICTION_SPONGE = T
 DIRECT_SPONGE = T 
 Csp = 0.0 
 CDsponge = 1.0 
-Sponge_west_width =  180.0 
-Sponge_east_width =  0.0 
+Sponge_west_width =  0.0 
+Sponge_east_width =  60.0 
 Sponge_south_width = 0.0 
 Sponge_north_width = 0.0 
 
@@ -104,7 +89,7 @@ Sponge_north_width = 0.0
   ! dispersion: all dispersive terms 
   ! gamma1=1.0,gamma2=1.0: defalt: Fully nonlinear equations 
   !----------------Friction----------------------------- 
-Cd = 0.0 
+Cd = 0.002 
 
   ! ----------------NUMERICS---------------------------- 
   ! time scheme: runge_kutta for all types of equations 
@@ -126,33 +111,32 @@ MinDepth=0.01
 
   ! -------------- BREAKING ----------------------------
 VISCOSITY_BREAKING = F  
-SHOW_BREAKING = F
 Cbrk1 = 0.65 
 Cbrk2 = 0.35 
   ! ----------------- WAVE AVERAGE ------------------------ 
   ! if use smagorinsky mixing, have to set -DMIXING in Makefile 
   ! and set averaging time interval, T_INTV_mean, default: 20s 
-T_INTV_mean = 1200.0 
-STEADY_TIME=1200.0 
+T_INTV_mean = 50.0 
+STEADY_TIME= 100.0 
 
   ! -----------------OUTPUT----------------------------- 
   ! stations  
   ! if NumberStations>0, need input i,j in STATION_FILE 
-NumberStations = 3
+NumberStations = 0
 STATIONS_FILE = gauges.txt 
   ! output variables, T=.TRUE, F = .FALSE. 
 DEPTH_OUT = T 
-U = F 
-V = F 
+U = T 
+V = T 
 ETA = T 
 Hmax = F 
 Hmin = F 
 MFmax = F 
 Umax = F 
 VORmax = F 
-Umean = F 
-Vmean = F 
-ETAmean = F 
+Umean = T 
+Vmean = T 
+ETAmean = T 
 MASK = T 
 MASK9 = F 
 SXL = F 

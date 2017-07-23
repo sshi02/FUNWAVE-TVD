@@ -38,15 +38,18 @@ TITLE = inlet_shoal_beach
    ! ----------------- TIME---------------------------------- 
    ! time: total computational time/ plot time / screen interval  
    ! all in seconds 
- TOTAL_TIME = 7200.0 
- PLOT_INTV = 300.0 
+ TOTAL_TIME = 1000.0 
+ PLOT_INTV = 50.0 
  PLOT_INTV_STATION = 0.5 
- SCREEN_INTV = 300.0 
+ SCREEN_INTV = 50.0 
 
    ! -----------------GRID---------------------------------- 
    ! if use spherical grid, in decimal degrees 
  DX = 2.0 
  DY = 2.0 
+  ! ----------------SHIP WAKES ----------------------------
+VESSEL_FOLDER = ./
+NumVessel = 1
    ! ----------------WAVEMAKER------------------------------ 
    !  wave maker 
    ! LEF_SOL- left boundary solitary, need AMP,DEP, LAGTIME 
