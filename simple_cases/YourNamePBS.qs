@@ -40,7 +40,7 @@ MY_EXE="./funwave_mills"
 #
 # Ask Open MPI to do processor binding?
 #
-WANT_CPU_AFFINITY=YES
+# WANT_CPU_AFFINITY=YES
 
 #
 # Should the job use just half of the cores allocated to it?
@@ -66,9 +66,9 @@ WANT_CPU_AFFINITY=YES
 ## You should NOT need to change anything after this comment.
 ##
 OPENMPI_FLAGS="--display-map --mca btl ^tcp"
-##if [ "x$WANT_CPU_AFFINITY" = "xYES" ]; then
-##  OPENMPI_FLAGS="${OPENMPI_FLAGS} --bind-to-core"
-##fi
+if [ "x$WANT_CPU_AFFINITY" = "xYES" ]; then
+  OPENMPI_FLAGS="${OPENMPI_FLAGS} --bind-to-core"
+fi
 if [ "x$WANT_HALF_CORES_ONLY" = "xYES" ]; then
   OPENMPI_FLAGS="${OPENMPI_FLAGS} --cpus-per-proc 2 --np $((NSLOTS/2)) --loadbalance"
 fi
