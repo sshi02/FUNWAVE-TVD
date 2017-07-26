@@ -16,13 +16,13 @@
 #$ -pe openmpi 4
 #$ -l  psm_endpoints=1
 #
-#$ -l standby=1
+# -l standby=1
 #
 # If you want an email message to be sent to you when your job ultimately
 # finishes, edit the -M line to have your email address and change the
 # next two lines to start with #$ instead of just #
 # -m eas
-# -M fyshi@udel.edu
+# -M your_email_address@udel.edu
 #
 
 #
@@ -66,9 +66,9 @@ WANT_CPU_AFFINITY=YES
 ## You should NOT need to change anything after this comment.
 ##
 OPENMPI_FLAGS="--display-map --mca btl ^tcp"
-if [ "x$WANT_CPU_AFFINITY" = "xYES" ]; then
-  OPENMPI_FLAGS="${OPENMPI_FLAGS} --bind-to-core"
-fi
+##if [ "x$WANT_CPU_AFFINITY" = "xYES" ]; then
+##  OPENMPI_FLAGS="${OPENMPI_FLAGS} --bind-to-core"
+##fi
 if [ "x$WANT_HALF_CORES_ONLY" = "xYES" ]; then
   OPENMPI_FLAGS="${OPENMPI_FLAGS} --cpus-per-proc 2 --np $((NSLOTS/2)) --loadbalance"
 fi
