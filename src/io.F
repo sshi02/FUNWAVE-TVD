@@ -3492,6 +3492,11 @@ SUBROUTINE PREVIEW
         call PutFile(TMP_NAME,WindV2D)
     ENDIF
 
+    IF(MeteoGausian)THEN
+        TMP_NAME = TRIM(FDIR)//'Pstorm_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,StormPressureTotal)
+    ENDIF
+
     IF(SlideModel)THEN
         TMP_NAME = TRIM(FDIR)//'Pstorm_'//TRIM(FILE_NAME)
         call PutFile(TMP_NAME,StormPressureTotal)      
