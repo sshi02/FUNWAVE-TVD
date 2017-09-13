@@ -338,6 +338,7 @@ SUBROUTINE GET_Eta_U_V_HU_HV
 # endif
 
 ! I added coupling condition 10/14/2012
+!  added west_bc wavemaker 09/12/2017
 
 # if defined (COUPLING)
      IF(IN_DOMAIN_WEST)THEN
@@ -349,6 +350,21 @@ SUBROUTINE GET_Eta_U_V_HU_HV
          tmp4=tmp4-tmp3*U(I+1,J)
        ENDIF
      ENDIF
+# endif
+
+!  left_bc wavemaker
+# if defined (PARALLEL)
+    if(n_west.eq.MPI_PROC_NULL) then
+# endif
+
+    IF (WaveMaker(1:11)=='LEFT_BC_IRR')THEN
+       IF(I.eq.Ibeg)THEN
+         tmp4=tmp4-tmp1*U(I-1,J)
+       ENDIF
+    ENDIF
+
+# if defined (PARALLEL)
+    endif  
 # endif
 
 

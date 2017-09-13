@@ -1837,15 +1837,17 @@ SUBROUTINE READ_INPUT
           ENDIF 
 
 ! absorbing generating wavemaker, more tests needed 
-     IF(WaveMaker(1:3)=='ABS') THEN
+     IF(WaveMaker(1:3)=='ABS'.OR.WaveMaker(1:11)=='LEFT_BC_IRR') THEN
 
        CALL READ_LOGICAL(WAVE_DATA,FILE_NAME,'WAVE_DATA',ierr)
-
        CALL READ_FLOAT(DEP_Ser,FILE_NAME,'DepthWaveMaker',ierr)
+
+      IF(WaveMaker(1:3)=='ABS')THEN
        CALL READ_FLOAT(WidthWaveMaker,FILE_NAME,'WidthWaveMaker',ierr) 
 !  get R and A for sponge_wavemaker calculation  
         CALL READ_FLOAT(R_sponge_wavemaker,FILE_NAME,'R_sponge_wavemaker',ierr)
         CALL READ_FLOAT(A_sponge_wavemaker,FILE_NAME,'A_sponge_wavemaker',ierr)
+      ENDIF
 
       IF(WAVE_DATA)THEN
        CALL READ_STRING(WaveCompFile,FILE_NAME,'WaveCompFile',ierr)
@@ -1863,6 +1865,7 @@ SUBROUTINE READ_INPUT
        ENDDO
        DO I=1,NumDir
          READ(1,*)(Amp_Ser(J,I),J=1,NumFreq)
+print*,Amp_Ser(J,I),i,j
        ENDDO
      CLOSE(1)
 
@@ -1891,7 +1894,7 @@ SUBROUTINE READ_INPUT
       if (myid.eq.0) WRITE(3,'(A40)')'absorbing generating wave maker'
       if (myid.eq.0) WRITE(3,'(A40)')'use DATA'
 # else
-      WRITE(3,'(A40)')'absorbing generating wave maker'
+      WRITE(3,'(A40)')'abs or left_bc_irr wave maker'
       WRITE(3,'(A40)')'use DATA'
 # endif
  
@@ -1907,14 +1910,14 @@ SUBROUTINE READ_INPUT
 
 
 # if defined (PARALLEL)
-      if (myid.eq.0) WRITE(3,'(A40)')'absorbing generating wave maker'
+      if (myid.eq.0) WRITE(3,'(A40)')'abs or left_bc_irr wave maker'
       if (myid.eq.0) WRITE(3,'(A40)')'use TMA'
 # else
       WRITE(3,'(A40)')'absorbing generating wave maker'
       WRITE(3,'(A40)')'use TMA'
 # endif
       ENDIF ! end if data or tma
-     ENDIF ! end absorbing-generating
+     ENDIF ! end absorbing-generating or left bc wave maker
 
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,*)'                                         '

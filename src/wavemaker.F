@@ -329,7 +329,7 @@ SUBROUTINE WAVEMAKER_INITIALIZATION
 !   now include spherical 
 
 
-     IF(WAVEMAKER(1:3)=='ABS')THEN
+     IF(WAVEMAKER(1:3)=='ABS'.OR.WaveMaker(1:11)=='LEFT_BC_IRR')THEN
       IF(WAVE_DATA)THEN
         CALL CALCULATE_DATA2D_Cm_Sm
       ELSE
@@ -658,7 +658,8 @@ SUBROUTINE CALCULATE_DATA2D_Cm_Sm
      Cm_v = ZERO
      Sm_v = ZERO
 
-     Zlev = ABS(Beta_ref)*Dep_Ser
+     Zlev = ABS(1.0_SP+Beta_ref)*Dep_Ser
+!     Zlev = Dep_Ser
 
      DO KK=1,NumFreq
        DO J=1,Nloc
@@ -1733,4 +1734,80 @@ SUBROUTINE VISCOSITY_WMAKER (M,N,ETAT,visbrk,H,MinDepthFrc,DX,DY)
      ENDDO
 
 END SUBROUTINE VISCOSITY_WMAKER
+
+!-------------------------------------------------------------------------------------
+!
+!    IRREGULAR_LEFT_BC is subroutine for wave generation at left bc
+!    
+!    HISTORY: 
+!      09/12/2017 Fengyan Shi
+!
+!-------------------------------------------------------------------------------------
+SUBROUTINE IRREGULAR_LEFT_BC
+     USE PARAM
+     USE GLOBAL, ONLY : ETA,U,V,SPONGEMAKER,Mloc,Nloc,Nghost,MASK,I,J,DX,DY,ZERO, &
+                        Depth,HU,HV
+     USE GLOBAL, ONLY : SP,PI,Grav,TIME,ISTAGE,DT,NumFreq,Phase_Ser,&
+                       Ibeg,Iend,Jbeg,Jend,&
+                       Segma_Ser,Stokes_Drift_Ser,Cm_eta,Sm_eta,&
+                       Cm_u,Sm_u,Cm_v,Sm_v,SPONGE
+# if defined (PARALLEL)
+    USE GLOBAL, ONLY : n_east,n_west,n_suth,n_nrth, &
+                     comm2d, ier,myid,PX,PY,&
+                       NumberProcessor,ProcessorID
+# endif
+
+
+     IMPLICIT NONE
+     REAL(SP) :: RTIME
+     INTEGER :: KK
+     real(SP),DIMENSION(Mloc,Nloc) :: Ein2D,Din2D
+     real(SP),DIMENSION(Mloc,Nloc) :: Uin2D,Vin2D
+
+
+     Ein2D = ZERO
+     Uin2D = ZERO
+     Vin2D = ZERO
+
+     RTIME = TIME +(ISTAGE-1)*DT/3.0_SP
+
+# if defined (PARALLEL)
+       if ( n_west .eq. MPI_PROC_NULL ) then
+# endif
+
+     do j = 1,Nloc
+     do i = 1,Nghost
+      DO KK = 1, NumFreq
+
+       Ein2D(I,J) =Ein2D(I,J)+Cm_eta(I,J,KK)*COS(pi/2.0_SP+Segma_Ser(KK)*RTIME+Phase_Ser(KK)) &
+                             +Sm_eta(I,J,KK)*SIN(pi/2.0_SP+Segma_Ser(KK)*RTIME+Phase_Ser(KK))
+ 
+       Uin2D(I,J) =Uin2D(I,J)+Cm_u(I,J,KK)*COS(pi/2.0_SP+Segma_Ser(KK)*RTIME+Phase_Ser(KK)) &
+                             +Sm_u(I,J,KK)*SIN(pi/2.0_SP+Segma_Ser(KK)*RTIME+Phase_Ser(KK))
+       Vin2D(I,J) =Vin2D(I,J)+Cm_v(I,J,KK)*COS(pi/2.0_SP+Segma_Ser(KK)*RTIME+Phase_Ser(KK)) &
+                             +Sm_v(I,J,KK)*SIN(pi/2.0_SP+Segma_Ser(KK)*RTIME+Phase_Ser(KK))
+       ENDDO 
+
+     enddo 
+     enddo   
+
+
+       do j = 1,Nloc
+       do i = 1,Nghost
+          Eta(i,j) = Ein2D(I,J)
+          U(i,j) = Uin2D(I,J)
+          V(i,j) = Vin2D(I,J)
+          HU(I,J)=(Depth(I,J)+ETA(I,J))*U(I,J)
+          HV(I,J)=(Depth(I,J)+ETA(I,J))*V(I,J)
+       enddo
+       enddo
+
+# if defined (PARALLEL)
+      endif
+# endif
+
+!print*, 'eta',rtime,eta(1,10),eta(2,10),eta(3,10),eta(4,10)
+!print*, 'u', rtime,u(1,10),u(2,10),u(3,10),u(4,10)
+
+END SUBROUTINE IRREGULAR_LEFT_BC
 

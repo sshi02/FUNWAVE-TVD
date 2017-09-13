@@ -144,7 +144,7 @@ Program FUNWAVE_TVD
 
      IMPLICIT NONE
 
-     INTEGER::ISTAGE
+!     INTEGER::ISTAGE ! moved to mod_global 09/12/2017
 !     REAL(SP) :: tbegin,tend  ! moved to mod_global 07/29/2016
 
 # if defined (PARALLEL)
@@ -248,6 +248,10 @@ Program FUNWAVE_TVD
 
        IF(WaveMaker(1:3)=='ABS') THEN
          CALL ABSORBING_GENERATING_BC
+       ENDIF
+
+       IF(WaveMaker(1:11)=='LEFT_BC_IRR') THEN
+         CALL IRREGULAR_LEFT_BC
        ENDIF
 
        IF(DIRECT_SPONGE)THEN

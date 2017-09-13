@@ -182,6 +182,7 @@ SUBROUTINE CAL_DISPERSION
       
 ! this may affect parallel version
 ! I added coupling boundary 10/14/2012
+!  add left_bc wavemaker 09/12/2017
 
 !  boundary conditions
 # if defined (PARALLEL)
@@ -190,6 +191,9 @@ SUBROUTINE CAL_DISPERSION
 # if defined(COUPLING)
     IF(.NOT.IN_DOMAIN_WEST)THEN
 # endif
+    IF (WaveMaker(1:11)=='LEFT_BC_IRR')THEN
+     ! do nothing
+    ELSE
      DO J=1,Nloc
        Uxy(Ibeg,J)=ZERO
        DUxy(Ibeg,J)=ZERO
@@ -200,6 +204,7 @@ SUBROUTINE CAL_DISPERSION
        Vtxy(Ibeg,J)=ZERO
        DVtxy(Ibeg,J)=ZERO
      ENDDO
+    ENDIF ! left_bc wavemaker
 # if defined(COUPLING)  
    ENDIF 
 # endif
