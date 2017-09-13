@@ -80,6 +80,9 @@ SUBROUTINE BOUNDARY_CONDITION
       ENDDO
    ENDIF
 # else
+   IF(WaveMaker(1:11)=='LEFT_BC_IRR')THEN
+     ! do nothing
+   ELSE
      DO J=Jbeg,Jend
       P(Ibeg,J)=ZERO
       Xi=EtaRxR(Ibeg,J)
@@ -87,6 +90,7 @@ SUBROUTINE BOUNDARY_CONDITION
       Fx(Ibeg,J)=0.5_SP*GRAV*(Xi*Xi*Gamma3+2.0_SP*Xi*Deps)
       Gx(Ibeg,J)=ZERO
       ENDDO
+   ENDIF ! left bc wavemaker
 # endif 
 
 # if defined (PARALLEL)
@@ -521,6 +525,7 @@ END SUBROUTINE EXCHANGE
 SUBROUTINE PHI_COLL_VARIABLE_LENGTH(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,PHI,VTYPE)
 
     USE PARAM
+    USE GLOBAL,ONLY : WaveMaker
 
 # if defined (PARALLEL)
     USE GLOBAL, ONLY : n_east,n_west,n_suth,n_nrth
@@ -536,11 +541,15 @@ SUBROUTINE PHI_COLL_VARIABLE_LENGTH(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,PHI,VTY
     if ( n_west .eq. MPI_PROC_NULL ) then
 # endif
 
+    IF(WaveMaker(1:11)=='LEFT_BC_IRR')THEN
+      ! do nothing
+    ELSE
       DO J=Jbeg,Jend  
       DO K=1,Nghost
         PHI(K,J)=PHI(Ibeg+Nghost-K,J)
       ENDDO
       ENDDO
+    ENDIF
 
 # if defined (PARALLEL)
     endif
@@ -590,9 +599,6 @@ SUBROUTINE PHI_COLL_VARIABLE_LENGTH(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,PHI,VTY
     endif
 # endif
 
-# if defined (PARALLEL)
-!    call phi_exch_variable_length (PHI,Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost)
-# endif
 
 END SUBROUTINE PHI_COLL_VARIABLE_LENGTH
 
@@ -613,6 +619,7 @@ SUBROUTINE PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,PHI,VTYPE,PERIODIC)
 SUBROUTINE PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,PHI,VTYPE)
 # endif
     USE PARAM
+    USE GLOBAL,ONLY : WaveMaker
 # if defined (COUPLING)
     USE GLOBAL,ONLY : IN_DOMAIN_WEST,IN_DOMAIN_EAST,IN_DOMAIN_SOUTH,IN_DOMAIN_NORTH
 # endif
@@ -726,6 +733,7 @@ SUBROUTINE PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,PHI,VTYPE)
 ! end cartesian
 
 ! I added coupling condition 10/14/2012
+!   add left_bc wavemaker 09/13/2017
 
 ! for Eta
     IF(VTYPE==1) THEN  ! for eta
@@ -733,17 +741,25 @@ SUBROUTINE PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,PHI,VTYPE)
 # if defined (PARALLEL)
     if ( n_west .eq. MPI_PROC_NULL ) then
 # endif
+
 # if defined (COUPLING)
     IF(.NOT.IN_DOMAIN_WEST)THEN
 # endif
+
+    IF(WaveMaker(1:11)=='LEFT_BC_IRR')THEN
+      ! do nothing
+    ELSE
       DO J=Jbeg,Jend  
       DO K=1,Nghost
         PHI(K,J)=PHI(Ibeg+Nghost-K,J)
       ENDDO
       ENDDO
+    ENDIF  ! end left bc wavemaker
+
 # if defined (COUPLING)
     ENDIF
 # endif
+
 # if defined (PARALLEL)
     endif
 # endif
@@ -822,11 +838,17 @@ SUBROUTINE PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,PHI,VTYPE)
 # if defined (COUPLING)
     IF(.NOT.IN_DOMAIN_WEST)THEN
 # endif
+
+    IF(WaveMaker(1:11)=='LEFT_BC_IRR')THEN
+      ! do nothing
+    ELSE
       DO J=Jbeg,Jend
       DO K=1,Nghost
         PHI(K,J)=-PHI(Ibeg+Nghost-K,J)
       ENDDO
       ENDDO
+    ENDIF ! end left_bc wavemaker
+
 # if defined (COUPLING)
     ENDIF
 # endif
@@ -909,11 +931,17 @@ SUBROUTINE PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,PHI,VTYPE)
 # if defined (COUPLING)
     IF(.NOT.IN_DOMAIN_WEST)THEN
 # endif
+
+    IF(WaveMaker(1:11)=='LEFT_BC_IRR')THEN
+      ! do nothing
+    ELSE
       DO J=Jbeg,Jend
       DO K=1,Nghost
         PHI(K,J)=PHI(Ibeg+Nghost-K,J)
       ENDDO
       ENDDO
+    ENDIF ! end left_bc wavemaker
+
 # if defined (COUPLING)
     ENDIF
 # endif
