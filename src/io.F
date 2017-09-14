@@ -1839,7 +1839,8 @@ SUBROUTINE READ_INPUT
 ! absorbing generating wavemaker, more tests needed 
      IF(WaveMaker(1:3)=='ABS'.OR.WaveMaker(1:11)=='LEFT_BC_IRR') THEN
 
-       CALL READ_LOGICAL(WAVE_DATA,FILE_NAME,'WAVE_DATA',ierr)
+       CALL READ_STRING(WAVE_DATA_TYPE,FILE_NAME,'WAVE_DATA_TYPE',ierr)
+
        CALL READ_FLOAT(DEP_Ser,FILE_NAME,'DepthWaveMaker',ierr)
 
       IF(WaveMaker(1:3)=='ABS')THEN
@@ -1849,7 +1850,7 @@ SUBROUTINE READ_INPUT
         CALL READ_FLOAT(A_sponge_wavemaker,FILE_NAME,'A_sponge_wavemaker',ierr)
       ENDIF
 
-      IF(WAVE_DATA)THEN
+      IF(WAVE_DATA_TYPE(1:4)=='DATA')THEN
        CALL READ_STRING(WaveCompFile,FILE_NAME,'WaveCompFile',ierr)
 
       OPEN(1,FILE=TRIM(WaveCompFile))
@@ -1865,7 +1866,6 @@ SUBROUTINE READ_INPUT
        ENDDO
        DO I=1,NumDir
          READ(1,*)(Amp_Ser(J,I),J=1,NumFreq)
-print*,Amp_Ser(J,I),i,j
        ENDDO
      CLOSE(1)
 
@@ -1898,24 +1898,158 @@ print*,Amp_Ser(J,I),i,j
       WRITE(3,'(A40)')'use DATA'
 # endif
  
-     ELSE ! use TMA 
+     ELSE ! use TMA or JON
 
           CALL READ_FLOAT(FreqPeak,FILE_NAME,'FreqPeak',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'FreqPeak NOT FOUND, specify FreqPeak in input.txt'
+         WRITE(3,'(A80)')'FreqPeak NOT FOUND, specify FreqPeak in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'FreqPeak NOT FOUND, specify FreqPeak in input.txt'
+         WRITE(3,'(A80)')'FreqPeak NOT FOUND, specify FreqPeak in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(FreqMin,FILE_NAME,'FreqMin',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'FreqMin NOT FOUND, specify FreqMin in input.txt'
+         WRITE(3,'(A80)')'FreqMin NOT FOUND, specify FreqMin in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'FreqMin NOT FOUND, specify FreqMin in input.txt'
+         WRITE(3,'(A80)')'FreqMin NOT FOUND, specify FreqMin in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(FreqMax,FILE_NAME,'FreqMax',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'FreqMax NOT FOUND, specify FreqMax in input.txt'
+         WRITE(3,'(A80)')'FreqMax NOT FOUND, specify FreqMax in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'FreqMax NOT FOUND, specify FreqMax in input.txt'
+         WRITE(3,'(A80)')'FreqMax NOT FOUND, specify FreqMax in input.txt'
+# endif
+        STOP
+      ENDIF
+
           CALL READ_FLOAT(Hmo,FILE_NAME,'Hmo',ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A50)')'Hmo NOT FOUND, specify Hmo in input.txt'
+         WRITE(3,'(A50)')'Hmo NOT FOUND, specify Hmo in input.txt'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A50)')'Hmo NOT FOUND, specify Hmo in input.txt'
+         WRITE(3,'(A50)')'Hmo NOT FOUND, specify Hmo in input.txt'
+# endif
+        STOP
+      ENDIF
           CALL READ_FLOAT(GammaTMA,FILE_NAME,'GammaTMA',ierr)
+          IF(ierr==1)THEN
+             GammaTMA = 3.3
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A14,A50)')'GammaTMA', 'NOT DEFINED, USE 3.3'
+# else
+      WRITE(3,'(A14,A50)')'GammaTMA', 'NOT DEFINED, USE 3.3'
+# endif
+          ENDIF
+
+          CALL READ_INTEGER(Nfreq,FILE_NAME,'Nfreq',ierr)
+          IF(ierr==1)THEN
+             Nfreq = 45
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A25,A50)')'Nfreq for TMA or JON', 'NOT DEFINED, USE 45'
+# else
+      WRITE(3,'(A25,A50)')'Nfreq for TMA or JON', 'NOT DEFINED, USE 45'
+# endif
+          ENDIF
+
+         IF(WAVE_DATA_TYPE(1:6)=='TMA_1D'  &
+           .OR.WAVE_DATA_TYPE(1:6)=='JON_1D')THEN
+          Ntheta = 1
+         ELSE
+          CALL READ_INTEGER(Ntheta,FILE_NAME,'Ntheta',ierr)
+          IF(ierr==1)THEN
+             Ntheta = 24
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A25,A50)')'Ntheta for TMA or JON', 'NOT DEFINED, USE 24'
+# else
+      WRITE(3,'(A25,A50)')'Ntheta for TMA or JON', 'NOT DEFINED, USE 24'
+# endif
+          ENDIF
+
+         ENDIF ! 1D or not
+
+         IF(WAVE_DATA_TYPE(1:6)=='TMA_1D'  &
+           .OR.WAVE_DATA_TYPE(1:6)=='JON_1D')THEN
+          ThetaPeak = 0.0_SP
+         ELSE
           CALL READ_FLOAT(ThetaPeak,FILE_NAME,'ThetaPeak',ierr)
+          IF(ierr==1)THEN
+             ThetaPeak = 0.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A25,A50)')'ThetaPeak', 'NOT DEFINED, USE 0.0'
+# else
+      WRITE(3,'(A25,A50)')'ThetaPeak', 'NOT DEFINED, USE 0.0'
+# endif
+          ENDIF ! end ierr
+         ENDIF ! 1D or not
+
+         IF(WAVE_DATA_TYPE(1:6)=='TMA_1D'  &
+           .OR.WAVE_DATA_TYPE(1:6)=='JON_1D')THEN
+          ! do nothing
+         ELSE
           CALL READ_FLOAT(Sigma_Theta,FILE_NAME,'Sigma_Theta',ierr)
+          IF(ierr==1)THEN
+             Sigma_Theta = 10.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A25,A50)')'Sigma_Theta', 'NOT DEFINED, USE 10.0'
+# else
+      WRITE(3,'(A25,A50)')'Sigma_Theta', 'NOT DEFINED, USE 10.0'
+# endif
+          ENDIF ! end ierr
+
+         ENDIF ! 1D or not
 
 
 # if defined (PARALLEL)
-      if (myid.eq.0) WRITE(3,'(A40)')'abs or left_bc_irr wave maker'
-      if (myid.eq.0) WRITE(3,'(A40)')'use TMA'
+      if (myid.eq.0) WRITE(3,'(A12,I12)')'Nfreq=  ', Nfreq
+      if (myid.eq.0) WRITE(3,'(A12,I12)')'Ntheta=  ', Ntheta
+      if (myid.eq.0) WRITE(3,'(A12,F12.2)')'FreqPeak=  ', FreqPeak
+      if (myid.eq.0) WRITE(3,'(A12,F12.2)')'FreqMin =  ', FreqMin
+      if (myid.eq.0) WRITE(3,'(A12,F12.2)')'FreqMax =  ', FreqMax
+      if (myid.eq.0) WRITE(3,'(A12,F12.2)')'Hmo     =  ', Hmo
+      if (myid.eq.0) WRITE(3,'(A12,F12.2)')'GammaTMA=  ', GammaTMA
+      if (myid.eq.0) WRITE(3,'(A12,F12.2)')'ThetaPeak= ', ThetaPeak
+      if (myid.eq.0) WRITE(3,'(A13,F12.2)')'Sigma_Theta=', Sigma_Theta
 # else
-      WRITE(3,'(A40)')'absorbing generating wave maker'
-      WRITE(3,'(A40)')'use TMA'
+      WRITE(3,'(A12,I12)')'Nfreq=  ', Nfreq
+      WRITE(3,'(A12,I12)')'Ntheta=  ', Ntheta
+      WRITE(3,'(A12,F12.2)')'FreqPeak=  ', FreqPeak
+      WRITE(3,'(A12,F12.2)')'FreqMin =  ', FreqMin
+      WRITE(3,'(A12,F12.2)')'FreqMax =  ', FreqMax
+      WRITE(3,'(A12,F12.2)')'Hmo     =  ', Hmo
+      WRITE(3,'(A12,F12.2)')'GammaTMA=  ', GammaTMA
+      WRITE(3,'(A12,F12.2)')'ThetaPeak= ', ThetaPeak
+      WRITE(3,'(A13,F12.2)')'Sigma_Theta=', Sigma_Theta
 # endif
+
+
       ENDIF ! end if data or tma
      ENDIF ! end absorbing-generating or left bc wave maker
 

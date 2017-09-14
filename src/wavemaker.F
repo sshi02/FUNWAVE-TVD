@@ -328,16 +328,22 @@ SUBROUTINE WAVEMAKER_INITIALIZATION
      ENDIF  ! end wk irregular wave (tma, 2d, 1d, jon_1d)
 !   now include spherical 
 
-
      IF(WAVEMAKER(1:3)=='ABS'.OR.WaveMaker(1:11)=='LEFT_BC_IRR')THEN
-      IF(WAVE_DATA)THEN
+      IF(WAVE_DATA_TYPE(1:6)=='DATA')THEN
         CALL CALCULATE_DATA2D_Cm_Sm
       ELSE
+        ! this TMA also include JON 1D and 2D
+       IF(EqualEnergy)THEN
         CALL CALCULATE_TMA_Cm_Sm &
      (Nfreq,Ntheta,DEP_Ser,FreqPeak,FreqMax,FreqMin,GammaTMA,Hmo,ThetaPeak, &
          sigma_theta)
-      ENDIF
-     ENDIF
+       ELSE
+        CALL CALCULATE_TMA_Cm_Sm_EQUAL_DFREQ &
+     (Nfreq,Ntheta,DEP_Ser,FreqPeak,FreqMax,FreqMin,GammaTMA,Hmo,ThetaPeak, &
+         sigma_theta)
+       ENDIF ! equal energy
+      ENDIF ! data type
+     ENDIF  ! left bc
 
 END SUBROUTINE WAVEMAKER_INITIALIZATION
 
@@ -610,7 +616,7 @@ SUBROUTINE CALCULATE_DATA2D_Cm_Sm
                        Theta_Ser, Ibeg,Iend,Jbeg,Jend,&
                        Wave_Number_Ser,Stokes_Drift_Ser,NumFreq,NumDir,&
                        Segma_Ser,&
-                       Cm_eta,Sm_eta,Cm_u,Sm_u,Cm_v,Sm_v
+                       Cm_eta,Sm_eta,Cm_u,Sm_u,Cm_v,Sm_v,PERIODIC
 # if defined (PARALLEL)
      USE GLOBAL, ONLY : myid,npx,npy,px,py,Mglob,Nglob
 # endif
@@ -620,6 +626,7 @@ SUBROUTINE CALCULATE_DATA2D_Cm_Sm
      real(SP),DIMENSION(Mloc,Nloc) :: Ein2D,Din2D
      real(SP),DIMENSION(Mloc,Nloc) :: Uin2D,Vin2D
      REAL(SP) :: tmp_eta,tmp_u,tmp_v
+     REAL(SP) :: Theta_Per
 
 
        ALLOCATE(Cm_eta(Mloc,Nloc,Numfreq),Sm_eta(Mloc,Nloc,Numfreq), &
@@ -662,6 +669,14 @@ SUBROUTINE CALCULATE_DATA2D_Cm_Sm
 !     Zlev = Dep_Ser
 
      DO KK=1,NumFreq
+
+         DO KKK=1,NumDir
+          IF(PERIODIC)THEN
+            CALL CalcPeriodicTheta(Wave_Number_Ser(KK),Theta_Ser(KKK),Theta_Per)
+          ELSE
+            Theta_Per = Theta_Ser(KKK)
+          ENDIF 
+
        DO J=1,Nloc
        DO I=1,Mloc
 # if defined (PARALLEL)
@@ -684,38 +699,38 @@ SUBROUTINE CALCULATE_DATA2D_Cm_Sm
 # endif
 
 # endif
+   
 
-         DO KKK=1,NumDir
           Cm_eta(I,J,KK)=Cm_eta(I,J,KK)+Amp_Ser(KK,KKK)*COS( &
-                   Wave_Number_Ser(KK)*SIN(Theta_Ser(KKK))*Y_maker &
-                  +Wave_Number_Ser(KK)*COS(Theta_Ser(KKK))*X_maker )
+                   Wave_Number_Ser(KK)*SIN(Theta_Per)*Y_maker &
+                  +Wave_Number_Ser(KK)*COS(Theta_Per)*X_maker )
           Sm_eta(I,J,KK)=Sm_eta(I,J,KK)+Amp_Ser(KK,KKK)*SIN( &
-                   Wave_Number_Ser(KK)*SIN(Theta_Ser(KKK))*Y_maker &
-                  +Wave_Number_Ser(KK)*COS(Theta_Ser(KKK))*X_maker )
+                   Wave_Number_Ser(KK)*SIN(Theta_Per)*Y_maker &
+                  +Wave_Number_Ser(KK)*COS(Theta_Per)*X_maker )
           Cm_u(I,J,KK)=Cm_u(I,J,KK)+Amp_Ser(KK,KKK) &
                        *Segma_Ser(KK)*cosh(Wave_Number_Ser(KK)*Zlev)  &
                        /sinh(Wave_Number_Ser(KK)*Dep_Ser)  &
-                   *COS(Theta_Ser(KKK))*COS( &
-                   Wave_Number_Ser(KK)*SIN(Theta_Ser(KKK))*Y_maker &
-                  +Wave_Number_Ser(KK)*COS(Theta_Ser(KKK))*X_maker )
+                   *COS(Theta_Per)*COS( &
+                   Wave_Number_Ser(KK)*SIN(Theta_Per)*Y_maker &
+                  +Wave_Number_Ser(KK)*COS(Theta_Per)*X_maker )
           Cm_v(I,J,KK)=Cm_v(I,J,KK)+Amp_Ser(KK,KKK) &
                        *Segma_Ser(KK)*cosh(Wave_Number_Ser(KK)*Zlev)  &
                        /sinh(Wave_Number_Ser(KK)*Dep_Ser)  &
-                   *SIN(Theta_Ser(KKK))*COS( &
-                   Wave_Number_Ser(KK)*SIN(Theta_Ser(KKK))*Y_maker &
-                  +Wave_Number_Ser(KK)*COS(Theta_Ser(KKK))*X_maker )                   
+                   *SIN(Theta_Per)*COS( &
+                   Wave_Number_Ser(KK)*SIN(Theta_Per)*Y_maker &
+                  +Wave_Number_Ser(KK)*COS(Theta_Per)*X_maker )                   
           Sm_u(I,J,KK)=Sm_u(I,J,KK)+Amp_Ser(KK,KKK) &
                        *Segma_Ser(KK)*cosh(Wave_Number_Ser(KK)*Zlev)  &
                        /sinh(Wave_Number_Ser(KK)*Dep_Ser)  &
-                   *COS(Theta_Ser(KKK))*SIN( &
-                   Wave_Number_Ser(KK)*SIN(Theta_Ser(KKK))*Y_maker &
-                  +Wave_Number_Ser(KK)*COS(Theta_Ser(KKK))*X_maker )
+                   *COS(Theta_Per)*SIN( &
+                   Wave_Number_Ser(KK)*SIN(Theta_Per)*Y_maker &
+                  +Wave_Number_Ser(KK)*COS(Theta_Per)*X_maker )
           Sm_v(I,J,KK)=Sm_v(I,J,KK)+Amp_Ser(KK,KKK) &
                        *Segma_Ser(KK)*cosh(Wave_Number_Ser(KK)*Zlev)  &
                        /sinh(Wave_Number_Ser(KK)*Dep_Ser)  &
-                   *SIN(Theta_Ser(KKK))*SIN( &
-                   Wave_Number_Ser(KK)*SIN(Theta_Ser(KKK))*Y_maker &
-                  +Wave_Number_Ser(KK)*COS(Theta_Ser(KKK))*X_maker )
+                   *SIN(Theta_Per)*SIN( &
+                   Wave_Number_Ser(KK)*SIN(Theta_Per)*Y_maker &
+                  +Wave_Number_Ser(KK)*COS(Theta_Per)*X_maker )
 
          ENDDO
 
@@ -726,6 +741,137 @@ SUBROUTINE CALCULATE_DATA2D_Cm_Sm
 
 END SUBROUTINE CALCULATE_DATA2D_Cm_Sm
 
+
+!-------------------------------------------------------------------------------------
+!
+!    CCalcPeriodicTheta is subroutine 
+!     to calculate theta to fit y-periodic boundary condition
+!    HISTORY: 
+!      09/12/2017 Fengyan Shi
+!
+!-------------------------------------------------------------------------------------
+SUBROUTINE CalcPeriodicTheta(WaveNumber,InputRAD,OutputRAD)
+     USE PARAM
+     USE GLOBAL,ONLY : DY,Nglob
+# if defined (PARALLEL)
+     USE GLOBAL,ONLY : myid,ier
+# endif
+     IMPLICIT NONE
+     REAL(SP) :: angle1,angle2
+     REAL(SP),INTENT(IN) :: WaveNumber,InputRAD
+     REAL(SP),INTENT(OUT) :: OutputRAD
+
+     IF(InputRAD*180/pi.GE.90.0_SP.OR.InputRAD*180/pi.LE.-90.0_SP)THEN
+# if defined (PARALLEL)
+      IF(myid == 0)THEN
+         WRITE(*,'(A40,A40)')'Input angle:', 'out of range of -90 -> 90, STOP'
+         WRITE(3,'(A40,A40)')'Input angle:', 'out of range of -90 -> 90, STOP'
+      ENDIF
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'Input angle:', 'out of range of -90 -> 90, STOP'
+         WRITE(3,'(A40,A40)')'Input angle:', 'out of range of -90 -> 90, STOP'
+         STOP
+# endif
+     ENDIF ! out of range
+
+     IF(ABS(InputRAD).GT.SMALL)THEN
+       IF(InputRAD.GT.ZERO)THEN
+         tmp3=ZERO
+         I=0
+         Do WHILE (tmp3<InputRAD)
+         I=I+1
+# if defined (CARTESIAN)
+         tmp2=I*2.0_SP*pi/DY/(Nglob-1.0_SP)     ! rlamda
+# else
+         tmp2=I*2.0_SP*pi/DY(1,1)/(Nglob-1.0_SP)     ! rlamda
+# endif
+         IF(tmp2.GE.WaveNumber)THEN
+          tmp3=pi*0.5_SP-SMALL
+         ELSE
+           tmp3=ASIN(tmp2/WaveNumber)   ! theta, based on rlamda=wkn*sin(theta)
+         ENDIF
+         IF(I>1000)THEN
+           tmp3=pi*0.5_SP-SMALL
+         ENDIF
+       ENDDO
+! judge between I-1 and I which is closer
+# if defined (CARTESIAN)
+         angle1=ASIN((I-1)*2.0_SP*pi/DY/(Nglob-1.0_SP)/WaveNumber)
+# else
+         angle1=ASIN((I-1)*2.0_SP*pi/DY(I,J)/(Nglob-1.0_SP)/WaveNumber)
+# endif
+         if (abs(angle1-InputRAD)<abs(InputRAD-tmp3))then
+            angle2=angle1
+         else
+            angle2=tmp3
+         endif
+       OutputRAD = angle2
+
+       ELSEIF(InputRAD.LT.ZERO)THEN
+         tmp3=ZERO
+         I=0
+         Do WHILE (tmp3>InputRAD)
+           I=I+1
+# if defined (CARTESIAN)
+           tmp2=I*2.0_SP*pi/DY/(Nglob-1.0_SP)     ! rlamda
+# else
+           tmp2=I*2.0_SP*pi/DY(I,J)/(Nglob-1.0_SP)     ! rlamda
+# endif
+           IF(tmp2.GE.WaveNumber)THEN
+            tmp3=-pi*0.5_SP+SMALL
+           ELSE
+             tmp3=-ASIN(tmp2/WaveNumber)   ! theta, based on rlamda=wkn*sin(theta)
+           ENDIF
+           IF(I>1000)THEN
+             tmp3=-pi*0.5_SP+SMALL
+           ENDIF
+         ENDDO
+
+! judge between I-1 and I which is closer
+# if defined (CARTESIAN)
+         angle1=-ASIN((I-1)*2.0_SP*pi/DY/(Nglob-1.0_SP)/WaveNumber)
+# else
+         angle1=-ASIN((I-1)*2.0_SP*pi/DY(1,1)/(Nglob-1.0_SP)/WaveNumber)
+# endif
+
+         if (abs(angle1-InputRAD)<abs(InputRAD-tmp3))then
+            angle2=angle1
+         else
+            angle2=tmp3
+         endif
+       OutputRAD = angle2
+
+      ENDIF 
+
+     ELSE
+       OutputRAD = InputRAD  ! zero
+     ENDIF
+
+! write out
+# if defined (PARALLEL)
+
+     IF(myid==0)THEN
+!       WRITE(*,*) 'wave angle you set:', InputRAD*180/pi
+!       WRITE(*,*) 'wave angle in calculation:', OutputRAD*180/pi
+
+       WRITE(3,*) 'wave angle you set:', InputRAD*180/pi
+       WRITE(3,*) 'wave angle in calculation:', OutputRAD*180/pi
+
+     ENDIF
+
+# else
+
+!       WRITE(*,*) 'wave angle you set:', InputRAD*180/pi
+!       WRITE(*,*) 'wave angle in calculation:', OutputRAD*180/pi
+
+       WRITE(3,*) 'wave angle you set:', InputRAD*180/pi
+       WRITE(3,*) 'wave angle in calculation:', OutputRAD*180/pi
+
+# endif
+
+
+END SUBROUTINE CalcPeriodicTheta
 
 !-------------------------------------------------------------------------------------
 !
@@ -748,11 +894,11 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm &
                 sigma_theta_input)
      USE PARAM
 ! *** from data2d_cm_sm
-     USE GLOBAL, ONLY : Mloc,Nloc,I,J,DX,DY,ZERO,Beta_ref
+     USE GLOBAL, ONLY : Mloc,Nloc,I,J,DX,DY,ZERO,Beta_ref,PERIODIC
      USE GLOBAL, ONLY : Amp_Ser,Per_Ser,Phase_Ser,Dep_Ser,&
                        Theta_Ser, Ibeg,Iend,Jbeg,Jend,&
                        Wave_Number_Ser,Stokes_Drift_Ser,NumFreq,NumDir,&
-                       Segma_Ser,&
+                       Segma_Ser,WAVE_DATA_TYPE,&
                        Cm_eta,Sm_eta,Cm_u,Sm_u,Cm_v,Sm_v
 ! ***
 
@@ -776,7 +922,7 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm &
                  omgn_tmp
      INTEGER :: kf,kff,kb,N_spec,ktotal,k_n,ktheta,mcenter
      INTEGER :: Iter,KK,KKK
-     REAL(SP) :: Celerity,Fkdif,Zlev,Fact,X_maker,Y_maker
+     REAL(SP) :: Celerity,Fkdif,Zlev,Fact,X_maker,Y_maker,Theta_Per
      
      REAL(SP) :: sumAG   !ykchoi (11/07/2016)
 
@@ -810,6 +956,10 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm &
         phi=1.0_SP-0.5_SP*(2.0_SP-omiga_spec)**2
         if(omiga_spec.le.1.0_SP) phi=0.5_SP*omiga_spec**2
         if(omiga_spec.ge.2.0_SP) phi=1.0_SP
+
+       IF(WAVE_DATA_TYPE(1:3)=='JON') THEN
+          phi=1.0_SP
+        ENDIF
 
         sigma_spec=0.07_SP
         if(fre.gt.fm)sigma_spec=0.09_SP
@@ -868,6 +1018,9 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm &
 
         ktotal=mtheta
 
+       IF(mtheta==1) THEN ! 1D case
+         AG(1) = 1.0_SP
+       ELSE
 ![-------- ykchoi (11/07/2016)
 ! ------- Wrapped normal directional spreading function (Borgman, 1984)
 ! --- the normal directional spreading does give a smoother distribution. 
@@ -890,6 +1043,7 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm &
 	  enddo
 	  AG(:) = AG(:)/sumAG;    !Because integral of AG should be 1.
 
+      ENDIF ! 1D or not
 
 !  total energy is E=Hmo^2/16, the fraction should be E/Ef 
         alpha_spec=Hmo**2/16.0_SP/Ef
@@ -917,8 +1071,12 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm &
 
 !        theta=-pi/3.0_SP+theta_input*pi/180.0_SP+2.0_SP/3.0_SP*pi/ktotal*ktheta
 
+      IF (mtheta == 1) THEN
+        theta = 0.0_SP
+      ELSE
         theta = -pi/3.0_SP + theta_input*pi/180.0_SP  & 
 	         + 2.0_SP/3.0_SP*pi/(real(ktotal)-1.0_SP)*(real(ktheta)-1.0_SP)   !ykchoi (11/07/2016)
+      ENDIF
 
         alpha=-0.39_SP
         alpha1=alpha+1.0_SP/3.0_SP
@@ -948,11 +1106,10 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm &
         Theta_Ser(ktheta)=theta
         Segma_Ser(kf)=omgn(kf)
         Per_Ser(kf)=1.0_SP/Freq(kf)
-
         enddo
         enddo
 
-     Stokes_Drift_Ser = ZERO
+      Stokes_Drift_Ser = ZERO
      Fact = 1.0 
 
 ! Cm and Sm
@@ -963,12 +1120,20 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm &
      Cm_v = ZERO
      Sm_v = ZERO
 
-     Zlev = ABS(Beta_ref)*Dep_Ser
+     Zlev = ABS(1.0_SP+Beta_ref)*Dep_Ser
+!     Zlev = Dep_Ser
 
      DO KK=1,NumFreq
+
+         DO KKK=1,NumDir
+          IF(PERIODIC)THEN
+            CALL CalcPeriodicTheta(Wave_Number_Ser(KK),Theta_Ser(KKK),Theta_Per)
+          ELSE
+            Theta_Per = Theta_Ser(KKK)
+          ENDIF 
+
        DO J=1,Nloc
        DO I=1,Mloc
-
 # if defined (PARALLEL)
 # if defined (CARTESIAN)
          X_maker=(I-Ibeg+npx*Mglob/px)*DX
@@ -979,6 +1144,7 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm &
 # endif
 
 # else
+
 # if defined (CARTESIAN)
          X_maker=(I-Ibeg)*DX
          Y_maker=(J-Jbeg)*DY
@@ -986,39 +1152,40 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm &
          X_maker=(I-Ibeg)*DX(I,J)
          Y_maker=(J-Jbeg)*DY(I,J)
 # endif
-# endif
 
-         DO KKK=1,NumDir
+# endif
+   
+
           Cm_eta(I,J,KK)=Cm_eta(I,J,KK)+Amp_Ser(KK,KKK)*COS( &
-                   Wave_Number_Ser(KK)*SIN(Theta_Ser(KKK))*Y_maker &
-                  +Wave_Number_Ser(KK)*COS(Theta_Ser(KKK))*X_maker )
+                   Wave_Number_Ser(KK)*SIN(Theta_Per)*Y_maker &
+                  +Wave_Number_Ser(KK)*COS(Theta_Per)*X_maker )
           Sm_eta(I,J,KK)=Sm_eta(I,J,KK)+Amp_Ser(KK,KKK)*SIN( &
-                   Wave_Number_Ser(KK)*SIN(Theta_Ser(KKK))*Y_maker &
-                  +Wave_Number_Ser(KK)*COS(Theta_Ser(KKK))*X_maker )
+                   Wave_Number_Ser(KK)*SIN(Theta_Per)*Y_maker &
+                  +Wave_Number_Ser(KK)*COS(Theta_Per)*X_maker )
           Cm_u(I,J,KK)=Cm_u(I,J,KK)+Amp_Ser(KK,KKK) &
                        *Segma_Ser(KK)*cosh(Wave_Number_Ser(KK)*Zlev)  &
                        /sinh(Wave_Number_Ser(KK)*Dep_Ser)  &
-                   *COS(Theta_Ser(KKK))*COS( &
-                   Wave_Number_Ser(KK)*SIN(Theta_Ser(KKK))*Y_maker &
-                  +Wave_Number_Ser(KK)*COS(Theta_Ser(KKK))*X_maker )
+                   *COS(Theta_Per)*COS( &
+                   Wave_Number_Ser(KK)*SIN(Theta_Per)*Y_maker &
+                  +Wave_Number_Ser(KK)*COS(Theta_Per)*X_maker )
           Cm_v(I,J,KK)=Cm_v(I,J,KK)+Amp_Ser(KK,KKK) &
                        *Segma_Ser(KK)*cosh(Wave_Number_Ser(KK)*Zlev)  &
                        /sinh(Wave_Number_Ser(KK)*Dep_Ser)  &
-                   *SIN(Theta_Ser(KKK))*COS( &
-                   Wave_Number_Ser(KK)*SIN(Theta_Ser(KKK))*Y_maker &
-                  +Wave_Number_Ser(KK)*COS(Theta_Ser(KKK))*X_maker )                   
+                   *SIN(Theta_Per)*COS( &
+                   Wave_Number_Ser(KK)*SIN(Theta_Per)*Y_maker &
+                  +Wave_Number_Ser(KK)*COS(Theta_Per)*X_maker )                   
           Sm_u(I,J,KK)=Sm_u(I,J,KK)+Amp_Ser(KK,KKK) &
                        *Segma_Ser(KK)*cosh(Wave_Number_Ser(KK)*Zlev)  &
                        /sinh(Wave_Number_Ser(KK)*Dep_Ser)  &
-                   *COS(Theta_Ser(KKK))*SIN( &
-                   Wave_Number_Ser(KK)*SIN(Theta_Ser(KKK))*Y_maker &
-                  +Wave_Number_Ser(KK)*COS(Theta_Ser(KKK))*X_maker )
+                   *COS(Theta_Per)*SIN( &
+                   Wave_Number_Ser(KK)*SIN(Theta_Per)*Y_maker &
+                  +Wave_Number_Ser(KK)*COS(Theta_Per)*X_maker )
           Sm_v(I,J,KK)=Sm_v(I,J,KK)+Amp_Ser(KK,KKK) &
                        *Segma_Ser(KK)*cosh(Wave_Number_Ser(KK)*Zlev)  &
                        /sinh(Wave_Number_Ser(KK)*Dep_Ser)  &
-                   *SIN(Theta_Ser(KKK))*SIN( &
-                   Wave_Number_Ser(KK)*SIN(Theta_Ser(KKK))*Y_maker &
-                  +Wave_Number_Ser(KK)*COS(Theta_Ser(KKK))*X_maker )
+                   *SIN(Theta_Per)*SIN( &
+                   Wave_Number_Ser(KK)*SIN(Theta_Per)*Y_maker &
+                  +Wave_Number_Ser(KK)*COS(Theta_Per)*X_maker )
 
          ENDDO
 
@@ -1028,6 +1195,289 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm &
 
 
 END SUBROUTINE CALCULATE_TMA_Cm_Sm
+
+!-------------------------------------------------------------------------------------
+!
+!    CALCULATE_Cm_Sm is subroutine 
+!     to calculate Cm Sm for Wei and Kirbys 
+!     internal wave maker, irregular wave (TMA)
+!
+!    HISTORY: 
+!      11/09/2010 Fengyan Shi
+!      05/12/2011 Fengyan Shi, removed conversion between Hrms and Hmo based on
+!                              Joe Geiman test
+!      10/18/2016 Fengyan Shi, Young-Kwang Choi questioned about Geimans conversion.
+!                              The derivation was checked again and found it is 
+!                              necessary to convert from Hmo to Hrms, unless the 
+!                              input wave height is Hrms. I reorganized the code. 
+!
+!-------------------------------------------------------------------------------------
+SUBROUTINE CALCULATE_TMA_Cm_Sm_EQUAL_DFREQ & 
+               (mfreq,mtheta,h_gen,fm,fmax,fmin,gamma_spec,Hmo,theta_input,&
+                sigma_theta_input)
+     USE PARAM
+! *** from data2d_cm_sm
+     USE GLOBAL, ONLY : Mloc,Nloc,I,J,DX,DY,ZERO,Beta_ref,PERIODIC
+     USE GLOBAL, ONLY : Amp_Ser,Per_Ser,Phase_Ser,Dep_Ser,&
+                       Theta_Ser, Ibeg,Iend,Jbeg,Jend,&
+                       Wave_Number_Ser,Stokes_Drift_Ser,NumFreq,NumDir,&
+                       Segma_Ser,WAVE_DATA_TYPE,&
+                       Cm_eta,Sm_eta,Cm_u,Sm_u,Cm_v,Sm_v
+! ***
+
+# if defined (PARALLEL)
+     USE GLOBAL, ONLY : myid,npx,npy,px,py,Mglob,Nglob
+# endif
+# if defined(INTEL)
+     USE IFPORT
+# endif
+     IMPLICIT NONE
+     INTEGER,INTENT(IN) :: mfreq,mtheta
+     REAL(SP),INTENT(IN) :: h_gen,fm,fmax,fmin,gamma_spec,Hmo,theta_input,&
+                            sigma_theta_input
+
+     REAL(SP),DIMENSION(mfreq):: Freq,omgn,EnergyBin
+     REAL(SP), DIMENSION(mtheta,mfreq) :: Hmo_each
+     REAL(SP), DIMENSION(mtheta) :: AG
+     REAL(SP), DIMENSION(10000) :: Ef10000
+     REAL(SP) :: Ef,fre,omiga_spec,phi,sigma_spec,Etma,Ef100,Ef_add,sigma_theta,&
+                 theta_p,theta_m,theta_10,theta_11,theta_21,alpha_spec,ap,&
+                 theta,alpha,alpha1,tb,tc,wkn,C_phase,wave_length,rl_gen,rI,theta_1,&
+                 omgn_tmp,df
+     INTEGER :: kf,kff,kb,N_spec,ktotal,k_n,ktheta,mcenter
+     INTEGER :: Iter,KK,KKK
+     REAL(SP) :: Celerity,Fkdif,Zlev,Fact,X_maker,Y_maker,Theta_Per
+     
+     REAL(SP) :: sumAG   !ykchoi (11/07/2016)
+
+       NumFreq = mfreq
+       NumDir = mtheta
+
+       ALLOCATE (Amp_Ser(NumFreq,NumDir), Wave_Number_Ser(NumFreq), &
+          Per_Ser(NumFreq),Theta_Ser(NumDir),Segma_Ser(NumFreq), &
+          Phase_Ser(NumFreq))
+       ALLOCATE(Cm_eta(Mloc,Nloc,Numfreq),Sm_eta(Mloc,Nloc,Numfreq), &
+                Cm_u(Mloc,Nloc,Numfreq),Sm_u(Mloc,Nloc,Numfreq),&
+                Cm_v(Mloc,Nloc,Numfreq),Sm_v(Mloc,Nloc,Numfreq) )
+
+       df = (fmax-fmin)/(mfreq-1.0_SP)
+       Ef = ZERO
+
+       DO kf=1,NumFreq
+# if defined (INTEL)
+          Phase_Ser(kf)=rand()*2.0_SP*3.1415926
+# elif defined (CRAY)
+          Phase_Ser(kf)=rand()*2.0_SP*3.1415926
+# else
+          Phase_Ser(kf)=rand(0)*2.0_SP*3.1415926
+# endif
+       ENDDO
+
+       DO kff=1,mfreq
+        freq(kff) = fmin +(kff-1)*df
+        omiga_spec=2.0_SP*pi*freq(kff)*SQRT(h_gen/grav)
+        phi=1.0_SP-0.5_SP*(2.0_SP-omiga_spec)**2
+        if(omiga_spec.le.1.0_SP) phi=0.5_SP*omiga_spec**2
+        if(omiga_spec.ge.2.0_SP) phi=1.0_SP
+
+        IF(WAVE_DATA_TYPE(1:3)=='JON') THEN
+          phi=1.0_SP
+        ENDIF
+
+        sigma_spec=0.07_SP
+        if(freq(kff).gt.fm)sigma_spec=0.09_SP
+
+
+        Etma=grav**2*freq(kff)**(-5)*(2.0_SP*pi)**(-4)*phi &
+         *exp(-5.0_SP/4.0_SP*(freq(kff)/fm)**(-4)) &
+         *gamma_spec**(exp(-(freq(kff)/fm-1.0_SP)**2/(2.0_SP*sigma_spec**2)))
+        EnergyBin(kff) = Etma*df
+        Ef = Ef + EnergyBin(kff)
+
+       ENDDO  ! end kff
+ 
+! --- directional wave
+        sigma_theta=sigma_theta_input*pi/180.0_SP
+        N_spec=20.0_SP/sigma_theta
+
+        ktotal=mtheta
+
+       IF(mtheta==1) THEN ! 1D case
+         AG(1) = 1.0_SP
+       ELSE
+![-------- ykchoi (11/07/2016)
+! ------- Wrapped normal directional spreading function (Borgman, 1984)
+! --- the normal directional spreading does give a smoother distribution. 
+! --- see note of Choi 11/07/2016. should update this in the manual. fyshi(11/14/2016)
+
+        sumAG=0.0_SP
+        do ktheta=1,mtheta
+
+           theta = -pi/3.0_SP + theta_input*pi/180.0_SP  & 
+	             + 2.0_SP/3.0_SP*pi/(real(ktotal)-1.0_SP)*(real(ktheta)-1.0_SP)
+
+           AG(ktheta) = 1.0_SP/( 2.0_SP*pi )
+	     do k_n=1,N_spec
+	        AG(ktheta) = AG(ktheta) +   &
+                ( 1.0_SP/pi )*exp( -0.5_SP*( real(k_n)*sigma_theta )**2 )   &
+	           *cos( k_n*(theta - theta_input*pi/180.0_SP))
+	     enddo
+	     sumAG = sumAG + AG(ktheta)
+	  
+	  enddo
+	  AG(:) = AG(:)/sumAG;    !Because integral of AG should be 1.
+
+      ENDIF ! 1D or not
+
+!  total energy is E=Hmo^2/16, the fraction should be E/Ef 
+        alpha_spec=Hmo**2/16.0_SP/Ef
+
+         DO kf=1,mfreq
+        DO ktheta=1,mtheta
+         Hmo_each(ktheta,kf)=4.0_SP*SQRT((alpha_spec*EnergyBin(kf)*AG(ktheta)))
+        ENDDO
+        ENDDO
+
+! ---  wave generation parameter
+        do kf=1,mfreq
+
+        do ktheta=1,mtheta
+
+! here should convert Hmo to Hrms
+!  Hrms=1./sqrt(2)*Hmo
+! 05/12/2011 Joe has reported that the conversion should be removed. On 10/18/2016
+!  fyshi converted it back, fyshi and Choi checked it. 
+
+        ap=Hmo_each(ktheta,kf)/SQRT(2.0_SP)/2.0_SP
+
+!        ap=Hmo_each(ktheta)/2.0_SP  ! Joes suggestion
+
+!        theta=-pi/3.0_SP+theta_input*pi/180.0_SP+2.0_SP/3.0_SP*pi/ktotal*ktheta
+
+      IF (mtheta == 1) THEN
+        theta = 0.0_SP
+      ELSE
+        theta = -pi/3.0_SP + theta_input*pi/180.0_SP  & 
+	         + 2.0_SP/3.0_SP*pi/(real(ktotal)-1.0_SP)*(real(ktheta)-1.0_SP)   !ykchoi (11/07/2016)
+      ENDIF
+
+        alpha=-0.39_SP
+        alpha1=alpha+1.0_SP/3.0_SP
+
+        omgn(kf)=2.0_SP*pi*Freq(kf) 
+
+        tb=omgn(kf)*omgn(kf)*h_gen/grav
+        tc=1.0_SP+tb*alpha
+        wkn=SQRT((tc-SQRT(tc*tc-4.0_SP*alpha1*tb))/(2.0_SP*alpha1))/h_gen
+
+! here I use fixed C_phase and wave_length to determine beta_gen 
+! as suggested by Wei and Kirby 1999
+
+! in case wkn=0 02/08/2012  
+        IF(wkn.eq.0.0)THEN
+           wkn=SMALL
+           C_phase=sqrt(grav*h_gen)
+           wave_length=C_phase/fm
+        ELSE
+          C_phase=1.0_SP/wkn*fm*2.0_SP*pi
+          wave_length=C_phase/fm
+        ENDIF
+!                          
+
+        Amp_Ser(kf,ktheta)=ap
+        Wave_Number_Ser(kf)=wkn
+        Theta_Ser(ktheta)=theta
+        Segma_Ser(kf)=omgn(kf)
+        Per_Ser(kf)=1.0_SP/Freq(kf)
+        enddo
+        enddo
+
+      Stokes_Drift_Ser = ZERO
+     Fact = 1.0 
+
+! Cm and Sm
+     Cm_eta = ZERO
+     Sm_eta = ZERO
+     Cm_u = ZERO
+     Sm_u = ZERO
+     Cm_v = ZERO
+     Sm_v = ZERO
+
+     Zlev = ABS(1.0_SP+Beta_ref)*Dep_Ser
+!     Zlev = Dep_Ser
+
+     DO KK=1,NumFreq
+
+         DO KKK=1,NumDir
+          IF(PERIODIC)THEN
+            CALL CalcPeriodicTheta(Wave_Number_Ser(KK),Theta_Ser(KKK),Theta_Per)
+          ELSE
+            Theta_Per = Theta_Ser(KKK)
+          ENDIF 
+
+       DO J=1,Nloc
+       DO I=1,Mloc
+# if defined (PARALLEL)
+# if defined (CARTESIAN)
+         X_maker=(I-Ibeg+npx*Mglob/px)*DX
+         Y_maker=(J-Jbeg+npy*Nglob/py)*DY 
+# else
+         X_maker=(I-Ibeg+npx*Mglob/px)*DX(I,J)
+         Y_maker=(J-Jbeg+npy*Nglob/py)*DY(I,J)
+# endif
+
+# else
+
+# if defined (CARTESIAN)
+         X_maker=(I-Ibeg)*DX
+         Y_maker=(J-Jbeg)*DY
+# else
+         X_maker=(I-Ibeg)*DX(I,J)
+         Y_maker=(J-Jbeg)*DY(I,J)
+# endif
+
+# endif
+   
+
+          Cm_eta(I,J,KK)=Cm_eta(I,J,KK)+Amp_Ser(KK,KKK)*COS( &
+                   Wave_Number_Ser(KK)*SIN(Theta_Per)*Y_maker &
+                  +Wave_Number_Ser(KK)*COS(Theta_Per)*X_maker )
+          Sm_eta(I,J,KK)=Sm_eta(I,J,KK)+Amp_Ser(KK,KKK)*SIN( &
+                   Wave_Number_Ser(KK)*SIN(Theta_Per)*Y_maker &
+                  +Wave_Number_Ser(KK)*COS(Theta_Per)*X_maker )
+          Cm_u(I,J,KK)=Cm_u(I,J,KK)+Amp_Ser(KK,KKK) &
+                       *Segma_Ser(KK)*cosh(Wave_Number_Ser(KK)*Zlev)  &
+                       /sinh(Wave_Number_Ser(KK)*Dep_Ser)  &
+                   *COS(Theta_Per)*COS( &
+                   Wave_Number_Ser(KK)*SIN(Theta_Per)*Y_maker &
+                  +Wave_Number_Ser(KK)*COS(Theta_Per)*X_maker )
+          Cm_v(I,J,KK)=Cm_v(I,J,KK)+Amp_Ser(KK,KKK) &
+                       *Segma_Ser(KK)*cosh(Wave_Number_Ser(KK)*Zlev)  &
+                       /sinh(Wave_Number_Ser(KK)*Dep_Ser)  &
+                   *SIN(Theta_Per)*COS( &
+                   Wave_Number_Ser(KK)*SIN(Theta_Per)*Y_maker &
+                  +Wave_Number_Ser(KK)*COS(Theta_Per)*X_maker )                   
+          Sm_u(I,J,KK)=Sm_u(I,J,KK)+Amp_Ser(KK,KKK) &
+                       *Segma_Ser(KK)*cosh(Wave_Number_Ser(KK)*Zlev)  &
+                       /sinh(Wave_Number_Ser(KK)*Dep_Ser)  &
+                   *COS(Theta_Per)*SIN( &
+                   Wave_Number_Ser(KK)*SIN(Theta_Per)*Y_maker &
+                  +Wave_Number_Ser(KK)*COS(Theta_Per)*X_maker )
+          Sm_v(I,J,KK)=Sm_v(I,J,KK)+Amp_Ser(KK,KKK) &
+                       *Segma_Ser(KK)*cosh(Wave_Number_Ser(KK)*Zlev)  &
+                       /sinh(Wave_Number_Ser(KK)*Dep_Ser)  &
+                   *SIN(Theta_Per)*SIN( &
+                   Wave_Number_Ser(KK)*SIN(Theta_Per)*Y_maker &
+                  +Wave_Number_Ser(KK)*COS(Theta_Per)*X_maker )
+
+         ENDDO
+
+       ENDDO
+       ENDDO
+      ENDDO
+
+
+END SUBROUTINE CALCULATE_TMA_Cm_Sm_EQUAL_DFREQ
 
 !-------------------------------------------------------------------------------------
 !

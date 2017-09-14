@@ -369,7 +369,8 @@ MODULE GLOBAL
        REAL(SP) :: Stokes_Drift_Ser
        REAL(SP),DIMENSION(:,:,:),ALLOCATABLE ::Cm_eta,Sm_eta, &
                 Cm_u,Sm_u,Cm_v,Sm_v
-       LOGICAL :: WAVE_DATA = .FALSE.
+!       LOGICAL :: WAVE_DATA = .FALSE.
+       CHARACTER(LEN=80) WAVE_DATA_TYPE
 
 ! eddy viscosity breaking
         REAL(SP),DIMENSION(:,:),ALLOCATABLE :: AGE_BREAKING
