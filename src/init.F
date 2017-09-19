@@ -635,6 +635,9 @@ SUBROUTINE INITIALIZATION
 
       Depth = Depth + WaterLevel
       DEP_WK = DEP_WK + WaterLevel
+      IF(WaveMaker(1:11)=='LEFT_BC_IRR')THEN
+        DepthWaveMaker = DepthWaveMaker + WaterLevel
+      ENDIF
 
 ! re-construct Depth
 
