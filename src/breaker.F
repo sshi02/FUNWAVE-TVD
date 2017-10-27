@@ -109,9 +109,10 @@ SUBROUTINE BREAKING(M,N,ETAx,ETAy,ETAT,Cbrk1,Cbrk2,H,MinDepthFrc,&
      REAL(SP)::C,Angle,AGE1,AGE2,AGE3,propx,propy,propxy
 
     
-
-     DO J = Jbeg, Jend
-     DO I = Ibeg, Iend
+! ykchoi: do loop should start jbeg-1 end jend+1 because
+!         the ghost cells are used in source.F, 10/27/2017
+     DO J = Jbeg-1, Jend+1
+     DO I = Ibeg-1, Iend+1
 
 ! make T_brk as function of depth
 !   T_brk = 10.0_SP*SQRT(MAX(Depth(I,J),MinDepthFrc)/GRAV)
