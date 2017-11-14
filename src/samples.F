@@ -59,6 +59,9 @@ SUBROUTINE SOLITARY_WAVE_LEFT_BOUNDARY
      REAL(SP):: aa,h00,c1,tex,tlag,zz
      INTEGER::Iwavemaker
 
+# if defined (PARALLEL)
+       if ( n_west .eq. MPI_PROC_NULL ) then
+# endif
        Iwavemaker=Ibeg
        aa=AMP_SOLI
        h00=DEP_SOLI
@@ -73,6 +76,9 @@ SUBROUTINE SOLITARY_WAVE_LEFT_BOUNDARY
 !         U(Iwavemaker,J)= SQRT(grav/h00)*zz
 !         HU(Iwavemaker,J)=h00*U(Iwavemaker,J)       
        enddo   
+# if defined (PARALLEL)
+       endif
+# endif
      
 END SUBROUTINE SOLITARY_WAVE_LEFT_BOUNDARY
 
