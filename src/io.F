@@ -1860,12 +1860,14 @@ SUBROUTINE READ_INPUT
        READ(1,*)PeakPeriod  ! useless for this application but should keep for consistency
        DO J=1,NumFreq
           READ(1,*)Per_Ser(J)  ! read in as frequency
+!print*,J,Per_Ser(J)
        ENDDO
        DO I=1,NumDir
           READ(1,*)Theta_Ser(I)
        ENDDO
        DO I=1,NumDir
          READ(1,*)(Amp_Ser(J,I),J=1,NumFreq)
+!print*,I,Amp_Ser(J,I)
        ENDDO
      CLOSE(1)
 
