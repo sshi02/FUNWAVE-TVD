@@ -1795,6 +1795,8 @@ SUBROUTINE READ_INPUT
         STOP
       ENDIF
 
+! data reading will be in wavemaker.F
+
           CALL READ_FLOAT(Ywidth_WK,FILE_NAME,'Ywidth_WK',ierr)
       IF(ierr==1)THEN
         Ywidth_WK = LARGE
