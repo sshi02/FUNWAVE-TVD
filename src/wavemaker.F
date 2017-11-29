@@ -329,7 +329,7 @@ SUBROUTINE WAVEMAKER_INITIALIZATION
 !   now include spherical 
 
      IF(WAVEMAKER(1:3)=='ABS'.OR.WaveMaker(1:11)=='LEFT_BC_IRR')THEN
-      IF(WAVE_DATA_TYPE(1:6)=='DATA')THEN
+      IF(WAVE_DATA_TYPE(1:4)=='DATA')THEN
         CALL CALCULATE_DATA2D_Cm_Sm
       ELSE
         ! this TMA also include JON 1D and 2D
