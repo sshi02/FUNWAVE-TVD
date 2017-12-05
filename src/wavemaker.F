@@ -211,6 +211,7 @@ SUBROUTINE WAVEMAKER_INITIALIZATION
        DO I=1,NumDir
          READ(1,*)(WAVE_COMP(J,I),J=1,NumFreq)
        ENDDO
+       CLOSE(1)
 
        CALL WK_WAVEMAKER_2D_SPECTRAL_DATA & 
                (NumFreq,NumDir,Freq,Dire,WAVE_COMP,PeakPeriod,DEP_WK,Delta_WK,D_gen2D,beta_gen2D,&
