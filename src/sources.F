@@ -189,7 +189,9 @@ SUBROUTINE SourceTerms
        SourceX(I,J)=GRAV*(Eta(I,J))/DX*(Depthx(I+1,J)-Depthx(I,J))*MASK(I,J) &
  ! friction
 # if defined (MANNING)
-                   -(GRAV*Cd(I,J)**2/H(I,J))*U(I,J)*SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J)) &
+                   -(GRAV*Cd(I,J)**2/  &
+                   Max(H(I,J),MinDepthFrc)**(0.333333_SP))  &
+                   *U(I,J)*SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J)) &
 # else
                    -Cd(I,J)*U(I,J)*SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J)) &
 # endif
