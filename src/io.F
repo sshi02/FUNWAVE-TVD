@@ -123,6 +123,7 @@ SUBROUTINE READ_INPUT
     INTEGER::LINE
     INTEGER :: ierr
     INTEGER :: I_comp
+    LOGICAL :: INPUT_PHASE = .FALSE.
 
 ![ykchoi
     CHARACTER(LEN=80)::FDIR=' '
@@ -1858,7 +1859,7 @@ SUBROUTINE READ_INPUT
       OPEN(1,FILE=TRIM(WaveCompFile))
        READ(1,*)NumFreq,NumDir
        ALLOCATE (Amp_Ser(NumFreq,NumDir),  &
-          Per_Ser(NumFreq),Theta_Ser(NumDir))
+          Per_Ser(NumFreq),Theta_Ser(NumDir),Phase_LEFT(NumFreq,NumDir))
        READ(1,*)PeakPeriod  ! useless for this application but should keep for consistency
        DO J=1,NumFreq
           READ(1,*)Per_Ser(J)  ! read in as frequency
@@ -1871,24 +1872,44 @@ SUBROUTINE READ_INPUT
          READ(1,*)(Amp_Ser(J,I),J=1,NumFreq)
 !print*,I,Amp_Ser(J,I)
        ENDDO
+       DO I=1,NumDir
+         READ(1,*,END=991)(Phase_LEFT(J,I),J=1,NumFreq)
+       ENDDO
      CLOSE(1)
+881  INPUT_PHASE = .TRUE.
+991  CONTINUE
 
-       ALLOCATE(  Phase_Ser(NumFreq),&
-                  Segma_Ser(NumFreq),Wave_Number_Ser(NumFreq) )
+    DO J=1,NumFreq
+     DO I=1,NumDir
+
+     IF(INPUT_PHASE)THEN
+         Phase_LEFT(J,I)=Phase_LEFT(J,I)*3.1415926/180.0_SP
+     ELSE
+# if defined (INTEL)
+          Phase_LEFT(J,I)=rand()*2.0_SP*3.1415926
+# elif defined (CRAY)
+          Phase_LEFT(J,I)=rand()*2.0_SP*3.1415926
+# else
+          Phase_LEFT(J,I)=rand(0)*2.0_SP*3.1415926
+# endif
+     ENDIF
+
+    ENDDO
+   ENDDO
+
+! to make consistent with cm and sm approach we use phase_ser which is 
+! only is random with frequency
+       ALLOCATE(Phase_Ser(NumFreq))
+
+       ALLOCATE(Segma_Ser(NumFreq),Wave_Number_Ser(NumFreq) )
        DO J=1,NumFreq
+          Phase_Ser(J)=Phase_LEFT(J,1)
           IF(Per_Ser(J).EQ.ZERO)THEN
           WRITE(*,*) 'wave frequency is zero, STOP'
           STOP
          ELSE
           Per_Ser(J)=1.0_SP/Per_Ser(J)
          ENDIF
-# if defined (INTEL)
-          Phase_Ser(J)=rand()*2.0_SP*3.1415926
-# elif defined (CRAY)
-          Phase_Ser(J)=rand()*2.0_SP*3.1415926
-# else
-          Phase_Ser(J)=rand(0)*2.0_SP*3.1415926
-# endif
        ENDDO
        DO I=1,NumDir
          Theta_Ser(I)=Theta_Ser(I)*DEG2RAD

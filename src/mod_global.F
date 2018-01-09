@@ -362,9 +362,9 @@ MODULE GLOBAL
        REAL(SP) :: Dep_Ser,WidthWaveMaker,&
                    R_sponge_wavemaker,A_sponge_wavemaker
 
-       REAL(SP),DIMENSION(:,:),ALLOCATABLE :: Amp_Ser
-       REAL(SP),DIMENSION(:),ALLOCATABLE :: Per_Ser,&
-                                            Phase_Ser,Theta_Ser
+       REAL(SP),DIMENSION(:,:),ALLOCATABLE :: Amp_Ser,Phase_LEFT
+       REAL(SP),DIMENSION(:),ALLOCATABLE :: Per_Ser,Phase_Ser,&
+                                            Theta_Ser
        REAL(SP),DIMENSION(:),ALLOCATABLE :: Segma_Ser,Wave_Number_Ser
        REAL(SP) :: Stokes_Drift_Ser
        REAL(SP),DIMENSION(:,:,:),ALLOCATABLE ::Cm_eta,Sm_eta, &
