@@ -395,6 +395,23 @@ SUBROUTINE VESSEL_FORCING
 
          VesselPressureEach(I,J) = Pvessel(Kves)*Px*Py
 
+    ENDIF  ! end inside ship rectangule
+
+# endif
+     
+    ENDDO
+    ENDDO  ! end grid
+
+! calculate resistance. In the initial code, the resistance was calculated
+! inside the last loop. It turns out that resistance was re-counted 
+! because of including ghost cells (thanks to Jeff Harris)    
+
+    DO J=Jbeg,Jend
+    DO I=Ibeg,Iend
+# if defined (TORSVIK)
+    ! do nothing
+# else
+
          DetaX = (ETA(I+1,J)-ETA(I-1,J))/2.0_SP
          DetaY = (ETA(I,J+1)-ETA(I,J-1))/2.0_SP
 
@@ -428,13 +445,12 @@ SUBROUTINE VESSEL_FORCING
 
          ResistanceX(Kves) = ResPosX(Kves) + ResNegX(Kves)
          ResistanceY(Kves) = ResPosY(Kves) + ResNegY(Kves)
-
-    ENDIF  ! end inside ship rectangule
-
+      
 # endif
-     
+ ! end torsvik
     ENDDO
-    ENDDO  ! end grid
+    ENDDO
+
 
 # endif
   ! end difference sources
@@ -452,6 +468,14 @@ SUBROUTINE VESSEL_FORCING
      ResistanceX(Kves) = myvar
      call MPI_ALLREDUCE(ResistanceY(Kves),myvar,1,MPI_SP,MPI_SUM,MPI_COMM_WORLD,ier)
      ResistanceY(Kves) = myvar
+     call MPI_ALLREDUCE(ResPosX(Kves),myvar,1,MPI_SP,MPI_SUM,MPI_COMM_WORLD,ier)
+     ResPosX(Kves) = myvar
+     call MPI_ALLREDUCE(ResPosY(Kves),myvar,1,MPI_SP,MPI_SUM,MPI_COMM_WORLD,ier)
+     ResPosY(Kves) = myvar
+     call MPI_ALLREDUCE(ResNegX(Kves),myvar,1,MPI_SP,MPI_SUM,MPI_COMM_WORLD,ier)
+     ResNegX(Kves) = myvar
+     call MPI_ALLREDUCE(ResNegY(Kves),myvar,1,MPI_SP,MPI_SUM,MPI_COMM_WORLD,ier)
+     ResNegY(Kves) = myvar
 # endif
 
     VesselPressureTotal = VesselPressureTotal+VesselPressureEach
