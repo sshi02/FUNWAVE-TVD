@@ -139,7 +139,8 @@ SUBROUTINE CALCULATE_SPONGE_MAKER(M,N,Nghost,DX,DY,&
      USE PARAM
 # if defined (PARALLEL)
      USE GLOBAL, ONLY : n_west, n_east, n_suth, n_nrth,&
-                 px,py,npx,npy,Mglob,Nglob
+                 px,py,npx,npy,Mglob,Nglob, &
+	           iista   !ykchoi Jan/23/2018
 # endif
      IMPLICIT NONE
      INTEGER, INTENT(IN)::M,N,Nghost
@@ -169,7 +170,10 @@ SUBROUTINE CALCULATE_SPONGE_MAKER(M,N,Nghost,DX,DY,&
          lim=1.0_SP
        ENDIF
 # if defined(PARALLEL)
-       ri = R_Sponge**(50*(i+npx*Mglob/px-1)/(Iwidth-1))
+![---ykchoi Jan/23/2018
+!       ri = R_Sponge**(50*(i+npx*Mglob/px-1)/(Iwidth-1))
+	ri = R_Sponge**(50*(i + (iista - 1) -1)/(Iwidth-1))
+!---ykchoi Jan/23/2018]
 # else
        ri=R_sponge**(50*(I-1)/(Iwidth-1))
 # endif
@@ -196,7 +200,8 @@ SUBROUTINE CALCULATE_FRICTION_SPONGE(M,N,Nghost,DX,DY,&
                         
 # if defined (PARALLEL)
      USE GLOBAL, ONLY : n_west, n_east, n_suth, n_nrth,px,py,npx,npy,&
-                        Mglob,Nglob
+                        Mglob,Nglob, &
+	                  iista, iiend, jjsta, jjend    !ykchoi Jan/23/2018
 # endif
      IMPLICIT NONE
      INTEGER, INTENT(IN)::M,N,Nghost
@@ -243,7 +248,10 @@ SUBROUTINE CALCULATE_FRICTION_SPONGE(M,N,Nghost,DX,DY,&
      DO I=1,M
          lim=0.0_SP
 # if defined(PARALLEL)
-       ri=MAX(0.0,REAL(Iwidth-i-npx*Mglob/px))
+![---ykchoi Jan/23/2018
+!        ri=MAX(0.0,REAL(Iwidth-i-npx*Mglob/px))
+        ri=MAX(0.0,REAL( Iwidth-i-(iista-1) ))
+!---ykchoi Jan/23/2018]
 # else
        ri=MAX(0.0,REAL(Iwidth-I))
 # endif
@@ -265,7 +273,10 @@ SUBROUTINE CALCULATE_FRICTION_SPONGE(M,N,Nghost,DX,DY,&
      DO I=1,M
          lim=0.0_SP
 # if defined(PARALLEL)
-       ri=MAX(0.0,REAL(Iwidth-M+I-(px-npx-1)*Mglob/px))
+![---ykchoi Jan/23/2018
+!       ri=MAX(0.0,REAL(Iwidth-M+I-(px-npx-1)*Mglob/px))
+       ri=MAX(0.0,REAL(Iwidth-M+I-(px-npx-1)*(iiend - iista + 1) ))
+!---ykchoi Jan/23/2018]
 # else
        ri=MAX(0.0,REAL(Iwidth-M+I))
 # endif
@@ -300,7 +311,10 @@ SUBROUTINE CALCULATE_FRICTION_SPONGE(M,N,Nghost,DX,DY,&
          lim=0.0_SP
        ENDIF
 # if defined(PARALLEL)
-       ri=MAX(0.0,REAL(Iwidth-J-npy*Nglob/py))
+![---ykchoi Jan/23/2018
+!       ri=MAX(0.0,REAL(Iwidth-J-npy*Nglob/py))
+       ri=MAX(0.0,REAL(Iwidth-J-(jjsta - 1)))
+!---ykchoi Jan/23/2018]
 # else
        ri=MAX(0.0,REAL(Iwidth-J))
 # endif
@@ -326,7 +340,10 @@ SUBROUTINE CALCULATE_FRICTION_SPONGE(M,N,Nghost,DX,DY,&
          lim=0.0_SP
        ENDIF
 # if defined(PARALLEL)
-       ri=MAX(0.0,REAL(Iwidth-N+J-(py-npy-1)*Nglob/py))
+![---ykchoi Jan/23/2018
+!       ri=MAX(0.0,REAL(Iwidth-N+J-(py-npy-1)*Nglob/py))
+       ri=MAX(0.0,REAL(Iwidth-N+J-(py-npy-1)*(jjend - jjsta + 1) ))
+!---ykchoi Jan/23/2018]
 # else
        ri=MAX(0.0,REAL(Iwidth-N+J))
 # endif
@@ -365,7 +382,8 @@ SUBROUTINE CALCULATE_DIFFUSION_SPONGE(M,N,Nghost,DX,DY,&
                         
 # if defined (PARALLEL)
      USE GLOBAL, ONLY : n_west, n_east, n_suth, n_nrth,px,py,npx,npy,&
-                        Mglob,Nglob
+                        Mglob,Nglob, &
+	                  iista, iiend, jjsta, jjend    !ykchoi Jan/23/2018
 # endif
      IMPLICIT NONE
      INTEGER, INTENT(IN)::M,N,Nghost
@@ -412,7 +430,10 @@ SUBROUTINE CALCULATE_DIFFUSION_SPONGE(M,N,Nghost,DX,DY,&
          lim=0.0_SP
        ENDIF
 # if defined(PARALLEL)
-       ri=MAX(0.0,REAL(Iwidth-i-npx*Mglob/px))
+![---ykchoi Jan/23/2018
+!       ri=MAX(0.0,REAL(Iwidth-i-npx*Mglob/px))
+       ri=MAX(0.0,REAL(Iwidth-i-(iista - 1)))
+!---ykchoi Jan/23/2018]
 # else
        ri=MAX(0.0,REAL(Iwidth-I))
 # endif
@@ -438,7 +459,10 @@ SUBROUTINE CALCULATE_DIFFUSION_SPONGE(M,N,Nghost,DX,DY,&
          lim=0.0_SP
        ENDIF
 # if defined(PARALLEL)
-       ri=MAX(0.0,REAL(Iwidth-M+I-(px-npx-1)*Mglob/px))
+![---ykchoi Jan/23/2018
+!       ri=MAX(0.0,REAL(Iwidth-M+I-(px-npx-1)*Mglob/px))
+       ri=MAX(0.0,REAL(Iwidth-M+I-(px-npx-1)*(iiend - iista + 1) ))
+!---ykchoi Jan/23/2018]
 # else
        ri=MAX(0.0,REAL(Iwidth-M+I))
 # endif
@@ -473,7 +497,10 @@ SUBROUTINE CALCULATE_DIFFUSION_SPONGE(M,N,Nghost,DX,DY,&
          lim=0.0_SP
        ENDIF
 # if defined(PARALLEL)
-       ri=MAX(0.0,REAL(Iwidth-J-npy*Nglob/py))
+![---ykchoi Jan/23/2018
+!       ri=MAX(0.0,REAL(Iwidth-J-npy*Nglob/py))
+       ri=MAX(0.0,REAL(Iwidth-J-(jjsta - 1)))
+!---ykchoi Jan/23/2018]
 # else
        ri=MAX(0.0,REAL(Iwidth-J))
 # endif
@@ -499,7 +526,10 @@ SUBROUTINE CALCULATE_DIFFUSION_SPONGE(M,N,Nghost,DX,DY,&
          lim=0.0_SP
        ENDIF
 # if defined(PARALLEL)
-       ri=MAX(0.0,REAL(Iwidth-N+J-(py-npy-1)*Nglob/py))
+![---ykchoi Jan/23/2018
+!       ri=MAX(0.0,REAL(Iwidth-N+J-(py-npy-1)*Nglob/py))
+       ri=MAX(0.0,REAL(Iwidth-N+J-(py-npy-1)*(jjend - jjsta + 1) ))
+!---ykchoi Jan/23/2018]
 # else
        ri=MAX(0.0,REAL(Iwidth-N+J))
 # endif
@@ -538,7 +568,8 @@ SUBROUTINE CALCULATE_SPONGE(M,N,Nghost,DX,DY,&
      USE GLOBAL, ONLY : depth,MinDepthFrc
 # if defined (PARALLEL)
      USE GLOBAL, ONLY : n_west, n_east, n_suth, n_nrth,px,py,npx,npy,&
-                        Mglob,Nglob
+                        Mglob,Nglob, &
+	                  iista, iiend, jjsta, jjend    !ykchoi Jan/23/2018
 # endif
      IMPLICIT NONE
      INTEGER, INTENT(IN)::M,N,Nghost
@@ -585,7 +616,10 @@ SUBROUTINE CALCULATE_SPONGE(M,N,Nghost,DX,DY,&
          lim=1.0_SP
        ENDIF
 # if defined(PARALLEL)
-       ri = R_Sponge**(50*(i+npx*Mglob/px-1)/(Iwidth-1))
+![---ykchoi Jan/23/2018
+!       ri = R_Sponge**(50*(i+npx*Mglob/px-1)/(Iwidth-1))
+       ri = R_Sponge**(50*(i+(iista-1)-1)/(Iwidth-1))
+!---ykchoi Jan/23/2018]
 # else
        ri=R_sponge**(50*(I-1)/(Iwidth-1))
 # endif
@@ -610,7 +644,10 @@ SUBROUTINE CALCULATE_SPONGE(M,N,Nghost,DX,DY,&
          lim=1.0_SP
        ENDIF
 # if defined(PARALLEL)
-       ri = R_Sponge**(50*(M-i+(px-npx-1)*Mglob/px)/(Iwidth-1))
+![---ykchoi Jan/23/2018
+!       ri = R_Sponge**(50*(M-i+(px-npx-1)*Mglob/px)/(Iwidth-1))
+       ri = R_Sponge**(50*(M-i+(px-npx-1)*(iiend - iista + 1))/(Iwidth-1))
+!---ykchoi Jan/23/2018]
 # else
        ri=R_sponge**(50*(M-I)/(Iwidth-1))
 # endif
@@ -646,7 +683,10 @@ SUBROUTINE CALCULATE_SPONGE(M,N,Nghost,DX,DY,&
          lim=1.0_SP
        ENDIF
 # if defined(PARALLEL)
-       ri=R_sponge**(50*(J+npy*Nglob/py-1)/(Iwidth-1))
+![---ykchoi Jan/23/2018
+!       ri=R_sponge**(50*(J+npy*Nglob/py-1)/(Iwidth-1))
+       ri=R_sponge**(50*(J+ (jjsta - 1) -1)/(Iwidth-1))
+!---ykchoi Jan/23/2018]
 # else
        ri=R_sponge**(50*(J-1)/(Iwidth-1))
 # endif
@@ -672,7 +712,10 @@ SUBROUTINE CALCULATE_SPONGE(M,N,Nghost,DX,DY,&
          lim=1.0_SP
        ENDIF
 # if defined(PARALLEL)
-       ri = R_Sponge**(50*(N-J+(py-npy-1)*Nglob/py)/(Iwidth-1))
+![---ykchoi Jan/23/2018
+!       ri = R_Sponge**(50*(N-J+(py-npy-1)*Nglob/py)/(Iwidth-1))
+       ri = R_Sponge**(50*(N-J+(py-npy-1)*(jjend - jjsta + 1) )/(Iwidth-1))
+!---ykchoi Jan/23/2018]
 # else
        ri=R_sponge**(50*(N-J)/(Iwidth-1))	  
 # endif
