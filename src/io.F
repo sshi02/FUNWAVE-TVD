@@ -3231,8 +3231,12 @@ SUBROUTINE STATIONS
        do i=1,NumberStations
           read(100,*) dum1,dum2
 # if defined (PARALLEL)
-          ista(i) = Nghost+dum1-npx*Mglob/px
-          jsta(i) = Nghost+dum2-npy*Nglob/py
+![---ykchoi Jan/23/2018
+          !ista(i) = Nghost+dum1-npx*Mglob/px
+          !jsta(i) = Nghost+dum2-npy*Nglob/py
+		ista(i) = Nghost+dum1-( iista - 1 )
+		jsta(i) = Nghost+dum2-( jjsta - 1 )
+!---ykchoi Jan/23/2018]
           if ((ista(i).ge.Ibeg).and.(ista(i).le.Iend).and.&
               (jsta(i).ge.Jbeg).and.(jsta(i).le.Jend)) then
              nsta(i) = 1
@@ -3323,8 +3327,12 @@ SUBROUTINE STATIONS_SPHERICAL_IJ
        do i=1,NumberStations
           read(100,*) dum1,dum2
 # if defined (PARALLEL)
-          ista(i) = Nghost+dum1-npx*Mglob/px
-          jsta(i) = Nghost+dum2-npy*Nglob/py
+![---ykchoi Jan/23/2018
+          !ista(i) = Nghost+dum1-npx*Mglob/px
+          !jsta(i) = Nghost+dum2-npy*Nglob/py
+          ista(i) = Nghost+dum1-( iista - 1 )
+          jsta(i) = Nghost+dum2-( jjsta - 1 )
+!---ykchoi Jan/23/2018]
           if ((ista(i).ge.Ibeg).and.(ista(i).le.Iend).and.&
               (jsta(i).ge.Jbeg).and.(jsta(i).le.Jend)) then
              nsta(i) = 1
@@ -3419,10 +3427,16 @@ SUBROUTINE STATIONS
        do i=1,NumberStations
           read(100,*) dum1,dum2
 # if defined (PARALLEL)
+![---ykchoi Jan/23/2018
+!          ista(i) = Nghost+1+nint((dum2-Lon_West)/Dphi) &
+!                     -npx*Mglob/px
+!          jsta(i) = Nghost+1+nint((dum1-Lat_South)/Dtheta) &
+!                     -npy*Nglob/py
           ista(i) = Nghost+1+nint((dum2-Lon_West)/Dphi) &
-                     -npx*Mglob/px
+                     -( iista - 1 )
           jsta(i) = Nghost+1+nint((dum1-Lat_South)/Dtheta) &
-                     -npy*Nglob/py
+                     -( jjsta - 1 )
+!---ykchoi Jan/23/2018]
           if ((ista(i).ge.Ibeg).and.(ista(i).le.Iend).and.&
               (jsta(i).ge.Jbeg).and.(jsta(i).le.Jend)) then
              nsta(i) = 1
