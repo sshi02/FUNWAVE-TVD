@@ -295,8 +295,12 @@ SUBROUTINE INITIALIZATION
      Do J=1,Nloc
      Do I=1,Mloc
 # if defined (PARALLEL)
+![---ykchoi Jan/23/2018
+!       Lat_theta(I,J)=Lat_South*pi/180.0_SP-Nghost*Dtheta_r &
+!                       +(npy*Nglob/py+J-1)*Dtheta_r
        Lat_theta(I,J)=Lat_South*pi/180.0_SP-Nghost*Dtheta_r &
-                       +(npy*Nglob/py+J-1)*Dtheta_r
+                       +((jjsta - 1)+J-1)*Dtheta_r
+!---ykchoi Jan/23/2018]
 # else
        Lat_theta(I,J)=Lat_South*pi/180.0_SP-Nghost*Dtheta_r &
                        +(J-1)*Dtheta_r
