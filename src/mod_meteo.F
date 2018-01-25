@@ -380,7 +380,8 @@ SUBROUTINE METEO_FORCING
 END SUBROUTINE METEO_FORCING
 
 SUBROUTINE Holland_Model_Setup
-  USE GLOBAL,ONLY : itmp1,itmp2,itmp3,itmp4,SMALL,LARGE
+  USE GLOBAL,ONLY : itmp1,itmp2,itmp3,itmp4,SMALL,LARGE, &
+                    iista,jjsta  !ykchoi Jan/23/2018
   USE INPUT_READ
   IMPLICIT NONE
   CHARACTER(LEN=80)::FILE_NAME=' '
@@ -407,7 +408,11 @@ SUBROUTINE Holland_Model_Setup
 ! Xco, and Yco
 
 # if defined (PARALLEL)
-     Xco(Ibeg) = npx*(Mloc-2*Nghost)*DX
+![---ykchoi Jan/23/2018
+!      Xco(Ibeg) = npx*(Mloc-2*Nghost)*DX
+	Xco(Ibeg) = (iista-1)*DX
+!---ykchoi Jan/23/2018]
+
 # else
      Xco(Ibeg) = ZERO
 # endif
@@ -419,7 +424,10 @@ SUBROUTINE Holland_Model_Setup
      ENDDO
 
 # if defined (PARALLEL)
-     Yco(Jbeg) = npy*(Nloc-2*Nghost)*DY
+![---ykchoi Jan/23/2018
+!     Yco(Jbeg) = npy*(Nloc-2*Nghost)*DY
+      Yco(Jbeg) = (jjsta-1)*DY
+!---ykchoi Jan/23/2018]
 # else
      Yco(Jbeg) = ZERO
 # endif
@@ -719,7 +727,8 @@ SUBROUTINE Constant_Wind_Forcing
 END SUBROUTINE Constant_Wind_Forcing
 
 SUBROUTINE Slide_Model_Setup
-  USE GLOBAL,ONLY : itmp1,itmp2,itmp3,itmp4,SMALL,LARGE
+  USE GLOBAL,ONLY : itmp1,itmp2,itmp3,itmp4,SMALL,LARGE, &
+                    iista,jjsta    !ykchoi Jan/23/2018
   USE INPUT_READ
   IMPLICIT NONE
   CHARACTER(LEN=80)::FILE_NAME=' '
@@ -748,7 +757,10 @@ SUBROUTINE Slide_Model_Setup
 ! Xco, and Yco
 
 # if defined (PARALLEL)
-     Xco(Ibeg) = npx*(Mloc-2*Nghost)*DX
+![---ykchoi Jan/23/2018
+!     Xco(Ibeg) = npx*(Mloc-2*Nghost)*DX
+      Xco(Ibeg) = (iista-1)*DX
+!---ykchoi Jan/23/2018]
 # else
      Xco(Ibeg) = ZERO
 # endif
@@ -760,7 +772,10 @@ SUBROUTINE Slide_Model_Setup
      ENDDO
 
 # if defined (PARALLEL)
-     Yco(Jbeg) = npy*(Nloc-2*Nghost)*DY
+![---ykchoi Jan/23/2018
+!     Yco(Jbeg) = npy*(Nloc-2*Nghost)*DY
+      Yco(Jbeg) = (jjsta-1)*DY
+!---ykchoi Jan/23/2018]
 # else
      Yco(Jbeg) = ZERO
 # endif
@@ -927,7 +942,8 @@ SUBROUTINE Slide_Model_Forcing
 END SUBROUTINE Slide_Model_Forcing
 
 SUBROUTINE MeteoGausian_Setup
-  USE GLOBAL,ONLY : itmp1,itmp2,itmp3,itmp4,SMALL,LARGE
+  USE GLOBAL,ONLY : itmp1,itmp2,itmp3,itmp4,SMALL,LARGE, &
+                    iista,jjsta   !ykchoi Jan/23/2018
   USE INPUT_READ
   IMPLICIT NONE
   CHARACTER(LEN=80)::FILE_NAME=' '
@@ -954,7 +970,10 @@ SUBROUTINE MeteoGausian_Setup
 ! Xco, and Yco
 
 # if defined (PARALLEL)
-     Xco(Ibeg) = npx*(Mloc-2*Nghost)*DX
+![---ykchoi Jan/23/2018
+!     Xco(Ibeg) = npx*(Mloc-2*Nghost)*DX
+     Xco(Ibeg) = (iista-1)*DX
+!---ykchoi Jan/23/2018]
 # else
      Xco(Ibeg) = ZERO
 # endif
@@ -966,7 +985,10 @@ SUBROUTINE MeteoGausian_Setup
      ENDDO
 
 # if defined (PARALLEL)
-     Yco(Jbeg) = npy*(Nloc-2*Nghost)*DY
+![---ykchoi Jan/23/2018
+!     Yco(Jbeg) = npy*(Nloc-2*Nghost)*DY
+     Yco(Jbeg) = (jjsta-1)*DY
+!---ykchoi Jan/23/2018]
 # else
      Yco(Jbeg) = ZERO
 # endif
