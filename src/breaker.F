@@ -88,7 +88,8 @@ SUBROUTINE BREAKING(M,N,ETAx,ETAy,ETAT,Cbrk1,Cbrk2,H,MinDepthFrc,&
                DT,DX,DY,T_brk,AGE)
      USE PARAM
      USE GLOBAL,ONLY : Depth,nu_break,ETA,Nghost,Xc_WK,Yc_WK,Ibeg,Iend,&
-                       Jbeg,Jend,Width_WK,Xc_WK,Yc_WK,Ywidth_WK,WAVEMAKER_Cbrk,nu_bkg
+                       Jbeg,Jend,Width_WK,Xc_WK,Yc_WK,Ywidth_WK,WAVEMAKER_Cbrk,nu_bkg,&
+	                 iista,jjsta   !ykchoi Jan/23/2018
 # if defined(PARALLEL)
      USE GLOBAL,ONLY : npx,npy
 # endif
@@ -222,8 +223,12 @@ SUBROUTINE BREAKING(M,N,ETAx,ETAy,ETAT,Cbrk1,Cbrk2,H,MinDepthFrc,&
 
 ! wavemaker
 # if defined (PARALLEL)
-            xmk=(I-Ibeg)*DXg+npx*(M-2*Nghost)*DXg
-            ymk=(J-Jbeg)*DYg+npy*(N-2*Nghost)*DYg
+![---ykchoi Jan/23/2018
+!            xmk=(I-Ibeg)*DXg+npx*(M-2*Nghost)*DXg
+!            ymk=(J-Jbeg)*DYg+npy*(N-2*Nghost)*DYg
+            xmk=(I-Ibeg)*DXg + (iista-1)*DXg
+            ymk=(J-Jbeg)*DYg + (jjsta-1)*DYg
+!---ykchoi Jan/23/2018]
 # else
             xmk=(I-Ibeg)*DXg
             ymk=(J-Jbeg)*DYg

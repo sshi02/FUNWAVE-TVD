@@ -553,7 +553,8 @@ SUBROUTINE CALCULATE_Cm_Sm(M,N,DX,DY,Xc,Ibeg,Jbeg,mfreq,mtheta,D_gen,phi1, &
                width,rlamda,beta_gen,Cm,Sm)
      USE PARAM
 # if defined (PARALLEL)
-     USE GLOBAL, ONLY : myid,npx,npy,px,py,Mglob,Nglob
+     USE GLOBAL, ONLY : myid,npx,npy,px,py,Mglob,Nglob, &
+	                  iista,jjsta   !ykchoi Jan/23/2018
 # endif
      IMPLICIT NONE
      INTEGER,INTENT(IN) :: M,N,mfreq,mtheta,Ibeg,Jbeg    
@@ -573,14 +574,20 @@ SUBROUTINE CALCULATE_Cm_Sm(M,N,DX,DY,Xc,Ibeg,Jbeg,mfreq,mtheta,D_gen,phi1, &
 
 # if defined (PARALLEL)
             Cm(i,j,kf)=Cm(i,j,kf) &
-             +D_gen(kf,ktheta)*exp(-beta_gen(kf)*((I-Ibeg +npx*Mglob/px)*DX-Xc)**2) &
+!             +D_gen(kf,ktheta)*exp(-beta_gen(kf)*((I-Ibeg +npx*Mglob/px)*DX-Xc)**2) &
+!ykchoi Jan/23/2018
+             +D_gen(kf,ktheta)*exp(-beta_gen(kf)*((I-Ibeg + (iista-1) )*DX-Xc)**2) &
           *cos(rlamda(kf,ktheta) &
           *((J-Jbeg  +npy*Nglob/py)*DY-ZERO)+phi1(kf,ktheta))
 
             Sm(i,j,kf)=Sm(i,j,kf) &
-             +D_gen(kf,ktheta)*exp(-beta_gen(kf)*((I-Ibeg+ npx*Mglob/px)*DX-Xc)**2) &
+!             +D_gen(kf,ktheta)*exp(-beta_gen(kf)*((I-Ibeg+ npx*Mglob/px)*DX-Xc)**2) &
+!ykchoi Jan/23/2018
+             +D_gen(kf,ktheta)*exp(-beta_gen(kf)*((I-Ibeg+ (iista-1) )*DX-Xc)**2) &
           *sin(rlamda(kf,ktheta) &
-          *((J-Jbeg +npy*Nglob/py)*DY-ZERO)+phi1(kf,ktheta))
+!          *((J-Jbeg +npy*Nglob/py)*DY-ZERO)+phi1(kf,ktheta))     
+!ykchoi Jan/23/2018
+          *((J-Jbeg +(jjsta - 1))*DY-ZERO)+phi1(kf,ktheta))
 # else
             Cm(i,j,kf)=Cm(i,j,kf) &
              +D_gen(kf,ktheta)*exp(-beta_gen(kf)*((I-Ibeg)*DX-Xc)**2) &
@@ -619,7 +626,8 @@ SUBROUTINE CALCULATE_DATA2D_Cm_Sm
                        Segma_Ser,&
                        Cm_eta,Sm_eta,Cm_u,Sm_u,Cm_v,Sm_v,PERIODIC
 # if defined (PARALLEL)
-     USE GLOBAL, ONLY : myid,npx,npy,px,py,Mglob,Nglob
+     USE GLOBAL, ONLY : myid,npx,npy,px,py,Mglob,Nglob, &
+	                  iista, jjsta    !ykchoi Jan/23/2018
 # endif
      IMPLICIT NONE
      INTEGER :: Iter,KK,K,KKK
@@ -682,11 +690,19 @@ SUBROUTINE CALCULATE_DATA2D_Cm_Sm
        DO I=1,Mloc
 # if defined (PARALLEL)
 # if defined (CARTESIAN)
-         X_maker=(I-Ibeg+npx*Mglob/px)*DX
-         Y_maker=(J-Jbeg+npy*Nglob/py)*DY 
+![---ykchoi Jan/23/2018
+!         X_maker=(I-Ibeg+npx*Mglob/px)*DX
+!         Y_maker=(J-Jbeg+npy*Nglob/py)*DY
+         X_maker=( I-Ibeg+(iista-1) )*DX
+         Y_maker=( J-Jbeg+(jjsta-1) )*DY
+!---ykchoi Jan/23/2018] 
 # else
-         X_maker=(I-Ibeg+npx*Mglob/px)*DX(I,J)
-         Y_maker=(J-Jbeg+npy*Nglob/py)*DY(I,J)
+![---ykchoi Jan/23/2018
+!         X_maker=(I-Ibeg+npx*Mglob/px)*DX(I,J)
+!         Y_maker=(J-Jbeg+npy*Nglob/py)*DY(I,J)
+         X_maker=( I-Ibeg+(iista-1) )*DX(I,J)
+         Y_maker=( J-Jbeg+(jjsta-1) )*DY(I,J)
+!---ykchoi Jan/23/2018]
 # endif
 
 # else
@@ -904,7 +920,8 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm &
 ! ***
 
 # if defined (PARALLEL)
-     USE GLOBAL, ONLY : myid,npx,npy,px,py,Mglob,Nglob
+     USE GLOBAL, ONLY : myid,npx,npy,px,py,Mglob,Nglob, &
+	                  iista, jjsta   !ykchoi Jan/23/2018
 # endif
 # if defined(INTEL)
      USE IFPORT
@@ -1137,11 +1154,19 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm &
        DO I=1,Mloc
 # if defined (PARALLEL)
 # if defined (CARTESIAN)
-         X_maker=(I-Ibeg+npx*Mglob/px)*DX
-         Y_maker=(J-Jbeg+npy*Nglob/py)*DY 
+![---ykchoi Jan/23/2018
+!         X_maker=(I-Ibeg+npx*Mglob/px)*DX
+!         Y_maker=(J-Jbeg+npy*Nglob/py)*DY
+         X_maker=( I-Ibeg+(iista - 1) )*DX
+         Y_maker=( J-Jbeg+(jjsta - 1) )*DY 
+!---ykchoi Jan/23/2018]
 # else
-         X_maker=(I-Ibeg+npx*Mglob/px)*DX(I,J)
-         Y_maker=(J-Jbeg+npy*Nglob/py)*DY(I,J)
+![---ykchoi Jan/23/2018
+!         X_maker=(I-Ibeg+npx*Mglob/px)*DX(I,J)
+!         Y_maker=(J-Jbeg+npy*Nglob/py)*DY(I,J)
+         X_maker=( I-Ibeg+(iista - 1) )*DX(I,J)
+         Y_maker=( J-Jbeg+(jjsta - 1) )*DY(I,J)
+!---ykchoi Jan/23/2018]
 # endif
 
 # else
@@ -1227,7 +1252,8 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm_EQUAL_DFREQ &
 ! ***
 
 # if defined (PARALLEL)
-     USE GLOBAL, ONLY : myid,npx,npy,px,py,Mglob,Nglob
+     USE GLOBAL, ONLY : myid,npx,npy,px,py,Mglob,Nglob, &
+	                  iista, jjsta   !ykchoi Jan/23/2018
 # endif
 # if defined(INTEL)
      USE IFPORT
@@ -1420,11 +1446,19 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm_EQUAL_DFREQ &
        DO I=1,Mloc
 # if defined (PARALLEL)
 # if defined (CARTESIAN)
-         X_maker=(I-Ibeg+npx*Mglob/px)*DX
-         Y_maker=(J-Jbeg+npy*Nglob/py)*DY 
+![---ykchoi Jan/23/2018
+!         X_maker=(I-Ibeg+npx*Mglob/px)*DX
+!         Y_maker=(J-Jbeg+npy*Nglob/py)*DY
+         X_maker=( I-Ibeg+(iista-1) )*DX
+         Y_maker=( J-Jbeg+(jjsta-1) )*DY 
+!---ykchoi Jan/23/2018]
 # else
-         X_maker=(I-Ibeg+npx*Mglob/px)*DX(I,J)
-         Y_maker=(J-Jbeg+npy*Nglob/py)*DY(I,J)
+![---ykchoi Jan/23/2018
+!         X_maker=(I-Ibeg+npx*Mglob/px)*DX(I,J)
+!         Y_maker=(J-Jbeg+npy*Nglob/py)*DY(I,J)
+         X_maker=( I-Ibeg+(iista-1) )*DX(I,J)
+         Y_maker=( J-Jbeg+(jjsta-1) )*DY(I,J)
+!---ykchoi Jan/23/2018]
 # endif
 
 # else
@@ -2126,7 +2160,8 @@ END SUBROUTINE WK_WAVEMAKER_TIME_SERIES
 SUBROUTINE VISCOSITY_WMAKER (M,N,ETAT,visbrk,H,MinDepthFrc,DX,DY)
      USE PARAM
      USE GLOBAL,ONLY : Depth,nu_break,ETA,Nghost,Xc_WK,Yc_WK,Ibeg,&
-                       Jbeg,Width_WK,Xc_WK,Yc_WK,Ywidth_WK,WAVEMAKER_visbrk,nu_bkg
+                       Jbeg,Width_WK,Xc_WK,Yc_WK,Ywidth_WK,WAVEMAKER_visbrk,nu_bkg, &
+	                 iista,jjsta    !ykchoi Jan/23/2018
 # if defined(PARALLEL)
      USE GLOBAL,ONLY : npx,npy
 # endif
@@ -2160,8 +2195,12 @@ SUBROUTINE VISCOSITY_WMAKER (M,N,ETAT,visbrk,H,MinDepthFrc,DX,DY)
 ! set viscosity
 ! wavemaker
 # if defined (PARALLEL)
-        xmk=(I-Ibeg)*DXg+npx*(M-2*Nghost)*DXg
-        ymk=(J-Jbeg)*DYg+npy*(N-2*Nghost)*DYg
+![---ykchoi Jan/23/2018
+!        xmk=(I-Ibeg)*DXg+npx*(M-2*Nghost)*DXg
+!        ymk=(J-Jbeg)*DYg+npy*(N-2*Nghost)*DYg
+	      xmk=(I-Ibeg)*DXg + (iista-1)*DXg
+	      ymk=(J-Jbeg)*DYg + (jjsta-1)*DYg
+!---ykchoi Jan/23/2018]
 # else
         xmk=(I-Ibeg)*DXg
         ymk=(J-Jbeg)*DYg

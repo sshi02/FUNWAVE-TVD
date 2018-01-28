@@ -85,8 +85,12 @@ SUBROUTINE SourceTerms
           DO I=1,Mloc
 
 # if defined (PARALLEL)
-            xmk=(I-Ibeg)*DXg+npx*(Mloc-2*Nghost)*DXg
-            ymk=(J-Jbeg)*DYg+npy*(Nloc-2*Nghost)*DYg
+![---ykchoi Jan/23/2018
+!            xmk=(I-Ibeg)*DXg+npx*(Mloc-2*Nghost)*DXg
+!            ymk=(J-Jbeg)*DYg+npy*(Nloc-2*Nghost)*DYg
+	      xmk=(I-Ibeg)*DXg + (iista-1)*DXg
+	      ymk=(J-Jbeg)*DYg + (jjsta-1)*DYg
+!---ykchoi Jan/23/2018]
 # else
             xmk=(I-Ibeg)*DXg
             ymk=(J-Jbeg)*DYg
