@@ -2163,10 +2163,10 @@ END SUBROUTINE WK_WAVEMAKER_TIME_SERIES
 SUBROUTINE VISCOSITY_WMAKER (M,N,ETAT,visbrk,H,MinDepthFrc,DX,DY)
      USE PARAM
      USE GLOBAL,ONLY : Depth,nu_break,ETA,Nghost,Xc_WK,Yc_WK,Ibeg,&
-                       Jbeg,Width_WK,Xc_WK,Yc_WK,Ywidth_WK,WAVEMAKER_visbrk,nu_bkg, &
-	                 iista,jjsta    !ykchoi Jan/23/2018
+                       Jbeg,Width_WK,Xc_WK,Yc_WK,Ywidth_WK,WAVEMAKER_visbrk,nu_bkg
 # if defined(PARALLEL)
-     USE GLOBAL,ONLY : npx,npy
+     USE GLOBAL,ONLY : npx,npy, &
+	                 iista,jjsta    !ykchoi Jan/23/2018
 # endif
      IMPLICIT NONE
      INTEGER,INTENT(IN) :: M,N
