@@ -52,9 +52,9 @@ SUBROUTINE UPDATE_MASK
      USE GLOBAL
      IMPLICIT NONE
      REAL(SP)::left,right,top,bottom
-     INTEGER,DIMENSION(:,:),ALLOCATABLE :: MASKtmp,ETAtmp
+     INTEGER,DIMENSION(:,:),ALLOCATABLE :: MASKtmp
 
-     ALLOCATE(MASKtmp(Mloc,Nloc),ETAtmp(Mloc,Nloc))    
+     ALLOCATE(MASKtmp(Mloc,Nloc))    
 
 ! for the serial code, MASK at ghost cells keep no change
 
@@ -64,7 +64,6 @@ SUBROUTINE UPDATE_MASK
 #endif
 
      MASKtmp=MASK
-     ETAtmp=ETA
 
      DO J=Jbeg-2,Jend+2
      DO I=Ibeg-2,Iend+2
@@ -99,7 +98,7 @@ SUBROUTINE UPDATE_MASK
        ELSE
          IF(Eta(I,J)<-Depth(I,J))THEN
           MASKtmp(I,J)=0
-          ETAtmp(I,J)=MinDepth-Depth(I,J)
+          ETA(I,J)=MinDepth-Depth(I,J)
          ENDIF    
        ENDIF
       ENDIF
@@ -126,7 +125,6 @@ SUBROUTINE UPDATE_MASK
      ENDDO
 
      MASK=MASKtmp
-     ETA=ETAtmp
 
      DO J=Jbeg-1,Jend+1
      DO I=Ibeg-1,Iend+1
@@ -150,7 +148,7 @@ SUBROUTINE UPDATE_MASK
      CALL PHI_INT_EXCH(MASK9)
 # endif
 
-     DEALLOCATE(MASKtmp,ETAtmp)
+     DEALLOCATE(MASKtmp)
 
 END SUBROUTINE UPDATE_MASK
 
