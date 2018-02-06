@@ -52,6 +52,9 @@ SUBROUTINE UPDATE_MASK
      USE GLOBAL
      IMPLICIT NONE
      REAL(SP)::left,right,top,bottom
+     INTEGER,DIMENSION(:,:),ALLOCATABLE :: MASKtmp,ETAtmp
+
+     ALLOCATE(MASKtmp(Mloc,Nloc),ETAtmp(Mloc,Nloc))    
 
 ! for the serial code, MASK at ghost cells keep no change
 
@@ -59,6 +62,9 @@ SUBROUTINE UPDATE_MASK
      call phi_int_exch(MASK)
      call phi_int_exch(MASK9)
 #endif
+
+     MASKtmp=MASK
+     ETAtmp=ETA
 
      DO J=Jbeg-2,Jend+2
      DO I=Ibeg-2,Iend+2
@@ -68,32 +74,32 @@ SUBROUTINE UPDATE_MASK
          ! left
         IF(I/=1)THEN
          IF(MASK(I-1,J)==1.AND.Eta(I-1,J)>Eta(I,j))THEN
-           MASK(I,J)=1
+           MASKtmp(I,J)=1
          ENDIF
         ENDIF
          ! right
         IF(I/=Mloc)THEN
          IF(MASK(I+1,J)==1.AND.Eta(I+1,J)>Eta(I,j))THEN
-           MASK(I,J)=1
+           MASKtmp(I,J)=1
          ENDIF
         ENDIF
          ! bottom
         IF(J/=1)THEN
          IF(MASK(I,J-1)==1.AND.Eta(I,J-1)>Eta(I,j))THEN
-           MASK(I,J)=1
+           MASKtmp(I,J)=1
          ENDIF
         ENDIF
          ! top
         IF(J/=Nloc)THEN
          IF(MASK(I,J+1)==1.AND.Eta(I,J+1)>Eta(I,j))THEN
-           MASK(I,J)=1
+           MASKtmp(I,J)=1
          ENDIF
         ENDIF
 ! drying
        ELSE
          IF(Eta(I,J)<-Depth(I,J))THEN
-          MASK(I,J)=0
-          Eta(I,J)=MinDepth-Depth(I,J)
+          MASKtmp(I,J)=0
+          ETAtmp(I,J)=MinDepth-Depth(I,J)
          ENDIF    
        ENDIF
       ENDIF
@@ -119,6 +125,9 @@ SUBROUTINE UPDATE_MASK
      ENDDO
      ENDDO
 
+     MASK=MASKtmp
+     ETA=ETAtmp
+
      DO J=Jbeg-1,Jend+1
      DO I=Ibeg-1,Iend+1
       IF(VISCOSITY_BREAKING)THEN
@@ -140,6 +149,8 @@ SUBROUTINE UPDATE_MASK
      CALL PHI_INT_EXCH(MASK)
      CALL PHI_INT_EXCH(MASK9)
 # endif
+
+     DEALLOCATE(MASKtmp,ETAtmp)
 
 END SUBROUTINE UPDATE_MASK
 
