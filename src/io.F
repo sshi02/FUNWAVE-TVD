@@ -57,6 +57,9 @@ SUBROUTINE OUTPUT
 # if defined(METEO)
      USE METEO_MODULE
 # endif
+# if defined(SEDIMENT)
+     USE SEDIMENT_MODULE
+# endif
 
     IMPLICIT NONE
 
@@ -92,6 +95,13 @@ SUBROUTINE OUTPUT
       IF(PLOT_COUNT_VESSEL>=PLOT_INTV_VESSEL)THEN
        PLOT_COUNT_VESSEL=PLOT_COUNT_VESSEL-PLOT_INTV_VESSEL
        CALL OUTPUT_VESSEL
+      ENDIF      
+# endif
+# if defined (SEDIMENT)
+      PLOT_COUNT_SEDIMENT=PLOT_COUNT_SEDIMENT+DT
+      IF(PLOT_COUNT_SEDIMENT>=PLOT_INTV_SEDIMENT)THEN
+       PLOT_COUNT_SEDIMENT=PLOT_COUNT_SEDIMENT-PLOT_INTV_SEDIMENT
+       CALL OUTPUT_SEDIMENT
       ENDIF      
 # endif
 
@@ -3523,6 +3533,9 @@ SUBROUTINE PREVIEW
 # if defined(METEO)
      USE METEO_MODULE
 # endif
+# if defined(SEDIMENT)
+     USE SEDIMENT_MODULE
+# endif
 
      IMPLICIT NONE
 
@@ -3694,6 +3707,17 @@ SUBROUTINE PREVIEW
 
      ENDIF
 # endif
+
+! sediment
+# if defined (SEDIMENT)
+        TMP_NAME = TRIM(FDIR)//'C_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,CH)
+        TMP_NAME = TRIM(FDIR)//'Pick_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,Pickup)
+        TMP_NAME = TRIM(FDIR)//'Depo_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,D)
+# endif
+! end sediment
 
      IF(OUT_TMP)THEN
         TMP_NAME = TRIM(FDIR)//'tmp_'//TRIM(FILE_NAME)
@@ -4012,5 +4036,43 @@ END SUBROUTINE OUTPUT_VESSEL
 # endif
 ! end vessel
 
+# if defined (SEDIMENT)
+!-------------------------------------------------------------------------------------
+!
+!    OUTPUT_SEDIMENT is a subroutine to write vessel data
+!
+! HISTORY: 
+!    02/01/2018  Fengyan Shi
+!
+!-------------------------------------------------------------------------------------
+SUBROUTINE OUTPUT_SEDIMENT
+     USE GLOBAL
+     USE INPUT_READ
+     USE VESSEL_MODULE
+     IMPLICIT NONE
+     CHARACTER(LEN=80)::FDIR=' '
+     LOGICAL :: FirstCallSediment = .TRUE.
+     SAVE FirstCallSediment
+
+# if defined (PARALLEL)
+     IF(myid.eq.0)THEN
+# endif
+
+! initialize stations
+     if (FirstCallSediment) then
+       FDIR=TRIM(RESULT_FOLDER)
+       FirstCallSediment = .FALSE.
+     endif
+
+! time series here
+
+# if defined (PARALLEL)
+      ENDIF
+# endif
+
+END SUBROUTINE OUTPUT_SEDIMENT
+
+# endif
+! end sediment
 
 

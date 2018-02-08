@@ -97,8 +97,10 @@ CONTAINS
 ! READ VESSEL
 
 SUBROUTINE VESSEL_INITIAL
-  USE GLOBAL,ONLY : itmp1,itmp2,itmp3,itmp4,itmp5,SMALL, &
-                    iista,jjsta   !ykchoi Jan/23/2018
+  USE GLOBAL,ONLY : itmp1,itmp2,itmp3,itmp4,itmp5,SMALL
+# if defined (PARALLEL)
+  USE GLOBAL,ONLY : iista,jjsta   !ykchoi Jan/23/2018
+# endif
                     
   USE INPUT_READ
   IMPLICIT NONE
