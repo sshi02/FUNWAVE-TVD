@@ -1126,9 +1126,9 @@ SUBROUTINE MeteoGausian_Forcing
     DO J=1,Nloc
     DO I=1,Mloc
 
-       a = ATAN2(Ystorm-Yco(J),Xstorm-Xco(I))
+       a = ATAN2(Yco(J)-Ystorm,Xco(I)-Xstorm)
        b = Theta + PI*0.5_SP  ! angle above (Xstorm,Ystorm)
-       c = PI*0.5_SP - Theta  ! angle below (Xstorm,Ystorm)
+       c = Theta - PI*0.5_SP  ! angle below (Xstorm,Ystorm)
 
        IF(a > b .OR. a < c)THEN
          StormPressureTotal(I,J) = dP_Storm*0.01_SP ! convert from cm to meter
