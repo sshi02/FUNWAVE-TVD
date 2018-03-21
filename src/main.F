@@ -137,6 +137,9 @@ Program FUNWAVE_TVD
 # if defined (VESSEL)
      USE VESSEL_MODULE
 # endif
+# if defined (SEDIMENT)
+     USE SEDIMENT_MODULE
+# endif
 
 # if defined (METEO)
      USE METEO_MODULE
@@ -179,6 +182,10 @@ Program FUNWAVE_TVD
      CALL METEO_INITIAL
 # endif
 
+# if defined (SEDIMENT)
+     CALL SEDIMENT_INITIAL
+# endif
+
 ! time integration
 
      ! record wall time
@@ -200,6 +207,9 @@ Program FUNWAVE_TVD
      Eta0=Eta
      Ubar0=Ubar
      Vbar0=Vbar  
+# if defined (SEDIMENT)
+     CHH0=CHH
+# endif
    
      CALL UPDATE_MASK
 
@@ -237,6 +247,10 @@ Program FUNWAVE_TVD
 
        CALL ESTIMATE_HUV(ISTAGE)     
 
+# if defined (SEDIMENT)
+     CALL SEDIMENT_ADVECTION_DIFFUSION(ISTAGE) 
+# endif
+
        CALL WAVE_BREAKING
        
        CALL EXCHANGE
@@ -261,6 +275,7 @@ Program FUNWAVE_TVD
      ENDDO
 
      CALL MIXING_STUFF
+
 
 !  find maximum eta velocity 
 
