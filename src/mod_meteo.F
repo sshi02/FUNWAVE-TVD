@@ -380,8 +380,10 @@ SUBROUTINE METEO_FORCING
 END SUBROUTINE METEO_FORCING
 
 SUBROUTINE Holland_Model_Setup
-  USE GLOBAL,ONLY : itmp1,itmp2,itmp3,itmp4,SMALL,LARGE, &
-                    iista,jjsta  !ykchoi Jan/23/2018
+  USE GLOBAL,ONLY : itmp1,itmp2,itmp3,itmp4,SMALL,LARGE
+# if defined (PARALLEL)
+  USE GLOBAL,ONLY :   iista,jjsta  !ykchoi Jan/23/2018
+# endif
   USE INPUT_READ
   IMPLICIT NONE
   CHARACTER(LEN=80)::FILE_NAME=' '
@@ -727,8 +729,10 @@ SUBROUTINE Constant_Wind_Forcing
 END SUBROUTINE Constant_Wind_Forcing
 
 SUBROUTINE Slide_Model_Setup
-  USE GLOBAL,ONLY : itmp1,itmp2,itmp3,itmp4,SMALL,LARGE, &
-                    iista,jjsta    !ykchoi Jan/23/2018
+  USE GLOBAL,ONLY : itmp1,itmp2,itmp3,itmp4,SMALL,LARGE
+# if defined (PARALLEL)
+  USE GLOBAL,ONLY : iista,jjsta    !ykchoi Jan/23/2018
+# endif
   USE INPUT_READ
   IMPLICIT NONE
   CHARACTER(LEN=80)::FILE_NAME=' '
@@ -942,8 +946,10 @@ SUBROUTINE Slide_Model_Forcing
 END SUBROUTINE Slide_Model_Forcing
 
 SUBROUTINE MeteoGausian_Setup
-  USE GLOBAL,ONLY : itmp1,itmp2,itmp3,itmp4,SMALL,LARGE, &
-                    iista,jjsta   !ykchoi Jan/23/2018
+  USE GLOBAL,ONLY : itmp1,itmp2,itmp3,itmp4,SMALL,LARGE
+# if defined (PARALLEL)
+  USE GLOBAL,ONLY : iista,jjsta   !ykchoi Jan/23/2018
+# endif
   USE INPUT_READ
   IMPLICIT NONE
   CHARACTER(LEN=80)::FILE_NAME=' '
@@ -1115,6 +1121,24 @@ SUBROUTINE MeteoGausian_Forcing
 
 120 CONTINUE  ! no more data for vessel Kves
 
+# if defined (LINEAR_JUMP)
+
+    DO J=1,Nloc
+    DO I=1,Mloc
+
+       a = ATAN2(Ystorm-Yco(J),Xstorm-Xco(I))
+       b = Theta + PI*0.5_SP  ! angle above (Xstorm,Ystorm)
+       c = PI*0.5_SP - Theta  ! angle below (Xstorm,Ystorm)
+
+       IF(a > b .OR. a < c)THEN
+         StormPressureTotal(I,J) = dP_Storm*0.01_SP ! convert from cm to meter
+       ELSE
+         StormPressureTotal(I,J) = 0.0_SP
+       ENDIF
+    ENDDO
+    ENDDO
+
+# else
 ! sourceX and sourceY
 
     IF(SigmaX .eq. ZERO .OR. SigmaY .eq. ZERO)THEN
@@ -1151,6 +1175,9 @@ SUBROUTINE MeteoGausian_Forcing
 
     ENDDO
     ENDDO
+
+# endif
+  ! linear jump
 
     DO J=Jbeg,Jend
     DO I=Ibeg,Iend
