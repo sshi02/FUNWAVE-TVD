@@ -1475,7 +1475,6 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm_EQUAL_DFREQ &
 # endif
 
 # endif
-   
 
           Cm_eta(I,J,KK)=Cm_eta(I,J,KK)+Amp_Ser(KK,KKK)*COS( &
                    Wave_Number_Ser(KK)*SIN(Theta_Per)*Y_maker &
@@ -2298,9 +2297,6 @@ SUBROUTINE IRREGULAR_LEFT_BC
 # if defined (PARALLEL)
       endif
 # endif
-
-!print*, 'eta',rtime,eta(1,10),eta(2,10),eta(3,10),eta(4,10)
-!print*, 'u', rtime,u(1,10),u(2,10),u(3,10),u(4,10)
 
 END SUBROUTINE IRREGULAR_LEFT_BC
 
