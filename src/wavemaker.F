@@ -1062,7 +1062,7 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm &
 	     sumAG = sumAG + AG(ktheta)
 	  
 	  enddo
-	  AG(:) = AG(:)/sumAG;    !Because integral of AG should be 1.
+	  AG(:) = ABS(AG(:)/sumAG);    !Because integral of AG should be 1.
 
       ENDIF ! 1D or not
 
@@ -1355,7 +1355,7 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm_EQUAL_DFREQ &
 	     sumAG = sumAG + AG(ktheta)
 	  
 	  enddo
-	  AG(:) = AG(:)/sumAG;    !Because integral of AG should be 1.
+	  AG(:) = ABS(AG(:)/sumAG);    !Because integral of AG should be 1.
 
       ENDIF ! 1D or not
 
@@ -1653,7 +1653,7 @@ SUBROUTINE WK_WAVEMAKER_IRREGULAR_WAVE &
 	    sumAG = sumAG + AG(ktheta);
 	  
 	 enddo
-	 AG(:) = AG(:)/sumAG;   !Because integral of AG should be 1.
+	 AG(:) = ABS(AG(:)/sumAG);   !Because integral of AG should be 1.
 
 
       ENDIF ! 1D or not
@@ -1895,10 +1895,11 @@ SUBROUTINE WK_EQUAL_DFREQ_IRREGULAR_WAVE &
 	        *cos( k_n*(theta - theta_input*pi/180.0_SP) )
 	    enddo
 	    sumAG = sumAG + AG(ktheta);
-	  
+! print*,theta*180/pi,AG(ktheta) ! check negative	  
 	 enddo
-	 AG(:) = AG(:)/sumAG;   !Because integral of AG should be 1.
+	 AG(:) = ABS(AG(:)/sumAG);   !Because integral of AG should be 1.
 
+! small AG could be negative 04/13/2018
 
       ENDIF ! 1D or not
 
@@ -2010,7 +2011,6 @@ SUBROUTINE WK_EQUAL_DFREQ_IRREGULAR_WAVE &
 
         enddo ! end kf
         enddo ! end ktheta
-	  
 
 ! calculate wavemaker width
         omgn_tmp=2.0_SP*pi*fm
