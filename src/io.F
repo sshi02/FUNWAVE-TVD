@@ -3716,6 +3716,13 @@ SUBROUTINE PREVIEW
         call PutFile(TMP_NAME,Pickup)
         TMP_NAME = TRIM(FDIR)//'Depo_'//TRIM(FILE_NAME)
         call PutFile(TMP_NAME,D)
+
+        TMP_NAME = TRIM(FDIR)//'DchgS_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,TotalSuspendLoad)
+        TMP_NAME = TRIM(FDIR)//'DchgB_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,TotalBedLoad)
+
+
 # endif
 ! end sediment
 

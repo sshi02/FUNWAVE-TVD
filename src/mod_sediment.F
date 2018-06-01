@@ -57,7 +57,7 @@ MODULE SEDIMENT_MODULE
   USE PARAM
   USE GLOBAL,ONLY : Mloc,Nloc,Mloc1,Nloc1,Nghost,Ibeg,Iend,Jbeg,Jend,DX,DY, &
                     H,ETA,U,V,P,Q,MinDepth,MASK,DT,Gamma3,Depth,tmp4preview, &
-                    ALPHA,BETA
+                    ALPHA,BETA,MASK9
   USE INPUT_READ
 #if defined (PARALLEL)
   USE GLOBAL,ONLY : myid,ier, npx,npy,PX,PY
@@ -78,13 +78,14 @@ MODULE SEDIMENT_MODULE
 
     REAL(SP):: PLOT_INTV_SEDIMENT,PLOT_COUNT_SEDIMENT
 
-    REAL(SP) :: D50,Sdensity,n_porosity,DT1,Counter,WS,Kappa1,Kappa2
+    REAL(SP) :: D50,Sdensity,n_porosity,DT1,Counter,WS,Kappa1,Kappa2, &
+                MinDepthPickup
     
     REAL(SP),DIMENSION(:,:),ALLOCATABLE::Zb,P_ave,D_ave,Mask_s,D,Pickup,Delta_c
     REAL(SP),DIMENSION(:,:),ALLOCATABLE::CH,CHX,CHY,CHH,CHHxR,CHHxL,CHXxL,CHXxR
     REAL(SP),DIMENSION(:,:),ALLOCATABLE::CHHyR,CHHyL,CHYyL,CHYyR,ZbOld,dZb
     REAL(SP),DIMENSION(:,:),ALLOCATABLE::FsL,FsR,GsL,GsR,Fs,Gs,CH0,Zs,ava
-    REAL(SP),DIMENSION(:,:),ALLOCATABLE::Hpo,CHH0
+    REAL(SP),DIMENSION(:,:),ALLOCATABLE::Hpo,CHH0,TotalSuspendLoad,TotalBedLoad
 
     REAL(SP) :: Shields_cr,A_sed,Tau_cr,D_sed,htt,k_s,u_c,ustar_c,ec_max
     REAL(SP) :: beta_d,reduction,tau_xy,c_a,c_b,ec_max_w,ec_max_c
@@ -119,7 +120,7 @@ SUBROUTINE SEDIMENT_INITIAL
       CALL READ_STRING(Sed_Scheme,FILE_NAME,'Sed_Scheme',ierr)
 
       IF(ierr==1)THEN
-        Sed_Scheme = 'Upwingding'
+        Sed_Scheme = 'Upwinding'
 # if defined (PARALLEL)
       if (myid.eq.0) THEN
          WRITE(*,'(A50)')'You dont specify Sed_Scheme, use Upwinding.'
@@ -161,6 +162,21 @@ SUBROUTINE SEDIMENT_INITIAL
 # endif
       ENDIF 
 
+      CALL READ_Float(Sdensity,FILE_NAME,'Sdensity',ierr)
+
+      IF(ierr==1)THEN
+        Sdensity = 2.68_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'You dont specify Sdensity, use default: 2.68'
+         WRITE(3,'(A60)')'You dont specify Sdensity, use default: 2.68'
+      endif
+# else
+         WRITE(*,'(A60)')'You dont specify Sdensity, use default: 2.68'
+         WRITE(3,'(A60)')'You dont specify Sdensity, use default: 2.68'
+# endif
+      ENDIF 
+
       CALL READ_LOGICAL(BED_CHANGE,FILE_NAME,'Bed_Change',ierr)
 
       IF(ierr == 1)THEN
@@ -173,6 +189,21 @@ SUBROUTINE SEDIMENT_INITIAL
 # else
       WRITE(3,'(A40)')'Bed_Change not defined, Default: False'
       WRITE(*,'(A40)')'Bed_Change not defined, Default: False'
+# endif 
+      ENDIF
+
+      CALL READ_Float(MinDepthPickup,FILE_NAME,'MinDepthPickup',ierr)
+
+      IF(ierr == 1)THEN
+       MinDepthPickup = 0.1_SP 
+# if defined (PARALLEL) 
+      if (myid.eq.0)then
+       WRITE(3,'(A40)')'MinDepthPickup not defined, Default: 0.1m'
+       WRITE(*,'(A40)')'MinDepthPickup not defined, Default: 0.1m'
+      endif
+# else
+      WRITE(3,'(A40)')'MinDepthPickup not defined, Default: 0.1m'
+      WRITE(*,'(A40)')'MinDepthPickup not defined, Default: 0.1m'
 # endif 
       ENDIF
 
@@ -194,15 +225,15 @@ SUBROUTINE SEDIMENT_INITIAL
       CALL READ_Float(WS,FILE_NAME,'WS',ierr)
 
       IF(ierr==1)THEN
-        WS = 0.125_SP
+        WS = 0.0125_SP
 # if defined (PARALLEL)
       if (myid.eq.0) THEN
-         WRITE(*,'(A60)')'You dont specify WS, use default: 0.125'
-         WRITE(3,'(A60)')'You dont specify WS, use default: 0.125'
+         WRITE(*,'(A60)')'You dont specify WS, use default: 0.0125m/s'
+         WRITE(3,'(A60)')'You dont specify WS, use default: 0.0125m/s'
       endif
 # else
-         WRITE(*,'(A60)')'You dont specify WS, use default: 0.125'
-         WRITE(3,'(A60)')'You dont specify WS, use default: 0.125'
+         WRITE(*,'(A60)')'You dont specify WS, use default: 0.0125m/s'
+         WRITE(3,'(A60)')'You dont specify WS, use default: 0.0125m/s'
 # endif
       ENDIF
 
@@ -357,7 +388,8 @@ SUBROUTINE SEDIMENT_INITIAL
                  GsL(Mloc,Nloc1),GsR(Mloc,Nloc1))
         ALLOCATE(Gs(Mloc,Nloc1),Fs(Mloc1,Nloc),CH0(Mloc,Nloc))
         ALLOCATE(ZbOld(Mloc,Nloc),dZb(Mloc,Nloc), &
-                 Zs(Mloc,Nloc),ava(Mloc,Nloc),Hpo(Mloc,Nloc))
+                 Zs(Mloc,Nloc),ava(Mloc,Nloc),Hpo(Mloc,Nloc), &
+                 TotalSuspendLoad(Mloc,Nloc),TotalBedLoad(Mloc,Nloc))
 
         ava=ZERO
         Zs=ZERO		
@@ -391,7 +423,9 @@ SUBROUTINE SEDIMENT_INITIAL
         P_ave=ZERO
         Delta_c=ZERO
         Mask_s=ZERO
-        Zb=ZERO		
+        Zb=ZERO	
+        TotalSuspendLoad = ZERO
+        TotalBedLoad = ZERO	
 
 
 ! sediment parameters 
@@ -399,7 +433,7 @@ SUBROUTINE SEDIMENT_INITIAL
       Dstar = D50*((Sdensity-1.0_SP)*grav/viscosity**2.0_SP)**(1.0_SP/3.0_SP)
       Tau_cr=(Sdensity-1.0_SP)*grav*D50*Shields_cr
       k_s = 2.5_SP*D50 
-      Satuation = 0.1
+      Satuation = 0.001
 
 
      IF(IN_Mask_s)THEN
@@ -556,23 +590,27 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
 
     DO J=Jbeg,Jend
     DO I=Ibeg,Iend
-! diffusion
+
        IF(MASK(I,J).GT.0)THEN
             u_c =SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J))
-            u_c2=SQRT(U(I-1,J)*U(I-1,J)+V(I-1,J)*V(I-1,J))
-            u_c4=SQRT(U(I,J-1)*U(I,J-1)+V(I,J-1)*V(I,J-1))					
-            ustar_c = 0.4_SP*u_c/(-1.0_SP+log(30.0_SP*Hpo(I,J)/k_s))			
+            ustar_c = 0.4_SP*u_c/(-1.0_SP+log(30.0_SP*Hpo(I,J)/k_s))
+! diffusion x
+         IF(MASK(I-1,J).GT.0)THEN
+            u_c2=SQRT(U(I-1,J)*U(I-1,J)+V(I-1,J)*V(I-1,J))				
             ustar_c2= 0.4_SP*u_c2/(-1.0_SP+log(30.0_SP*Hpo(I-1,J)/k_s))			              
-            ustar_c4= 0.4_SP*u_c4/(-1.0_SP+log(30.0_SP*Hpo(I,J-1)/k_s))
-
             k2=5.93_SP*(ustar_c2+ustar_c)*(Hpo(I-1,J)+Hpo(I,J))/4.0_SP
-            k4=5.93_SP*(ustar_c4+ustar_c)*(Hpo(I,J)+Hpo(I,J-1))/4.0_SP
-
          Scalx(I,J)=Scalx(I,J) &
               - k2*(Hpo(I-1,J)+Hpo(I,J))*(CH(I,J)-CH(I-1,J))/2.0_SP/DX
+         ENDIF ! mask x
+         IF(MASK(I,J-1).GT.0)THEN
+            u_c4=SQRT(U(I,J-1)*U(I,J-1)+V(I,J-1)*V(I,J-1))
+            ustar_c4= 0.4_SP*u_c4/(-1.0_SP+log(30.0_SP*Hpo(I,J-1)/k_s))
+            k4=5.93_SP*(ustar_c4+ustar_c)*(Hpo(I,J)+Hpo(I,J-1))/4.0_SP
          Scaly(I,J)=Scaly(I,J) &
               - k4*(Hpo(I,J-1)+Hpo(I,J))*(CH(I,J)-CH(I,J-1))/2.0_SP/DY
-       ENDIF ! mask
+         ENDIF  ! mask y
+       ENDIF !  mask
+
     ENDDO
     ENDDO
 
@@ -614,9 +652,12 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
     	    	
       DO J=Jbeg,Jend
       DO I=Ibeg,Iend
-        IF(MASK(I,J).GT.0)THEN
+        IF(MASK(I,J).GT.0.AND.H(I,J)>MinDepthPickup)THEN
           u_c=SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J))
-          tau_xy= 0.16_SP/(1.+log(k_s/(30.0_SP*Hpo(I+1,J))))**2*(u_c**2.)	
+
+    ! note rho_w is removed, also removed in tau_cr, 
+
+          tau_xy= 0.16_SP/(1.0+log(k_s/(30.0_SP*Hpo(I+1,J))))**2*(u_c**2.)	
 
           IF (tau_xy.GT.Tau_cr) THEN
             c_b=0.015_SP*(((tau_xy-Tau_cr)/Tau_cr)**1.5_SP)*Dstar**(-0.3_SP)
@@ -734,6 +775,23 @@ SUBROUTINE FLUX_SCALAR_BC(IVAR,Scalx,Scaly)
 
     RETURN
 END SUBROUTINE FLUX_SCALAR_BC
+
+SUBROUTINE MORPHOLOGICAL_CHANGE
+  USE GLOBAL,ONLY : SMALL
+# if defined (PARALLEL)
+  USE GLOBAL,ONLY : iista,jjsta  
+# endif
+                    
+  IMPLICIT NONE
+
+    DO J=1,Nloc
+    DO I=1,Mloc
+      TotalSuspendLoad(I,J) = TotalSuspendLoad(I,J)+(-Pickup(I,J)+D(I,J))*DT
+    ENDDO
+    ENDDO
+
+
+END SUBROUTINE MORPHOLOGICAL_CHANGE
 
 
 END MODULE SEDIMENT_MODULE
