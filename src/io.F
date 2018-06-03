@@ -3722,6 +3722,13 @@ SUBROUTINE PREVIEW
         TMP_NAME = TRIM(FDIR)//'DchgB_'//TRIM(FILE_NAME)
         call PutFile(TMP_NAME,TotalBedLoad)
 
+        TMP_NAME = TRIM(FDIR)//'BedFx_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,BedFluxX)
+        TMP_NAME = TRIM(FDIR)//'BedFy_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,BedFluxY)
+
+        TMP_NAME = TRIM(FDIR)//'dep_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,Depth)
 
 # endif
 ! end sediment

@@ -57,7 +57,7 @@ MODULE SEDIMENT_MODULE
   USE PARAM
   USE GLOBAL,ONLY : Mloc,Nloc,Mloc1,Nloc1,Nghost,Ibeg,Iend,Jbeg,Jend,DX,DY, &
                     H,ETA,U,V,P,Q,MinDepth,MASK,DT,Gamma3,Depth,tmp4preview, &
-                    ALPHA,BETA,MASK9
+                    ALPHA,BETA,MASK9,DepthX,DepthY
   USE INPUT_READ
 #if defined (PARALLEL)
   USE GLOBAL,ONLY : myid,ier, npx,npy,PX,PY
@@ -72,6 +72,7 @@ MODULE SEDIMENT_MODULE
     LOGICAL :: Bed_Change=.FALSE.
     LOGICAL :: Avalanche=.FALSE.
     LOGICAL :: IN_Mask_s=.FALSE.
+    LOGICAL :: BedLoad = .FALSE.
 
     INTEGER :: Counter_s=0, Counter_ava=0
     INTEGER :: Morph_step,c_dum
@@ -85,9 +86,12 @@ MODULE SEDIMENT_MODULE
     REAL(SP),DIMENSION(:,:),ALLOCATABLE::CH,CHX,CHY,CHH,CHHxR,CHHxL,CHXxL,CHXxR
     REAL(SP),DIMENSION(:,:),ALLOCATABLE::CHHyR,CHHyL,CHYyL,CHYyR,ZbOld,dZb
     REAL(SP),DIMENSION(:,:),ALLOCATABLE::FsL,FsR,GsL,GsR,Fs,Gs,CH0,Zs,ava
+    REAL(SP),DIMENSION(:,:),ALLOCATABLE::BedFluxX,BedFluxY
     REAL(SP),DIMENSION(:,:),ALLOCATABLE::Hpo,CHH0,TotalSuspendLoad,TotalBedLoad
+    REAL(SP),DIMENSION(:,:),ALLOCATABLE::Depth_ini
 
     REAL(SP) :: Shields_cr,A_sed,Tau_cr,D_sed,htt,k_s,u_c,ustar_c,ec_max
+    REAL(SP) :: Shields_cr_bedload,Tau_cr_bedload
     REAL(SP) :: beta_d,reduction,tau_xy,c_a,c_b,ec_max_w,ec_max_c
     REAL(SP) :: u_c1,u_c2,u_c3,u_c4,ustar_c1,ustar_c2,ustar_c3,ustar_c4
     REAL(SP) :: k1,k2,k3,k4,F1,F2,F3,F4,tan_phi,Dstar,viscosity
@@ -162,21 +166,6 @@ SUBROUTINE SEDIMENT_INITIAL
 # endif
       ENDIF 
 
-      CALL READ_Float(Sdensity,FILE_NAME,'Sdensity',ierr)
-
-      IF(ierr==1)THEN
-        Sdensity = 2.68_SP
-# if defined (PARALLEL)
-      if (myid.eq.0) THEN
-         WRITE(*,'(A60)')'You dont specify Sdensity, use default: 2.68'
-         WRITE(3,'(A60)')'You dont specify Sdensity, use default: 2.68'
-      endif
-# else
-         WRITE(*,'(A60)')'You dont specify Sdensity, use default: 2.68'
-         WRITE(3,'(A60)')'You dont specify Sdensity, use default: 2.68'
-# endif
-      ENDIF 
-
       CALL READ_LOGICAL(BED_CHANGE,FILE_NAME,'Bed_Change',ierr)
 
       IF(ierr == 1)THEN
@@ -189,6 +178,21 @@ SUBROUTINE SEDIMENT_INITIAL
 # else
       WRITE(3,'(A40)')'Bed_Change not defined, Default: False'
       WRITE(*,'(A40)')'Bed_Change not defined, Default: False'
+# endif 
+      ENDIF
+
+      CALL READ_LOGICAL(BedLoad,FILE_NAME,'BedLoad',ierr)
+
+      IF(ierr == 1)THEN
+       BedLoad = .FALSE. 
+# if defined (PARALLEL) 
+      if (myid.eq.0)then
+       WRITE(3,'(A40)')'BedLoad not defined, Default: False'
+       WRITE(*,'(A40)')'BedLoad not defined, Default: False'
+      endif
+# else
+      WRITE(3,'(A40)')'BedLoad not defined, Default: False'
+      WRITE(*,'(A40)')'BedLoad not defined, Default: False'
 # endif 
       ENDIF
 
@@ -249,6 +253,21 @@ SUBROUTINE SEDIMENT_INITIAL
 # else
          WRITE(*,'(A60)')'You dont specify Shields_cr, use default: 0.055'
          WRITE(3,'(A60)')'You dont specify Shields_cr, use default: 0.055'
+# endif
+      ENDIF
+
+      CALL READ_Float(Shields_cr_bedload,FILE_NAME,'Shields_cr_bedload',ierr)
+
+      IF(ierr==1)THEN
+        Shields_cr_bedload = Shields_cr
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'You dont specify Shields_cr_bedload, use Shields_cr'
+         WRITE(3,'(A80)')'You dont specify Shields_cr_bedload, use Shields_cr'
+      endif
+# else
+         WRITE(*,'(A80)')'You dont specify Shields_cr_bedload, use Shields_cr'
+         WRITE(3,'(A80)')'You dont specify Shields_cr_bedload, use Shields_cr'
 # endif
       ENDIF
 
@@ -390,7 +409,9 @@ SUBROUTINE SEDIMENT_INITIAL
         ALLOCATE(ZbOld(Mloc,Nloc),dZb(Mloc,Nloc), &
                  Zs(Mloc,Nloc),ava(Mloc,Nloc),Hpo(Mloc,Nloc), &
                  TotalSuspendLoad(Mloc,Nloc),TotalBedLoad(Mloc,Nloc))
+        ALLOCATE(BedFluxX(Mloc,Nloc),BedFluxY(Mloc,Nloc),Depth_ini(Mloc,Nloc))
 
+        Depth_ini = Depth
         ava=ZERO
         Zs=ZERO		
         ZbOld=ZERO
@@ -426,12 +447,15 @@ SUBROUTINE SEDIMENT_INITIAL
         Zb=ZERO	
         TotalSuspendLoad = ZERO
         TotalBedLoad = ZERO	
+        BedFluxX = ZERO
+        BedFluxY = ZERO
 
 
 ! sediment parameters 
       viscosity=0.000001_SP
       Dstar = D50*((Sdensity-1.0_SP)*grav/viscosity**2.0_SP)**(1.0_SP/3.0_SP)
       Tau_cr=(Sdensity-1.0_SP)*grav*D50*Shields_cr
+      Tau_cr_bedload=(Sdensity-1.0_SP)*grav*D50*Shields_cr_bedload
       k_s = 2.5_SP*D50 
       Satuation = 0.001
 
@@ -488,6 +512,7 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
   REAL(SP),DIMENSION(:,:),ALLOCATABLE :: Scalx,Scaly
   REAL(SP),DIMENSION(Ibeg:Iend,Jbeg:Jend)::R1,R2,R3
   REAL(SP) :: Weight0 = 0.9_SP, Weight1=0.1_SP
+  REAL(SP) :: Angle_cur,bedf,fr
 
     ALLOCATE(Scalx(Mloc1,Nloc),Scaly(Mloc,Nloc1))
 
@@ -586,7 +611,7 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
 
   ENDIF
 
-! diffusion
+! diffusion 
 
     DO J=Jbeg,Jend
     DO I=Ibeg,Iend
@@ -601,13 +626,16 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
             k2=5.93_SP*(ustar_c2+ustar_c)*(Hpo(I-1,J)+Hpo(I,J))/4.0_SP
          Scalx(I,J)=Scalx(I,J) &
               - k2*(Hpo(I-1,J)+Hpo(I,J))*(CH(I,J)-CH(I-1,J))/2.0_SP/DX
+
          ENDIF ! mask x
+
          IF(MASK(I,J-1).GT.0)THEN
             u_c4=SQRT(U(I,J-1)*U(I,J-1)+V(I,J-1)*V(I,J-1))
             ustar_c4= 0.4_SP*u_c4/(-1.0_SP+log(30.0_SP*Hpo(I,J-1)/k_s))
             k4=5.93_SP*(ustar_c4+ustar_c)*(Hpo(I,J)+Hpo(I,J-1))/4.0_SP
          Scaly(I,J)=Scaly(I,J) &
               - k4*(Hpo(I,J-1)+Hpo(I,J))*(CH(I,J)-CH(I,J-1))/2.0_SP/DY
+
          ENDIF  ! mask y
        ENDIF !  mask
 
@@ -649,16 +677,24 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
 !stop
 
 ! sources
-    	    	
+
+      BedFluxX=ZERO
+      BedFluxY=ZERO
+    	
       DO J=Jbeg,Jend
       DO I=Ibeg,Iend
         IF(MASK(I,J).GT.0.AND.H(I,J)>MinDepthPickup)THEN
           u_c=SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J))
 
+! avoid sheet flow condition
+          fr=SQRT(H(I,J)*grav)*0.5
+          IF(u_c > fr) u_c = fr
+
     ! note rho_w is removed, also removed in tau_cr, 
 
           tau_xy= 0.16_SP/(1.0+log(k_s/(30.0_SP*Hpo(I+1,J))))**2*(u_c**2.)	
 
+!  suspended load
           IF (tau_xy.GT.Tau_cr) THEN
             c_b=0.015_SP*(((tau_xy-Tau_cr)/Tau_cr)**1.5_SP)*Dstar**(-0.3_SP)
             reduction=MIN(1.0_SP,0.65_SP/c_b)
@@ -670,12 +706,31 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
           ELSE
             Pickup(I,J)=0.0_SP
           ENDIF
-        ELSE
+
+         IF(BedLoad)THEN
+!  bedload
+         tmp4preview(I,J)=Tau_xy
+
+          IF (tau_xy.GT.Tau_cr_bedload) THEN
+             Angle_cur = ATAN2(V(I,J),U(I,J))
+             bedf = 8.0_SP*(tau_xy-tau_cr_bedload)**1.5/grav/(Sdensity-1.0_SP)
+             BedFluxX(I,J) = bedf*COS(Angle_cur)
+             BedFluxY(I,J) = bedf*SIN(Angle_cur)
+          ELSE
+             BedFluxX(I,J) = ZERO
+             BedFluxY(I,J) = ZERO
+          ENDIF
+         ENDIF ! end bedload
+
+
+        ELSE ! dry point
           Pickup(I,J)=0.0_SP	
         ENDIF
+
         IF(IN_Mask_s) THEN
           IF(Zb(I,J).GE.(Zs(I,J)-0.001_SP)) Pickup(I,J)=0.0_SP
         ENDIF
+
       ENDDO
       ENDDO
 
@@ -787,8 +842,56 @@ SUBROUTINE MORPHOLOGICAL_CHANGE
     DO J=1,Nloc
     DO I=1,Mloc
       TotalSuspendLoad(I,J) = TotalSuspendLoad(I,J)+(-Pickup(I,J)+D(I,J))*DT
+      TotalBedLoad(I,J) = TotalBedLoad(I,J)  &
+                    -(BedFluxX(I+1,J)-BedFluxX(I-1,J))/2.0_SP/DX*DT  &
+                    -(BedFluxY(I,J+1)-BedFluxX(I,J-1))/2.0_SP/DY*DT
     ENDDO
     ENDDO
+
+! update depth
+
+    Depth = Depth_ini + TotalSuspendLoad + TotalBedLoad
+
+! ghost cells
+     DO I=Ibeg,Iend
+       DO J=1,Nghost
+        Depth(I,J)=Depth(I,Jbeg)
+       ENDDO
+       DO J=Jend+1,Nloc
+        Depth(I,J)=Depth(I,Jend)
+       ENDDO
+     ENDDO
+
+     DO J=1,Nloc
+       DO I=1,Nghost
+        Depth(I,J)=Depth(Ibeg,J)
+       ENDDO
+       DO I=Iend+1,Mloc
+        Depth(I,J)=Depth(Iend,J)
+       ENDDO
+     ENDDO  
+
+! re-construct Depth
+
+     DO J=1,Nloc
+     DO I=2,Mloc
+      DepthX(I,J)=0.5_SP*(Depth(I-1,J)+Depth(I,J))
+     ENDDO
+     ENDDO
+     DO J=1,Nloc
+      DepthX(1,J)=0.5_SP*(3.0_SP*Depth(1,J)-Depth(2,J))
+      DepthX(Mloc1,J)=0.5_SP*(3.0_SP*Depth(Mloc,J)-Depth(Mloc-1,J))
+     ENDDO
+
+     DO J=2,Nloc
+     DO I=1,Mloc
+      DepthY(I,J)=0.5_SP*(Depth(I,J-1)+Depth(I,J))
+     ENDDO
+     ENDDO
+     DO I=1,Mloc
+      DepthY(I,1)=0.5_SP*(3.0_SP*Depth(I,1)-Depth(I,2))
+      DepthY(I,Nloc1)=0.5_SP*(3.0_SP*Depth(I,Nloc)-Depth(I,Nloc-1))
+     ENDDO
 
 
 END SUBROUTINE MORPHOLOGICAL_CHANGE
