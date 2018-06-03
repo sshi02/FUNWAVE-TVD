@@ -850,7 +850,7 @@ SUBROUTINE MORPHOLOGICAL_CHANGE
 
 ! update depth
 
-    Depth = Depth_ini + TotalSuspendLoad + TotalBedLoad
+    Depth = Depth_ini + (TotalSuspendLoad + TotalBedLoad)*(1.0_SP-n_porosity)
 
 ! ghost cells
      DO I=Ibeg,Iend
