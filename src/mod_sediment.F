@@ -57,7 +57,7 @@ MODULE SEDIMENT_MODULE
   USE PARAM
   USE GLOBAL,ONLY : Mloc,Nloc,Mloc1,Nloc1,Nghost,Ibeg,Iend,Jbeg,Jend,DX,DY, &
                     H,ETA,U,V,P,Q,MinDepth,MASK,DT,Gamma3,Depth,tmp4preview, &
-                    ALPHA,BETA,MASK9,DepthX,DepthY
+                    ALPHA,BETA,MASK9,DepthX,DepthY,PERIODIC
   USE INPUT_READ
 #if defined (PARALLEL)
   USE GLOBAL,ONLY : myid,ier, npx,npy,PX,PY
@@ -667,6 +667,10 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
 
      ENDDO
      ENDDO
+
+# if defined (PARALLEL)
+    CALL PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,CH,1,PERIODIC)
+# endif
 
 !open(2,file='/Users/fengyanshi15/tmp1/tmp.txt')
 !    do j=1,nloc
