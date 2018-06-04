@@ -738,6 +738,11 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
       ENDDO
       ENDDO
 
+# if defined (PARALLEL)
+    CALL PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,BedFluxX,1,PERIODIC)
+    CALL PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,BedFluxY,1,PERIODIC)
+# endif
+
 ! Calculate the Deposition Rate D(I,J)
       DO J=Jbeg,Jend+1
       DO I=Ibeg,Iend+1
