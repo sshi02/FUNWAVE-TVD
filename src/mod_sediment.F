@@ -702,7 +702,7 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
           IF (tau_xy.GT.Tau_cr) THEN
             c_b=0.015_SP*(((tau_xy-Tau_cr)/Tau_cr)**1.5_SP)*Dstar**(-0.3_SP)
             reduction=MIN(1.0_SP,0.65_SP/c_b)
-            c_a=reduction*c_b*D50/(0.01_SP*Hpo(I,J))
+            c_a=reduction*c_b*D50/(MAX(0.01_SP*Hpo(I,J),0.01_SP))
             Pickup(I,J)=MAX(0.0_SP,c_a*WS)
 ! satuation
             IF(Pickup(I,J)/Hpo(I,J)>=Satuation) Pickup(I,J)=Satuation*Hpo(I,J)
@@ -859,7 +859,7 @@ SUBROUTINE MORPHOLOGICAL_CHANGE
 
 ! update depth
 
-    Depth = Depth_ini + (TotalSuspendLoad + TotalBedLoad)*(1.0_SP-n_porosity)
+    Depth = Depth_ini + (TotalSuspendLoad + TotalBedLoad)/(1.0_SP-n_porosity)
 
 ! ghost cells
      DO I=Ibeg,Iend
