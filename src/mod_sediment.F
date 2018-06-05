@@ -853,7 +853,7 @@ SUBROUTINE MORPHOLOGICAL_CHANGE
       TotalSuspendLoad(I,J) = TotalSuspendLoad(I,J)+(-Pickup(I,J)+D(I,J))*DT
       TotalBedLoad(I,J) = TotalBedLoad(I,J)  &
                     -(BedFluxX(I+1,J)-BedFluxX(I-1,J))/2.0_SP/DX*DT  &
-                    -(BedFluxY(I,J+1)-BedFluxX(I,J-1))/2.0_SP/DY*DT
+                    -(BedFluxY(I,J+1)-BedFluxY(I,J-1))/2.0_SP/DY*DT
     ENDDO
     ENDDO
 
