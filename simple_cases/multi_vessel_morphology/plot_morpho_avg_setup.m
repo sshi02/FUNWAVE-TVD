@@ -89,7 +89,7 @@ caxis([0 2.999])
 
 %title([' Time = ' min{num} ' sec '])
 cbar=colorbar;
-set(get(cbar,'ylabel'),'String',' log10(C) (g/L) ')
+set(get(cbar,'ylabel'),'String',' log10(C) (mg/L) ')
 axis(ax)
 
 ylabel(' y (m) ')
