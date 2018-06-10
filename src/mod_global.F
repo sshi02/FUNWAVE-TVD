@@ -224,6 +224,7 @@ MODULE GLOBAL
 ! 
 ! wetting and drying
         INTEGER,DIMENSION(:,:),ALLOCATABLE :: MASK,MASK_STRUC,MASK9
+        REAL(SP) :: Dmass,WetArea,DwetEta
 ! wave maker
         LOGICAL :: EqualEnergy = .FALSE.
         REAL(SP)::AMP_SOLI,DEP_SOLI,LAG_SOLI, CPH_SOLI,XWAVEMAKER, &

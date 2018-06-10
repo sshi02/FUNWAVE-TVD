@@ -53,6 +53,10 @@ SUBROUTINE UPDATE_MASK
      IMPLICIT NONE
      REAL(SP)::left,right,top,bottom
      INTEGER,DIMENSION(:,:),ALLOCATABLE :: MASKtmp
+     REAL(SP):: Eta_Actual
+# if defined (PARALLEL)
+     REAL(SP)::myvar
+# endif
 
      ALLOCATE(MASKtmp(Mloc,Nloc))    
 
@@ -64,6 +68,7 @@ SUBROUTINE UPDATE_MASK
 #endif
 
      MASKtmp=MASK
+     Dmass = ZERO
 
      DO J=Jbeg-2,Jend+2
      DO I=Ibeg-2,Iend+2
@@ -97,8 +102,10 @@ SUBROUTINE UPDATE_MASK
 ! drying
        ELSE
          IF(Eta(I,J)<-Depth(I,J))THEN
+          Eta_Actual = Eta(I,J)
           MASKtmp(I,J)=0
           ETA(I,J)=MinDepth-Depth(I,J)
+          Dmass = Dmass + Eta(I,J)-Eta_Actual
          ENDIF    
        ENDIF
       ENDIF
@@ -149,6 +156,47 @@ SUBROUTINE UPDATE_MASK
 # endif
 
      DEALLOCATE(MASKtmp)
+
+# if defined (CHECK_MASS_CONSERVATION)
+
+     WetArea = ZERO
+     DO J=Jbeg,Jend
+     DO I=Ibeg,Iend
+
+# if defined (CARTESIAN)
+       IF(MASK(I,J)>0)THEN
+         WetArea = WetArea + DX*DY
+       ENDIF
+# else
+       IF(MASK(I,J)>0)THEN
+         WetArea = WetArea + DX(I,J)*DY(I,J)
+       ENDIF
+# endif  
+     ENDDO
+     ENDDO
+
+# if defined (PARALLEL)
+     call MPI_ALLREDUCE(WetArea,myvar,1,MPI_SP,MPI_SUM,MPI_COMM_WORLD,ier)
+     WetArea = myvar
+     call MPI_ALLREDUCE(Dmass,myvar,1,MPI_SP,MPI_SUM,MPI_COMM_WORLD,ier)
+     Dmass = myvar
+# endif
+
+! calculate deta
+# if defined (CARTESIAN)
+     DwetEta = Dmass / Max(DX*DY,WetArea)
+# else
+     DwetEta = Dmass / Max(DX(1,1)*DY(1,1),WetArea)
+# endif
+
+     DO J=Jbeg,Jend
+     DO I=Ibeg,Iend 
+        IF(MASK(I,J) >0) ETA(I,J)= ETA(I,J) - DwetEta
+     ENDDO
+     ENDDO
+
+# endif
+! end mass conservation
 
 END SUBROUTINE UPDATE_MASK
 
