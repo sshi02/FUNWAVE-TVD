@@ -105,7 +105,11 @@ SUBROUTINE UPDATE_MASK
           Eta_Actual = Eta(I,J)
           MASKtmp(I,J)=0
           ETA(I,J)=MinDepth-Depth(I,J)
-          Dmass = Dmass + Eta(I,J)-Eta_Actual
+# if defined (CARTESIAN)
+          Dmass = Dmass + (Eta(I,J)-Eta_Actual)*DX*DY
+# else
+          Dmass = Dmass + (Eta(I,J)-Eta_Actual)*DX(I,J)*DY(I,J)
+# endif
          ENDIF    
        ENDIF
       ENDIF
@@ -194,6 +198,7 @@ SUBROUTINE UPDATE_MASK
         IF(MASK(I,J) >0) ETA(I,J)= ETA(I,J) - DwetEta
      ENDDO
      ENDDO
+! then eta will be exchanged at bc in Main.F
 
 # endif
 ! end mass conservation
