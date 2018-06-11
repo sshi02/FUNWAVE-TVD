@@ -750,7 +750,7 @@ SUBROUTINE CALCULATE_CD_BREAKWATER
      USE PARAM
      USE GLOBAL, ONLY : depth,MinDepthFrc,CD_breakwater,BreakWaterWidth, &
                         Mglob,Nglob,Ibeg,Iend,Jbeg,Jend,Nghost,DX,DY,&
-                        Mloc,Nloc 
+                        Mloc,Nloc,BreakWaterAbsorbCoef
 # if defined (PARALLEL)
      USE GLOBAL, ONLY : px,py,npx,npy,myid,ier,NumberProcessor, &
                         iista, iiend, jjsta, jjend    !ykchoi (28/Jan/2018)   
@@ -803,7 +803,7 @@ SUBROUTINE CALCULATE_CD_BREAKWATER
         DO Ib=MAX(1,I-Iwidth),Min(Mglob,I+Iwidth)
           ri=SQRT(((Ib-I)*DXg)**2+((Jb-J)*DYg)**2)
           IF(ri.LE.BreakWaterWidth(I,J))THEN
-           tmp_2d=10.0_SP* &
+           tmp_2d=BreakWaterAbsorbCoef* &
              TANH( (BreakWaterWidth(I,J)-ri) / (0.3_SP*BreakWaterWidth(I,J)) )
 
 !if (J==20+Nghost.AND.I==825+Nghost)then

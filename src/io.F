@@ -2358,6 +2358,33 @@ SUBROUTINE READ_INPUT
 # endif
       ENDIF
 
+! breakwater reflection stength
+
+          CALL READ_FLOAT(BreakWaterAbsorbCoef,FILE_NAME,'BreakWaterAbsorbCoef',ierr)
+      IF(ierr==1)THEN
+        BreakWaterAbsorbCoef = 1.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'BreakWaterAbsorbCoef Default:  1'
+         WRITE(3,'(A40)')'BreakWaterAbsorbCoef Default:  1'
+      endif
+# else
+         WRITE(*,'(A40)')'BreakWaterAbsorbCoef Default:  1'
+         WRITE(3,'(A40)')'BreakWaterAbsorbCoef Default:  1'
+# endif
+       ELSE
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,F6.2)')'BreakWaterAbsorbCoef:', BreakWaterAbsorbCoef
+         WRITE(3,'(A40,F6.2)')'BreakWaterAbsorbCoef:', BreakWaterAbsorbCoef
+      endif
+# else
+         WRITE(*,'(A40,F6.2)')'BreakWaterAbsorbCoef:', BreakWaterAbsorbCoef
+         WRITE(3,'(A40,F6.2)')'BreakWaterAbsorbCoef:', BreakWaterAbsorbCoef
+# endif
+       ENDIF
+
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,*)'                                         '
       if (myid.eq.0) WRITE(3,*)'-------------- PHYSICS -----------------'

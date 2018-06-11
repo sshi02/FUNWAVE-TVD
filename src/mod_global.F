@@ -149,6 +149,7 @@ MODULE GLOBAL
 
        REAL(SP),DIMENSION(:,:),ALLOCATABLE :: &
                 BreakWaterWidth,CD_breakwater
+       REAL(SP) :: BreakWaterAbsorbCoef
 
 
 ! switch for dispersion
