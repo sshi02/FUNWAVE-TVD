@@ -2362,15 +2362,15 @@ SUBROUTINE READ_INPUT
 
           CALL READ_FLOAT(BreakWaterAbsorbCoef,FILE_NAME,'BreakWaterAbsorbCoef',ierr)
       IF(ierr==1)THEN
-        BreakWaterAbsorbCoef = 1.0_SP
+        BreakWaterAbsorbCoef = 10.0_SP
 # if defined (PARALLEL)
       if (myid.eq.0) THEN
-         WRITE(*,'(A40)')'BreakWaterAbsorbCoef Default:  1'
-         WRITE(3,'(A40)')'BreakWaterAbsorbCoef Default:  1'
+         WRITE(*,'(A40)')'BreakWaterAbsorbCoef Default:  10.0'
+         WRITE(3,'(A40)')'BreakWaterAbsorbCoef Default:  10.0'
       endif
 # else
-         WRITE(*,'(A40)')'BreakWaterAbsorbCoef Default:  1'
-         WRITE(3,'(A40)')'BreakWaterAbsorbCoef Default:  1'
+         WRITE(*,'(A40)')'BreakWaterAbsorbCoef Default:  10.0'
+         WRITE(3,'(A40)')'BreakWaterAbsorbCoef Default:  10.0'
 # endif
        ELSE
 # if defined (PARALLEL)
