@@ -228,6 +228,8 @@ MODULE GLOBAL
         REAL(SP) :: Dmass,WetArea,DwetEta
 ! wave maker
         LOGICAL :: EqualEnergy = .FALSE.
+        LOGICAL :: WaveMakerCurrentBalance = .FALSE.
+        REAL(SP) :: WaveMakerCd
         REAL(SP)::AMP_SOLI,DEP_SOLI,LAG_SOLI, CPH_SOLI,XWAVEMAKER, &
                   Xc,Yc, WID,Xc_WK,Tperiod,AMP_WK,DEP_WK,Theta_WK, &
                   rlamda,Time_ramp,D_gen,Beta_gen,Width_WK,Delta_WK,&

@@ -2314,6 +2314,27 @@ SUBROUTINE READ_INPUT
 # endif
        ENDIF ! endif sponge
 
+! to avoid longshore current caused by extra momentum flux
+! we can add bottom friction make momentum balance
+
+      CALL READ_FLOAT(WaveMakerCd,FILE_NAME,'WaveMakerCd',ierr)
+      IF(ierr==1)THEN
+        WaveMakerCurrentBalance=.FALSE.
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A40)')'No WavemakerCurrentBalance'
+# else
+      WRITE(3,'(A40)')WRITE(3,'(A40)')'No WavemakerCurrentBalance'
+# endif
+      ELSE
+        WaveMakerCurrentBalance=.TRUE.
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A15,F6.2)')'WaveMakerCd:', WaveMakerCd
+# else
+      WRITE(3,'(A15,F6.2)')'WaveMakerCd:', WaveMakerCd
+# endif
+      ENDIF
+
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,*)'                                         '
       if (myid.eq.0) WRITE(3,*)'-------- OBSTACLE and BREAKWATER -----------------'

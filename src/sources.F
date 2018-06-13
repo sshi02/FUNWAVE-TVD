@@ -220,6 +220,21 @@ SUBROUTINE SourceTerms
                    *Depth(I,J)
        ENDIF
 
+       IF(WaveMakerCurrentBalance)THEN
+# if defined (PARALLEL)
+	      xmk=(I-Ibeg)*DXg + (iista-1)*DXg
+	      ymk=(J-Jbeg)*DYg + (jjsta-1)*DYg
+# else
+            xmk=(I-Ibeg)*DXg
+            ymk=(J-Jbeg)*DYg
+# endif
+         IF(ABS(xmk-Xc_WK)<Width_WK.AND. &
+            ABS(ymk-Yc_WK)<Ywidth_WK/2.0_SP)THEN
+            SourceX(I,J) = SourceX(I,J) &
+                  -WaveMakerCd*U(I,J)*SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J))
+         ENDIF
+       ENDIF ! current balance
+
        IF(BREAKWATER) THEN
           ! note that, compared to wei et al, we used flux. so need multiply D
           SourceX(I,J) = SourceX(I,J) &
@@ -254,6 +269,22 @@ SUBROUTINE SourceTerms
                    -CD_4_SPONGE(I,J)*V(I,J)*SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J)) &
                     *Depth(I,J)             
        ENDIF
+
+       IF(WaveMakerCurrentBalance)THEN
+# if defined (PARALLEL)
+	      xmk=(I-Ibeg)*DXg + (iista-1)*DXg
+	      ymk=(J-Jbeg)*DYg + (jjsta-1)*DYg
+# else
+            xmk=(I-Ibeg)*DXg
+            ymk=(J-Jbeg)*DYg
+# endif
+         IF(ABS(xmk-Xc_WK)<Width_WK.AND. &
+            ABS(ymk-Yc_WK)<Ywidth_WK/2.0_SP)THEN
+            SourceY(I,J) = SourceY(I,J) &
+                  -WaveMakerCd*V(I,J)*SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J))
+         ENDIF
+       ENDIF ! current balance
+
 
        IF(BREAKWATER) THEN
           ! note that, compared to wei et al, we used flux. so need multiply D
