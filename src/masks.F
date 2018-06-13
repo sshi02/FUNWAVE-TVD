@@ -161,7 +161,8 @@ SUBROUTINE UPDATE_MASK
 
      DEALLOCATE(MASKtmp)
 
-# if defined (CHECK_MASS_CONSERVATION)
+!!!!! # if defined (CHECK_MASS_CONSERVATION)
+!   now check_mass_conservation is a general setting after tests
 
      WetArea = ZERO
      DO J=Jbeg,Jend
@@ -200,7 +201,7 @@ SUBROUTINE UPDATE_MASK
      ENDDO
 ! then eta will be exchanged at bc in Main.F
 
-# endif
+!!!!!     # endif
 ! end mass conservation
 
 END SUBROUTINE UPDATE_MASK
