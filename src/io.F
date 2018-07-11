@@ -2323,7 +2323,7 @@ SUBROUTINE READ_INPUT
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A40)')'No WavemakerCurrentBalance'
 # else
-      WRITE(3,'(A40)')WRITE(3,'(A40)')'No WavemakerCurrentBalance'
+       WRITE(3,'(A40)')'No WavemakerCurrentBalance'
 # endif
       ELSE
         WaveMakerCurrentBalance=.TRUE.
