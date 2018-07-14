@@ -3591,9 +3591,6 @@ SUBROUTINE PREVIEW
      CHARACTER(LEN=80)::FILE_NAME_MEAN=' '
      CHARACTER(LEN=80)::TMP_NAME=' '
      CHARACTER(LEN=80)::FDIR=' '
-# if defined(SEDIMENT)
-     REAL(SP) :: SedC
-# endif
 
      FDIR=TRIM(RESULT_FOLDER)
 
@@ -3762,8 +3759,7 @@ SUBROUTINE PREVIEW
 ! sediment
 # if defined (SEDIMENT)
         TMP_NAME = TRIM(FDIR)//'C_'//TRIM(FILE_NAME)
-        SedC = CH *Sdensity*1000.0_SP
-        call PutFile(TMP_NAME,SedC)
+        call PutFile(TMP_NAME,CH *Sdensity*1000.0_SP)
         TMP_NAME = TRIM(FDIR)//'Pick_'//TRIM(FILE_NAME)
         call PutFile(TMP_NAME,Pickup)
         TMP_NAME = TRIM(FDIR)//'Depo_'//TRIM(FILE_NAME)
