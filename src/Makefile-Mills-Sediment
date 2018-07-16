@@ -1,7 +1,7 @@
 #-----------BEGIN MAKEFILE-------------------------------------------------
             SHELL         = /bin/sh
             DEF_FLAGS     = -P -traditional 
-            EXEC          = funwave_cart_waves
+            EXEC          = funwave_wave_sed
 #==========================================================================
 #--------------------------------------------------------------------------
 #        PRECISION          DEFAULT PRECISION: SINGLE                     
@@ -18,7 +18,7 @@
 #                FLAG_8 = -DVESSEL
 #               FLAG_9 = -DMETEO
 #              FLAG_10 = -DWIND
-#               FLAG_11 = -DSEDIMENT
+               FLAG_11 = -DSEDIMENT
 #               FLAG_12 = -DCHECK_MASS_CONSERVATION
 #--------------------------------------------------------------------------
 #  mpi defs 
