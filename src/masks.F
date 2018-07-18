@@ -105,11 +105,14 @@ SUBROUTINE UPDATE_MASK
           Eta_Actual = Eta(I,J)
           MASKtmp(I,J)=0
           ETA(I,J)=MinDepth-Depth(I,J)
+
+          IF(I.GE.Ibeg.AND.I.LE.Iend.AND.J.GE.Jbeg.AND.J.LE.Jend)THEN
 # if defined (CARTESIAN)
           Dmass = Dmass + (Eta(I,J)-Eta_Actual)*DX*DY
 # else
           Dmass = Dmass + (Eta(I,J)-Eta_Actual)*DX(I,J)*DY(I,J)
 # endif
+          ENDIF ! ibeg-iend, jbeg,jend
          ENDIF    
        ENDIF
       ENDIF
