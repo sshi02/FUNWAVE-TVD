@@ -89,7 +89,7 @@ ylabel(' y (m) ')
 
 axes(ha(3));
 
-contourf(x,y,BB,10,'Edge','none')
+contourf(x,y,BB,10,'Edgecolor','none')
 
 cbar=colorbar;
 set(get(cbar,'ylabel'),'String',' dZ (m) ')
