@@ -3,10 +3,10 @@
 # import necessary modules
 import numpy as np               
 import matplotlib.pyplot as plt
-
+import os
 # write your OWN PC folder path for fdir
-# Remember that we use for Mac & Linux machines '/', while on windows '\'
-fdir = '/Users/Gaby/Desktop/Postprocessing-Workshop/simple_cases_output/beach_2D/beach_2D/'
+# Remember that we use for Mac & Linux machines '/', while on windows '\', r is used for raw string (useful on windows)
+fdir = r'/Users/Gaby/Desktop/Postprocessing-Workshop/simple_cases_output/beach_2D/beach_2D/'
 
 # upload eta file
 eta=np.loadtxt(fdir+'eta_00001')
@@ -40,8 +40,8 @@ fig = plt.figure(figsize=(wid,length),dpi=200)
 
 for num in range(len(nfile)):
     fnum= '%.5d' % nfile[num]
-    eta = np.loadtxt(fdir+'eta_'+fnum)
-    mask = np.loadtxt(fdir+'mask_'+fnum)
+    eta = np.loadtxt(os.path.join(fdir,'eta_'+fnum))
+    mask = np.loadtxt(os.path.join(fdir,'mask_'+fnum))
 
     eta_masked = np.ma.masked_where(mask==0,eta) # do nt plot where mask = 0
 
