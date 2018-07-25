@@ -5,11 +5,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 # write your OWN PC folder path for fdir
-# Remember that we use for Mac & Linux machines '/', while on windows '\', r is used for raw string (useful on windows)
-fdir = r'/Users/Gaby/Desktop/Postprocessing-Workshop/simple_cases_output/beach_2D/beach_2D/'
+# Remember that we use for Mac & Linux machines '/', while on windows '\'
+fdir = r'C:\Users\User\Documents\USACE_WORK\Funwave_Seminar\results\beach_2d\work\output'
 
 # upload eta file
-eta=np.loadtxt(fdir+'eta_00001')
+eta=np.loadtxt(os.path.join(fdir,'eta_00001'))
 
 # define plot location
 n,m = np.shape(eta)   
