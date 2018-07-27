@@ -6,8 +6,9 @@ import os
 
 pwd = os.getcwd()
 
-# write your OWN PC folder path for fdir
-FOLDER = 'VESSEL_SED_CHAN' # WRITE NAME OF PROJECT FOLDER
+# write your OWN PC folder path for fdir (change HOME to your approriate initial directory path)
+HOME = os.environ['HOME']
+FOLDER = os.path.join(HOME,'FUNWAVE-TVD','simple_cases','single_vessel_short_channel','work') # WRITE NAME OF PROJECT FOLDER
 fdir = os.path.join(pwd,FOLDER,'output')
 
 # Getting depth file and determining domain dimensions
