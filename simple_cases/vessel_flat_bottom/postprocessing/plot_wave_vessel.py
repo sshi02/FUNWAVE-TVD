@@ -1,15 +1,17 @@
 ### Plot Flat Vessel Waves ###
 
 # import necessary modules
+import os
 import numpy as np               
 import matplotlib.pyplot as plt
 
 
 # write your OWN PC folder path for fdir
 # Remember that we use for Mac & Linux machines '/', while on windows '\'
-fdir = '/Users/Gaby/Desktop/Postprocessing-Workshop/simple_cases_output/vessel_island/vessel_island_beach/'
-
-eta = np.loadtxt(fdir+'eta_00001')
+HOME = os.environ['HOME']
+fdir = os.path.join(HOME,'FUNWAVE-TVD','simple_cases','vessel_flat_bottom','work', 'output')
+fileName = os.path.join(fdir,'eta_00001')
+eta = np.loadtxt(fileName)
 
 # define plot location
 n,m = np.shape(eta)
@@ -20,7 +22,7 @@ x = np.asarray([float(xa)*dx for xa in range(m)])
 y = np.asarray([float(ya)*dy for ya in range(n)])
 
 nfile = [20, 40]    # range of eta files you want to plot
-min = ['20','40']  # time  you want to plot
+sec = ['20','40']  # time  you want to plot
 
 # figure size option 
 wid = 8    # width
@@ -31,13 +33,14 @@ fig = plt.figure(figsize=(wid,length),dpi=200)
 
 for num in range(len(nfile)):
     fnum= '%.5d' % nfile[num]
-    eta = np.loadtxt(fdir+'eta_'+fnum)
+    etaFile = os.path.join(fdir,'eta_'+fnum)
+    eta = np.loadtxt(etaFile)
 
     ax = fig.add_subplot(len(nfile),1,num+1)
     fig.subplots_adjust(hspace=.45)
     plt.pcolor(x, y, eta,cmap='coolwarm')
     
-    title = 'Time = '+min[num]+ ' min'
+    title = 'Time = '+sec[num]+ ' sec'
     plt.title(title)
     plt.axis('tight')
 
