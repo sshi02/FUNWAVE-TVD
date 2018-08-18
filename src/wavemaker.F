@@ -1053,6 +1053,11 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm &
            theta = -pi/3.0_SP + theta_input*pi/180.0_SP  & 
 	             + 2.0_SP/3.0_SP*pi/(real(ktotal)-1.0_SP)*(real(ktheta)-1.0_SP)
 
+!  ----    for users dont know the range
+           IF(theta.gt.0.5_SP*pi) theta = 0.5_SP*pi
+           IF(theta.lt.-0.5_SP*pi) theta = -0.5_SP*pi
+!  ----
+
            AG(ktheta) = 1.0_SP/( 2.0_SP*pi )
 	     do k_n=1,N_spec
 	        AG(ktheta) = AG(ktheta) +   &
@@ -1097,6 +1102,12 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm &
       ELSE
         theta = -pi/3.0_SP + theta_input*pi/180.0_SP  & 
 	         + 2.0_SP/3.0_SP*pi/(real(ktotal)-1.0_SP)*(real(ktheta)-1.0_SP)   !ykchoi (11/07/2016)
+
+!  ----    for users dont know the range
+           IF(theta.gt.0.5_SP*pi) theta = 0.5_SP*pi
+           IF(theta.lt.-0.5_SP*pi) theta = -0.5_SP*pi
+!  ----
+
       ENDIF
 
         alpha=-0.39_SP
@@ -1346,6 +1357,11 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm_EQUAL_DFREQ &
            theta = -pi/3.0_SP + theta_input*pi/180.0_SP  & 
 	             + 2.0_SP/3.0_SP*pi/(real(ktotal)-1.0_SP)*(real(ktheta)-1.0_SP)
 
+!  ----    for users dont know the range
+           IF(theta.gt.0.5_SP*pi) theta = 0.5_SP*pi
+           IF(theta.lt.-0.5_SP*pi) theta = -0.5_SP*pi
+!  ----
+
            AG(ktheta) = 1.0_SP/( 2.0_SP*pi )
 	     do k_n=1,N_spec
 	        AG(ktheta) = AG(ktheta) +   &
@@ -1389,6 +1405,12 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm_EQUAL_DFREQ &
       ELSE
         theta = -pi/3.0_SP + theta_input*pi/180.0_SP  & 
 	         + 2.0_SP/3.0_SP*pi/(real(ktotal)-1.0_SP)*(real(ktheta)-1.0_SP)   !ykchoi (11/07/2016)
+
+!  ----    for users dont know the range
+           IF(theta.gt.0.5_SP*pi) theta = 0.5_SP*pi
+           IF(theta.lt.-0.5_SP*pi) theta = -0.5_SP*pi
+!  ----
+
       ENDIF
 
         alpha=-0.39_SP
@@ -1644,6 +1666,11 @@ SUBROUTINE WK_WAVEMAKER_IRREGULAR_WAVE &
           theta = -pi/3.0_SP + theta_input*pi/180.0_SP  & 
 	           + 2.0_SP/3.0_SP*pi/(real(ktotal)-1.0_SP)*(real(ktheta)-1.0_SP)
 
+!  ----    for users dont know the range
+           IF(theta.gt.0.5_SP*pi) theta = 0.5_SP*pi
+           IF(theta.lt.-0.5_SP*pi) theta = -0.5_SP*pi
+!  ----
+
           AG(ktheta) = 1.0_SP/( 2.0_SP*pi )
 	    do k_n=1,N_spec
 	       AG(ktheta) = AG(ktheta) +  & 
@@ -1687,7 +1714,12 @@ SUBROUTINE WK_WAVEMAKER_IRREGULAR_WAVE &
         theta = 0.0_SP
       ELSE
         theta = -pi/3.0_SP + theta_input*pi/180.0_SP &
-	         + 2.0_SP/3.0_SP*pi/(real(ktotal)-1.0_SP)*(real(ktheta)-1.0_SP)   
+	         + 2.0_SP/3.0_SP*pi/(real(ktotal)-1.0_SP)*(real(ktheta)-1.0_SP)  
+
+!  ----    for users dont know the range
+           IF(theta.gt.0.5_SP*pi) theta = 0.5_SP*pi
+           IF(theta.lt.-0.5_SP*pi) theta = -0.5_SP*pi
+!  ---- 
  
       ENDIF
 
@@ -1888,6 +1920,11 @@ SUBROUTINE WK_EQUAL_DFREQ_IRREGULAR_WAVE &
           theta = -pi/3.0_SP + theta_input*pi/180.0_SP  & 
 	           + 2.0_SP/3.0_SP*pi/(real(ktotal)-1.0_SP)*(real(ktheta)-1.0_SP)
 
+!  ----    for users dont know the range
+           IF(theta.gt.0.5_SP*pi) theta = 0.5_SP*pi
+           IF(theta.lt.-0.5_SP*pi) theta = -0.5_SP*pi
+!  ----
+
           AG(ktheta) = 1.0_SP/( 2.0_SP*pi )
 	    do k_n=1,N_spec
 	       AG(ktheta) = AG(ktheta) +  & 
@@ -1924,6 +1961,11 @@ SUBROUTINE WK_EQUAL_DFREQ_IRREGULAR_WAVE &
       ELSE
         theta = -pi/3.0_SP + theta_input*pi/180.0_SP &
 	         + 2.0_SP/3.0_SP*pi/(real(ktotal)-1.0_SP)*(real(ktheta)-1.0_SP)   
+
+!  ----    for users dont know the range
+           IF(theta.gt.0.5_SP*pi) theta = 0.5_SP*pi
+           IF(theta.lt.-0.5_SP*pi) theta = -0.5_SP*pi
+!  ----
  
       ENDIF
 
