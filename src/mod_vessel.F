@@ -55,7 +55,7 @@
 MODULE VESSEL_MODULE
   USE PARAM
   USE GLOBAL,ONLY : Mloc,Nloc,Nghost,Ibeg,Iend,Jbeg,Jend,DX,DY, &
-                    H,ETA
+                    H,ETA,ETA0
   USE INPUT_READ
 #if defined (PARALLEL)
   USE GLOBAL,ONLY : myid,ier, npx,npy,PX,PY
@@ -85,6 +85,7 @@ MODULE VESSEL_MODULE
 #if defined (PARALLEL)
     REAL(SP) :: myvar
 # endif    
+    LOGICAL :: MakeVesselDraft = .TRUE.
 
 
 !INTERFACE READ_FOUR_TYPE_VALUES
@@ -519,6 +520,12 @@ SUBROUTINE VESSEL_FORCING
   ! end panel or pressure sources
 
 
+!  make initial draft 09/12/2018
+    IF(MakeVesselDraft)THEN
+       MakeVesselDraft = .FALSE.
+       Eta= - VesselPressureTotal
+    ENDIF
+    ETA0 = ETA
 
 END SUBROUTINE VESSEL_FORCING
 
