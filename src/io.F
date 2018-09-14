@@ -1856,6 +1856,31 @@ SUBROUTINE READ_INPUT
 
        CALL READ_FLOAT(DEP_Ser,FILE_NAME,'DepthWaveMaker',ierr)
 
+        IF(ierr==1)THEN
+       CALL READ_FLOAT(DEP_Ser,FILE_NAME,'DEP_WK',ierr)
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A50)') 'DepthWaveMaker not defined, read DEP_WK'
+# else
+      WRITE(3,'(A50)')'DepthWaveMaker not defined, read DEP_WK'
+# endif
+      IF(ierr==1)THEN ! if can not find again
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'you should specify either DepthWaveMaker or DEP_WK,STOP'
+         WRITE(3,'(A80)')'you should specify either DepthWaveMaker or DEP_WK,STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A80)')'you should specify either DepthWaveMaker or DEP_WK,STOP'
+         WRITE(3,'(A80)')'you should specify either DepthWaveMaker or DEP_WK,STOP'
+# endif
+        STOP
+      ENDIF
+
+          ENDIF ! end read DepthWaveMaker
+
+
       IF(WaveMaker(1:3)=='ABS')THEN
        CALL READ_FLOAT(WidthWaveMaker,FILE_NAME,'WidthWaveMaker',ierr) 
 !  get R and A for sponge_wavemaker calculation  

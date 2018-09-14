@@ -154,7 +154,21 @@ Program FUNWAVE_TVD
      CALL MPI_INIT ( ier )
 # endif
 
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'MPI_INIT'     
+#    endif
+# endif
+
      CALL READ_INPUT
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'READ_INPUT'     
+#    else   
+       WRITE(*,*) 'READ_INPUT'
+#    endif
+# endif
 
 	![ykchoi(14.12.24.)
 	IF(INI_UVZ)THEN
@@ -164,11 +178,34 @@ Program FUNWAVE_TVD
 
      CALL INDEX
 
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INDEX'     
+#    else   
+       WRITE(*,*) 'INDEX'
+#    endif
+# endif
+
 ! allocate variables
      CALL ALLOCATE_VARIABLES
 
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'ALLOCATION'     
+#    else   
+       WRITE(*,*) 'ALLOCATION'
+#    endif
+# endif
+
      CALL INITIALIZATION
       
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INITIALIZATION'     
+#    else   
+       WRITE(*,*) 'INITIALIZATION'
+#    endif
+# endif
 
 # if defined (COUPLING)
      TIME=TIME_COUPLING_1
@@ -184,6 +221,14 @@ Program FUNWAVE_TVD
 
 # if defined (SEDIMENT)
      CALL SEDIMENT_INITIAL
+# endif
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INITIAL VESSEL, METEO, OR SEDIMENT if included'     
+#    else   
+       WRITE(*,*) 'INITIAL VESSEL, METEO, OR SEDIMENT if included'
+#    endif
 # endif
 
 ! time integration
@@ -210,8 +255,17 @@ Program FUNWAVE_TVD
 # if defined (SEDIMENT)
      CHH0=CHH
 # endif
+
    
      CALL UPDATE_MASK
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'UPDATE Eta Ubar Vbar, MASK'     
+#    else   
+       WRITE(*,*) 'UPDATE Eta Ubar Vbar, MASK'
+#    endif
+# endif
 
      CALL EXCHANGE
 
@@ -221,6 +275,14 @@ Program FUNWAVE_TVD
 
  
      CALL ESTIMATE_DT(Mloc,Nloc,DX,DY,U,V,H,MinDepthFrc,DT,CFL,TIME)
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'ESTIMATE_DT'     
+#    else   
+       WRITE(*,*) 'ESTIMATE_DT'
+#    endif
+# endif
   
 ! U0, V0 are moved to following part due to computation of Ut, Vt.
 	U0=U   !ykchoi(15. 08. 06.)
@@ -234,6 +296,14 @@ Program FUNWAVE_TVD
        CALL METEO_FORCING
 # endif
 
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'vessel, meteo forcing, if included'     
+#    else   
+       WRITE(*,*) 'vessel, meteo forcing, if included'
+#    endif
+# endif
+
      ! 3-ORDER RUNGE-KUTTA TIME STEPPING
      DO ISTAGE=1,3
 
@@ -241,11 +311,43 @@ Program FUNWAVE_TVD
          CALL Cal_Dispersion
        ENDIF 
 
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'Cal_Dispersion'     
+#    else   
+       WRITE(*,*) 'Cal_Dispersion'
+#    endif
+# endif
+
        CALL FLUXES
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'FLUXES'     
+#    else   
+       WRITE(*,*) 'FLUXES'
+#    endif
+# endif
 
        CALL SourceTerms   ! put sourceterms after fluxes in order to get eta_t
 
-       CALL ESTIMATE_HUV(ISTAGE)     
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'SourceTerms'     
+#    else   
+       WRITE(*,*) 'SourceTerms'
+#    endif
+# endif
+
+       CALL ESTIMATE_HUV(ISTAGE) 
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'ESTIMATE_HUV'     
+#    else   
+       WRITE(*,*) 'ESTIMATE_HUV'
+#    endif
+# endif   
 
 # if defined (SEDIMENT)
      CALL SEDIMENT_ADVECTION_DIFFUSION(ISTAGE) 
@@ -255,8 +357,24 @@ Program FUNWAVE_TVD
 # endif
 
        CALL WAVE_BREAKING
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'WAVE_BREAKING'     
+#    else   
+       WRITE(*,*) 'WAVE_BREAKING'
+#    endif
+# endif
        
        CALL EXCHANGE
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'EXCHANGE'     
+#    else   
+       WRITE(*,*) 'EXCHANGE'
+#    endif
+# endif
        
 # if defined (COUPLING)
        CALL OneWayCoupling
@@ -289,6 +407,14 @@ Program FUNWAVE_TVD
       CALL OUTPUT
 
       CALL CHECK_BLOWUP
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'CHECK_BLOWUP'     
+#    else   
+       WRITE(*,*) 'CHECK_BLOWUP'
+#    endif
+# endif
   
    END DO
 
