@@ -378,6 +378,47 @@ SUBROUTINE VESSEL_FORCING
                   *COS(PI*Lves/(LengthVessel(Kves)))**2 &
                   *COS(PI*Wves/(WidthVessel(Kves)))**2                  
       ENDIF
+# elif defined (TMP)
+
+    IF(ABS(Lves)<=0.5_SP*LengthVessel(Kves).AND. &
+         ABS(Wves)<=0.5_SP*WidthVessel(Kves)) THEN
+
+      Px = ZERO
+      Py = ZERO
+
+! I multiplide 0.01 here 
+     IF(Lves>ZERO)THEN
+      IF(ABS(Lves)>0.5_SP*LengthVessel(Kves)*AlphaVessel(Kves)*0.01.AND. &
+         ABS(Lves)<0.5_SP*LengthVessel(Kves))THEN
+          Px = COS(PI*(Lves-0.5_SP*AlphaVessel(Kves)*0.01*LengthVessel(Kves))  &
+                   /((1.0_SP-AlphaVessel(Kves)*0.01)*LengthVessel(Kves)))**2
+      ELSEIF(ABS(Lves)<=0.5_SP*LengthVessel(Kves)*AlphaVessel(Kves)*0.1)THEN
+          Px = 1.0_SP
+      ENDIF
+     ENDIF
+
+     IF(Lves<=ZERO)THEN
+      IF(ABS(Lves)>0.5_SP*LengthVessel(Kves)*AlphaVessel(Kves).AND. &
+         ABS(Lves)<0.5_SP*LengthVessel(Kves))THEN
+          Px = COS(PI*(Lves-0.5_SP*AlphaVessel(Kves)*LengthVessel(Kves))  &
+                   /((1.0_SP-AlphaVessel(Kves))*LengthVessel(Kves)))**2
+      ELSEIF(ABS(Lves)<=0.5_SP*LengthVessel(Kves)*AlphaVessel(Kves))THEN
+          Px = 1.0_SP
+      ENDIF
+     ENDIF
+
+      IF(ABS(Wves)>0.5_SP*WidthVessel(Kves)*BetaVessel(Kves).AND. &
+         ABS(Wves)<0.5_SP*WidthVessel(Kves)) THEN
+          Py = COS(PI*(Wves-0.5_SP*BetaVessel(Kves)*WidthVessel(Kves))  &
+                  /((1.0_SP-BetaVessel(Kves))*WidthVessel(Kves)))**2
+      ELSEIF(ABS(Wves)<=0.5_SP*WidthVessel(Kves)*BetaVessel(Kves)) THEN
+          Py = 1.0_SP
+      ENDIF
+
+         VesselPressureEach(I,J) = Pvessel(Kves)*Px*Py
+
+    ENDIF  ! end inside ship rectangule
+
 # else
    ! Ertekin et al. JFM 1986
 
