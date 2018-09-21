@@ -151,6 +151,8 @@ MODULE GLOBAL
                 BreakWaterWidth,CD_breakwater
        REAL(SP) :: BreakWaterAbsorbCoef
 
+! coordinates for Cartesian only
+      REAL(SP),DIMENSION(:),ALLOCATABLE ::  Xco,Yco
 
 ! switch for dispersion
 !   gamma1 is for extra M term

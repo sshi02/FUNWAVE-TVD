@@ -55,7 +55,7 @@
 MODULE VESSEL_MODULE
   USE PARAM
   USE GLOBAL,ONLY : Mloc,Nloc,Nghost,Ibeg,Iend,Jbeg,Jend,DX,DY, &
-                    H,ETA,ETA0
+                    H,ETA,ETA0,Xco,Yco
   USE INPUT_READ
 #if defined (PARALLEL)
   USE GLOBAL,ONLY : myid,ier, npx,npy,PX,PY
@@ -71,7 +71,6 @@ MODULE VESSEL_MODULE
                                        TimeVessel1,TimeVessel2,ThetaVessel
     REAL(SP),DIMENSION(:,:),ALLOCATABLE :: VesselPressureTotal,VesselPressureEach, &
                                        VesselPressureX,VesselPressureY
-    REAL(SP),DIMENSION(:),ALLOCATABLE ::  Xco,Yco
     LOGICAL :: OUT_VESSEL = .TRUE.
     REAL(SP),DIMENSION(:),ALLOCATABLE :: ResistanceX,ResistanceY,ResPosX,ResNegX, &
                                          ResPosY,ResNegY
@@ -142,7 +141,6 @@ SUBROUTINE VESSEL_INITIAL
                 ResPosX(NumVessel),ResNegX(NumVessel), &
                 ResPosY(NumVessel),ResNegY(NumVessel) )
 
-     ALLOCATE (Xco(Mloc),Yco(Nloc))
 
 # if defined (VESSEL_PANEL_SOURCE)
 
@@ -175,38 +173,6 @@ SUBROUTINE VESSEL_INITIAL
        PLOT_INTV_VESSEL = SMALL
      ENDIF
       
-! Xco, and Yco
-
-# if defined (PARALLEL)
-![---ykchoi Jan/23/2018
-!     Xco(Ibeg) = npx*(Mloc-2*Nghost)*DX
-     Xco(Ibeg) = (iista-1)*DX
-!---ykchoi Jan/23/2018]
-# else
-     Xco(Ibeg) = ZERO
-# endif
-     DO I = Ibeg+1,Mloc
-       Xco(I) = Xco(I-1)+DX
-     ENDDO
-     DO I = Ibeg-1,Ibeg-Nghost,-1
-       Xco(I) = Xco(I+1)-DX
-     ENDDO
-
-# if defined (PARALLEL)
-![---ykchoi Jan/23/2018
-!     Yco(Jbeg) = npy*(Nloc-2*Nghost)*DY
-     Yco(Jbeg) = (jjsta-1)*DY
-!---ykchoi Jan/23/2018]
-# else
-     Yco(Jbeg) = ZERO
-# endif
-     DO J = Jbeg+1,Nloc
-       Yco(J) = Yco(J-1)+DY
-     ENDDO
-     DO J = Jbeg-1,Jbeg-Nghost,-1
-       Yco(J) = Yco(J+1)-DY
-     ENDDO
-
   DO Kves = 1, NumVessel
 
 !  file name

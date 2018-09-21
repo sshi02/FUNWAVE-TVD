@@ -1,18 +1,72 @@
+!------------------------------------------------------------------------------------
+!
+!      FILE mod_tracer.F
+!
+!      This file is part of the FUNWAVE-TVD program under the Simplified BSD license
+!
+!-------------------------------------------------------------------------------------
+! 
+!    Copyright (c) 2016, FUNWAVE Development Team
+!
+!    (See http://www.udel.edu/kirby/programs/funwave/funwave.html
+!     for Development Team membership)
+!
+!    All rights reserved.
+!
+!    FUNWAVE_TVD is free software: you can redistribute it and/or modify
+!    it under the terms of the Simplified BSD License as released by
+!    the Berkeley Software Distribution (BSD).
+!
+!    Redistribution and use in source and binary forms, with or without
+!    modification, are permitted provided that the following conditions are met:
+!
+!    1. Redistributions of source code must retain the above copyright notice, this
+!       list of conditions and the following disclaimer.
+!    2. Redistributions in binary form must reproduce the above copyright notice,
+!    this list of conditions and the following disclaimer in the documentation
+!    and/or other materials provided with the distribution.
+!
+!    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+!    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+!    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+!    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+!    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+!    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+!    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+!    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+!    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+!    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+!  
+!    The views and conclusions contained in the software and documentation are those
+!    of the authors and should not be interpreted as representing official policies,
+!    either expressed or implied, of the FreeBSD Project.
+!  
+!-------------------------------------------------------------------------------------
+!
+!  VESSEL is a module to model ship-wakes    
+!
+!  HISTORY :
+!    09/19/2018  Fengyan Shi
+!
+!-------------------------------------------------------------------------------------
 #if defined (TRACKING)
+
 MODULE TRACER
+     USE PARAM
      USE GLOBAL, ONLY : TIME, Jbeg,Jend,Ibeg,Iend,Mloc,Nloc,&
-                 Mloc1,Nloc1,MASK,X,Y,U,V,SP,DT,Ubott,Vbott,&
-                 Usurf,Vsurf
+                 Mloc1,Nloc1,MASK,U,V,DT,&
+                 DX,DY, Xco,Yco
+     USE INPUT_READ
 
 # if defined (PARALLEL)
      USE MPI
-     USE GLOBAL, ONLY : myid,ier,npx,npy,NumberProcessor,px,py,MPI_SP,&
+     USE GLOBAL, ONLY : myid,ier,npx,npy,NumberProcessor,PX,PY,MPI_SP,&
                         n_east,n_west,n_suth,n_nrth
 # endif
      IMPLICIT NONE
 
 
-     INTEGER :: I,J,II,JJ
+     INTEGER :: II,JJ
      REAL(SP),SAVE :: TRACK_TIME_COUNT = 0.0_SP
      REAL(SP),SAVE,DIMENSION(:),ALLOCATABLE :: X_TRACK,Y_TRACK,Sc,S1,S2,S3,&
                    U_TRACER,V_TRACER,X_TRACK_PRE,Y_TRACK_PRE, &
@@ -24,19 +78,41 @@ MODULE TRACER
      LOGICAL,SAVE :: FirstCallTrack = .TRUE.
      REAL(SP),SAVE :: TrackerInterval
      REAL(SP),SAVE,DIMENSION(:),ALLOCATABLE :: TRACKER_START
+     REAL(SP),SAVE,DIMENSION(:,:),ALLOCATABLE :: Usurf,Vsurf,Ubott,Vbott
      LOGICAL,SAVE,DIMENSION(:),ALLOCATABLE :: IN_CELL,STOP_SEARCH
      INTEGER,SAVE,DIMENSION(:),ALLOCATABLE :: FOUND_IN_DOMAIN
+
 # if defined (PARALLEL)
      INTEGER::myint
 # endif
      
-
      INTEGER,SAVE :: NumTracker=1
-
 
      CONTAINS
 
-SUBROUTINE MAIN_TRACK
+SUBROUTINE TRACER_INITIAL
+
+      INTEGER :: I_tmp, ierr
+      CHARACTER(LEN=80) :: WHAT
+      CHARACTER(LEN=80) :: TRACER_FILE,FILE_NAME
+
+      CALL READ_STRING(TRACER_FILE,FILE_NAME,'TRACER_FILE',ierr) 
+
+      OPEN(1,FILE=TRIM(TRACER_FILE))
+        READ(1,*)WHAT
+        READ(1,*)NumTracker
+        READ(1,*)TrackerInterval
+
+       ALLOCATE(X_TRACK(NumTracker), &
+                Y_TRACK(NumTracker),TRACKER_START(NumTracker), &
+                LAYER_012(NumTracker) )
+       ALLOCATE(Usurf(Mloc,Nloc),Vsurf(Mloc,Nloc),Ubott(Mloc,Nloc),Vbott(Mloc,Nloc))
+
+        DO I_tmp=1,NumTracker
+           READ(1,*)X_TRACK(I_tmp),Y_TRACK(I_tmp),TRACKER_START(I_tmp),&
+               LAYER_012(I_tmp)
+        ENDDO
+      CLOSE(1)
 
      IF(.NOT.ALLOCATED(Sc)) THEN
        ALLOCATE(  &
@@ -75,14 +151,9 @@ SUBROUTINE MAIN_TRACK
 
 !   print*,myid,x_track(1),y_track(1),x_track(2),y_track(2)
 
-     IF(FirstCallTrack)THEN
-       FirstCallTrack = .FALSE.
        CALL GET_XY_POSITION
-     ENDIF
-
-     CALL TRACK_XY
      
-END SUBROUTINE MAIN_TRACK
+END SUBROUTINE TRACER_INITIAL
 
 SUBROUTINE GET_XY_POSITION
       REAL(SP) :: x1,x2,x3,y1,y2,y3,&
@@ -117,7 +188,7 @@ SUBROUTINE GET_XY_POSITION
           ELSEIF(FOUND_IN_DOMAIN(I)<1)THEN
 # if defined (PARALLEL)
 ! use Iend-1 is a wrong idea for parallelization,
-! since there's no x or y connected between processor interfaces
+! since theres no x or y connected between processor interfaces
            I_start=Ibeg
            if ( n_east .eq. MPI_PROC_NULL ) then
             I_end=Iend-1
@@ -137,7 +208,7 @@ SUBROUTINE GET_XY_POSITION
            J_end=Jend-1
 # endif
 
-          ELSE  ! for processors don't contain tracers
+          ELSE  ! for processors dont contain tracers
            I_start=Ibeg
            I_end=Ibeg
            J_start=Jbeg
@@ -147,22 +218,22 @@ SUBROUTINE GET_XY_POSITION
           do JJ=J_start,J_end
           do II=I_start,I_end
 
-            x2=X(ii+1,jj)
-            y2=Y(ii+1,jj)
-            x3=X(ii,jj+1)
-            y3=Y(ii,jj+1)
+            x2=Xco(ii+1)
+            y2=Yco(jj)
+            x3=Xco(ii)
+            y3=Yco(jj+1)
             area1=0.5*(x1*y2-x2*y1+x2*y3-x3*y2+x3*y1-x1*y3)
 
-            x2=X(ii,jj+1)
-            y2=Y(ii,jj+1)
-            x3=X(ii,jj)
-            y3=Y(ii,jj)
+            x2=Xco(ii)
+            y2=Yco(jj+1)
+            x3=Xco(ii)
+            y3=Yco(jj)
             area2=0.5*(x1*y2-x2*y1+x2*y3-x3*y2+x3*y1-x1*y3)
 
-            x2=X(ii,jj)
-            y2=Y(ii,jj)
-            x3=X(ii+1,jj)
-            y3=Y(ii+1,jj)
+            x2=Xco(ii)
+            y2=Yco(jj)
+            x3=Xco(ii+1)
+            y3=Yco(jj)
             area3=0.5*(x1*y2-x2*y1+x2*y3-x3*y2+x3*y1-x1*y3)
 
             if(area1.ge.0.and.area2.ge.0.and.area3.ge.0)then
@@ -178,33 +249,33 @@ SUBROUTINE GET_XY_POSITION
               S2(I)=area2
               S3(I)=area3
                
-              x1=X(nx1(I),ny1(I))
-              y1=Y(nx1(I),ny1(I))
-              x2=X(nx2(I),ny2(I))
-              y2=Y(nx2(I),ny2(I))
-              x3=X(nx3(I),ny3(I))
-              y3=Y(nx3(I),ny3(I))
+              x1=Xco(nx1(I))
+              y1=Yco(ny1(I))
+              x2=Xco(nx2(I))
+              y2=Yco(ny2(I))
+              x3=Xco(nx3(I))
+              y3=Yco(ny3(I))
               Sc(I)=0.5*(x1*y2-x2*y1+x2*y3-x3*y2+x3*y1-x1*y3)
 
               goto 120
             endif
 
-            x2=X(ii+1,jj)
-            y2=Y(ii+1,jj)
-            x3=X(ii+1,jj+1)
-            y3=Y(ii+1,jj+1)
+            x2=Xco(ii+1)
+            y2=Yco(jj)
+            x3=Xco(ii+1)
+            y3=Yco(jj+1)
             area1=0.5*(x1*y2-x2*y1+x2*y3-x3*y2+x3*y1-x1*y3)
 
-            x2=X(ii+1,jj+1)
-            y2=Y(ii+1,jj+1)
-            x3=X(ii,jj+1)
-            y3=Y(ii,jj+1)
+            x2=Xco(ii+1)
+            y2=Yco(jj+1)
+            x3=Xco(ii)
+            y3=Yco(jj+1)
             area2=0.5*(x1*y2-x2*y1+x2*y3-x3*y2+x3*y1-x1*y3)
 
-            x2=X(ii,jj+1)
-            y2=Y(ii,jj+1)
-            x3=X(ii+1,jj)
-            y3=Y(ii+1,jj)
+            x2=Xco(ii)
+            y2=Yco(jj+1)
+            x3=Xco(ii+1)
+            y3=Yco(jj)
             area3=0.5*(x1*y2-x2*y1+x2*y3-x3*y2+x3*y1-x1*y3)
 
             if(area1.ge.0.and.area2.ge.0.and.area3.ge.0)then
@@ -220,12 +291,12 @@ SUBROUTINE GET_XY_POSITION
               S2(I)=area2
               S3(I)=area3
                
-              x1=X(nx1(I),ny1(I))
-              y1=Y(nx1(I),ny1(I))
-              x2=X(nx2(I),ny2(I))
-              y2=Y(nx2(I),ny2(I))
-              x3=X(nx3(I),ny3(I))
-              y3=Y(nx3(I),ny3(I))
+              x1=Xco(nx1(I))
+              y1=Yco(ny1(I))
+              x2=Xco(nx2(I))
+              y2=Yco(ny2(I))
+              x3=Xco(nx3(I))
+              y3=Yco(ny3(I))
               Sc(I)=0.5*(x1*y2-x2*y1+x2*y3-x3*y2+x3*y1-x1*y3)
 
               goto 120
@@ -254,7 +325,7 @@ SUBROUTINE GET_XY_POSITION
               STOP_SEARCH(I)=.FALSE.
               GOTO 300
             ENDIF
-          ENDIF ! couldn't find
+          ENDIF ! couldnt find
    
 # else
           IF(FOUND_IN_DOMAIN(I)<1)THEN
@@ -266,7 +337,7 @@ SUBROUTINE GET_XY_POSITION
               STOP_SEARCH(I)=.FALSE.
               GOTO 300
             ENDIF
-          ENDIF ! couldn't find
+          ENDIF ! couldnt find
 # endif
 
         ENDIF ! end stop search
@@ -459,139 +530,3 @@ END MODULE TRACER
 #endif
 ! end tracking
 
-
-#if defined (DYE)
-SUBROUTINE DYE_MODULE
-       USE SEDI
-       USE PASS, ONLY : DT_SC
-       USE GLOBAL, ONLY : TIME,Jbeg,Jend,Ibeg,Iend,MinDepthFrc,H
-       IMPLICIT NONE
-
-      Vol_Dye(75+3:76+3,45+3) = 1.0_SP*H(75+3:76+3,45+3)      
-
-      CALL ADVECTION_DIFFUSION(Vol_Dye,DT_SC)
-
-      DO J=Jbeg,Jend
-      DO I=Ibeg,Iend
-        Con_Dye(I,J)=Vol_Dye(I,J)/Max(MinDepthFrc,H(I,J))
-      ENDDO
-      ENDDO
-
-# if defined (PARALLEL)
-     CALL PHI_EXCH (Vol_Dye)
-# endif
-
-END SUBROUTINE DYE_MODULE
-# endif
-SUBROUTINE ADVECTION_DIFFUSION(Con,DT)
-      USE PARAM
-      USE GLOBAL,ONLY : U,V,Mloc,Nloc,H,Mloc1,Nloc1,MASK,Ibeg,Iend,Jbeg,Jend, &
-                         Jaco,Ubott,Vbott,tmp4preview,MinDepthFrc, &
-                         L11,L12,L22,nu_total 
-      IMPLICIT NONE
-      REAL(SP),DIMENSION(Mloc,Nloc),INTENT(INOUT) :: Con
-      REAL(SP), INTENT(IN) :: DT
-      REAL(SP),DIMENSION(Mloc,Nloc) :: Q1,Q2
-      REAL(SP),DIMENSION(Mloc1,Nloc) :: Q1L,Q1R,Q1c
-      REAL(SP),DIMENSION(Mloc,Nloc1) :: Q2L,Q2R,Q2c
-      REAL(SP),DIMENSION(Mloc,Nloc) :: DelxQ1
-      REAL(SP),DIMENSION(Mloc,Nloc) :: DelyQ2
-      REAL(SP) :: HL11_1,HL11_2,HL12_1,HL12_2,HL22_1,HL22_2, &
-                  C_11,C_12,C_22,C_1,C_2,HL11,HL12,HL22
-
-      DO J=1,Nloc
-      DO I=1,Mloc
-        Q1(I,J)=(U(I,J)*L11(I,J)+V(I,J)*L12(I,J))*Jaco(I,J)*Con(I,J)
-        Q2(I,J)=(U(I,J)*L12(I,J)+V(I,J)*L22(I,J))*Jaco(I,J)*Con(I,J)
-      ENDDO
-      ENDDO
-
-      CALL DelxFun_minmod(1.0_SP,Mloc,Nloc,Q1,DelxQ1)
-      CALL DelyFun_minmod(1.0_SP,Mloc,Nloc,Q2,DelyQ2)
-     
-      CALL CONSTRUCT_X(Mloc,Mloc1,Nloc,1.0_SP,Q1,DelxQ1,Q1L,Q1R)
-      CALL CONSTRUCT_Y(Mloc,Nloc,Nloc1,1.0_SP,Q2,DelyQ2,Q2L,Q2R)
-
-! 1st order TVD
-       DO J=1,Nloc
-       DO I=1,Mloc1
-        IF((Q1L(I,J)+Q1R(I,J)).GE.ZERO) THEN
-          Q1c(I,J)=Q1L(I,J)
-        ELSE
-          Q1c(I,J)=Q1R(I,J)
-        ENDIF
-       ENDDO
-       ENDDO
-
-       DO J=1,Nloc1
-       DO I=1,Mloc
-        IF((Q2R(I,J)+Q2L(I,J)).LE.ZERO) THEN
-          Q2c(I,J)=Q2R(I,J)
-        ELSE
-          Q2c(I,J)=Q2L(I,J)
-        ENDIF        
-       ENDDO
-       ENDDO
-
-! deal with masks
-
-      DO J=1,Nloc
-      DO I=1,Mloc
-         IF(MASK(I,J)<1)THEN
-           Q1c(I,J)=ZERO
-           Q1c(I+1,J)=ZERO
-           Q2c(I,J+1)=ZERO
-           Q2c(I,J)=ZERO
-         ENDIF
-      ENDDO
-      ENDDO
-
-      DO J=Jbeg,Jend
-      DO I=Ibeg,Iend
-
-       IF(MASK(I,J)>0)THEN
-        Con(I,J)=Con(I,J)-1.0_SP/MAX(SMALL,Jaco(I,J))*(Q1c(I+1,J)-Q1c(I,J)  &
-                               +Q2c(I,J+1)-Q2c(I,J))*DT                               
-       ELSE
-        Con(I,J)=ZERO
-       ENDIF
-
-      ENDDO
-      ENDDO
-
-! diffusion
-
-      DO J=Jbeg,Jend
-      DO I=Ibeg,Iend
-
-       IF(MASK(I,J)>0)THEN
-         HL11_1=0.5_SP*(H(I+1,J)*nu_total(I+1,J)*L11(I+1,J)-H(I-1,J)*nu_total(I-1,J)*L11(I-1,J))
-         HL12_1=0.5_SP*(H(I+1,J)*nu_total(I+1,J)*L12(I+1,J)-H(I-1,J)*nu_total(I-1,J)*L12(I-1,J))
-         HL22_1=0.5_SP*(H(I+1,J)*nu_total(I+1,J)*L22(I+1,J)-H(I-1,J)*nu_total(I-1,J)*L22(I-1,J))
-         HL11_2=0.5_SP*(H(I,J+1)*nu_total(I,J+1)*L11(I,J+1)-H(I,J-1)*nu_total(I,J-1)*L11(I,J-1))
-         HL12_2=0.5_SP*(H(I,J+1)*nu_total(I,J+1)*L12(I,J+1)-H(I,J-1)*nu_total(I,J-1)*L12(I,J-1))
-         HL22_2=0.5_SP*(H(I,J+1)*nu_total(I,J+1)*L22(I,J+1)-H(I,J-1)*nu_total(I,J-1)*L22(I,J-1))
-         HL11=H(I,J)*L11(I,J)*nu_total(I,J)
-         HL12=H(I,J)*L12(I,J)*nu_total(I,J)
-         HL22=H(I,J)*L22(I,J)*nu_total(I,J)
-
-         C_1=(Con(I+1,J)-Con(I-1,J))*0.5_SP/MAX(SMALL,H(I,J))
-         C_2=(Con(I,J+1)-Con(I,J-1))*0.5_SP/MAX(SMALL,H(I,J))
-         C_11=Con(I+1,J)-2.0_SP*Con(I,J)+Con(I-1,J)/MAX(SMALL,H(I,J))
-         C_22=Con(I,J+1)-2.0_SP*Con(I,J)+Con(I,J-1)/MAX(SMALL,H(I,J))
-         C_12=0.25_SP*(Con(I+1,J+1)-Con(I-1,J+1)  &
-            -Con(I+1,J-1)+Con(I-1,J-1))/MAX(SMALL,H(I,J))
-         Con(I,J)=Con(I,J) + ( &
-           HL11*(HL11*C_11+C_1*HL11_1+HL12*C_12+C_2*HL12_1) &
-          +HL12*(HL11*C_12+C_1*HL11_2+HL12*C_22+C_2*HL12_2) &
-          +HL12*(HL12*C_11+C_1*HL12_1+HL22*C_12+C_2*HL22_1) &
-          +HL22*(HL12*C_12+C_1*HL12_2+HL22*C_22+C_2*HL22_2) )
-       ELSE
-        Con(I,J)=ZERO
-       ENDIF
-
-      ENDDO
-      ENDDO
-
-
-END SUBROUTINE ADVECTION_DIFFUSION

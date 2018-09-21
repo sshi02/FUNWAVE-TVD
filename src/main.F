@@ -144,6 +144,9 @@ Program FUNWAVE_TVD
 # if defined (METEO)
      USE METEO_MODULE
 # endif
+# if defined (TRACKING)
+     USE TRACER
+# endif
 
      IMPLICIT NONE
 
@@ -221,6 +224,10 @@ Program FUNWAVE_TVD
 
 # if defined (SEDIMENT)
      CALL SEDIMENT_INITIAL
+# endif
+
+#if defined (TRACKING)
+     CALL TRACER_INITIAL
 # endif
 
 # if defined (DEBUG)
@@ -396,6 +403,10 @@ Program FUNWAVE_TVD
      ENDDO
 
      CALL MIXING_STUFF
+
+# if defined (TRACKING)
+     CALL TRACK_XY
+# endif
 
 
 !  find maximum eta velocity 
