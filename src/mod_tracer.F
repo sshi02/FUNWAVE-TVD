@@ -55,7 +55,7 @@ MODULE TRACER
      USE PARAM
      USE GLOBAL, ONLY : TIME, Jbeg,Jend,Ibeg,Iend,Mloc,Nloc,&
                  Mloc1,Nloc1,MASK,U,V,DT,&
-                 DX,DY, Xco,Yco
+                 DX,DY, Xco,Yco, RESULT_FOLDER
      USE INPUT_READ
 
 # if defined (PARALLEL)
@@ -76,11 +76,11 @@ MODULE TRACER
         nx1_pre,ny1_pre,nx2_pre,ny2_pre,nx3_pre,ny3_pre
      INTEGER,SAVE,DIMENSION(:),ALLOCATABLE :: LAYER_012
      LOGICAL,SAVE :: FirstCallTrack = .TRUE.
-     REAL(SP),SAVE :: TrackerInterval
      REAL(SP),SAVE,DIMENSION(:),ALLOCATABLE :: TRACKER_START
      REAL(SP),SAVE,DIMENSION(:,:),ALLOCATABLE :: Usurf,Vsurf,Ubott,Vbott
      LOGICAL,SAVE,DIMENSION(:),ALLOCATABLE :: IN_CELL,STOP_SEARCH
      INTEGER,SAVE,DIMENSION(:),ALLOCATABLE :: FOUND_IN_DOMAIN
+     REAL(SP), SAVE :: PLOT_INTV_TRACKING,PLOT_COUNT_TRACKING
 
 # if defined (PARALLEL)
      INTEGER::myint
@@ -96,12 +96,30 @@ SUBROUTINE TRACER_INITIAL
       CHARACTER(LEN=80) :: WHAT
       CHARACTER(LEN=80) :: TRACER_FILE,FILE_NAME
 
+! read  from input.txt
+      FILE_NAME='input.txt'
+
       CALL READ_STRING(TRACER_FILE,FILE_NAME,'TRACER_FILE',ierr) 
+
+       IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'You use tracking ', 'but no TRACER_FILE found, STOP'
+         WRITE(3,'(A40,A40)')'You use tracking ', 'but no TRACER_FILE found, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'You use tracking ', 'but no TRACER_FILE found, STOP'
+         WRITE(3,'(A40,A40)')'You use tracking ', 'but no TRACER_FILE found, STOP'
+# endif
+        STOP
+      ENDIF
+
 
       OPEN(1,FILE=TRIM(TRACER_FILE))
         READ(1,*)WHAT
         READ(1,*)NumTracker
-        READ(1,*)TrackerInterval
+        READ(1,*)PLOT_INTV_TRACKING
 
        ALLOCATE(X_TRACK(NumTracker), &
                 Y_TRACK(NumTracker),TRACKER_START(NumTracker), &
@@ -152,6 +170,7 @@ SUBROUTINE TRACER_INITIAL
 !   print*,myid,x_track(1),y_track(1),x_track(2),y_track(2)
 
        CALL GET_XY_POSITION
+       PLOT_COUNT_TRACKING = 0
      
 END SUBROUTINE TRACER_INITIAL
 
@@ -525,6 +544,27 @@ SUBROUTINE MOVE_TRACER
 
 END SUBROUTINE MOVE_TRACER 
  
+SUBROUTINE OUTPUT_TRACKING
+     IMPLICIT NONE
+     LOGICAL, SAVE :: FirstCallTrackingOutput = .TRUE.
+
+# if defined (PARALLEL)
+    if(myid==0)then
+# endif
+     IF(FirstCallTrackingOutput)THEN
+       FirstCallTrackingOutput = .FALSE.
+       OPEN(8,FILE=TRIM(RESULT_FOLDER)//'tk_x.txt')
+       OPEN(9,FILE=TRIM(RESULT_FOLDER)//'tk_y.txt')
+     ENDIF
+
+     WRITE(8,'(1000E20.10E3)')TIME,(X_TRACK(I),I=1,NumTracker)
+     WRITE(9,'(1000E20.10E3)')TIME,(Y_TRACK(I),I=1,NumTracker)
+# if defined (PARALLEL)
+    endif
+# endif
+
+END SUBROUTINE OUTPUT_TRACKING
+
 
 END MODULE TRACER
 #endif

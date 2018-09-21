@@ -54,6 +54,8 @@
 SUBROUTINE ALLOCATE_VARIABLES
      USE GLOBAL
 
+! coordinate for cartesian only
+     ALLOCATE (Xco(Mloc),Yco(Nloc))
 ! allocate variables
      ALLOCATE(DelxU(Mloc,Nloc),DelxHU(Mloc,Nloc),DelxV(Mloc,Nloc),DelxEtar(Mloc,Nloc),&
               DelyU(Mloc,Nloc),DelyHV(Mloc,Nloc),DelyV(Mloc,Nloc),DelyEtar(Mloc,Nloc),&
@@ -451,8 +453,67 @@ SUBROUTINE INITIALIZATION
      SCREEN_COUNT=ZERO
      SPONGE=1.0_SP
      SpongeMaker=1.0_SP
-      
-    
+
+! coordinate for cartesian only
+! Xco, and Yco
+
+# if defined (PARALLEL)
+![---ykchoi Jan/23/2018
+!     Xco(Ibeg) = npx*(Mloc-2*Nghost)*DX
+# if defined (CARTESIAN)
+     Xco(Ibeg) = (iista-1)*DX
+# else
+    Xco(Ibeg) = (iista-1)*DX(1,1)
+# endif 
+! cartesian
+!---ykchoi Jan/23/2018]
+# else
+     Xco(Ibeg) = ZERO
+# endif
+
+     DO I = Ibeg+1,Mloc
+# if defined (CARTESIAN)
+       Xco(I) = Xco(I-1)+DX
+# else
+       Xco(I) = Xco(I-1)+DX(1,1)
+# endif
+     ENDDO
+     DO I = Ibeg-1,Ibeg-Nghost,-1
+# if defined (CARTESIAN)
+       Xco(I) = Xco(I+1)-DX
+# else
+       Xco(I) = Xco(I+1)-DX(1,1)
+# endif
+     ENDDO
+
+# if defined (PARALLEL)
+![---ykchoi Jan/23/2018
+!     Yco(Jbeg) = npy*(Nloc-2*Nghost)*DY
+# if defined (CARTESIAN)
+     Yco(Jbeg) = (jjsta-1)*DY
+# else
+     Yco(Jbeg) = (jjsta-1)*DY(1,1)
+#endif
+!---ykchoi Jan/23/2018]
+# else
+     Yco(Jbeg) = ZERO
+# endif
+     DO J = Jbeg+1,Nloc
+# if defined (CARTESIAN)
+       Yco(J) = Yco(J-1)+DY
+# else
+       Yco(J) = Yco(J-1)+DY(1,1)
+# endif
+     ENDDO
+     DO J = Jbeg-1,Jbeg-Nghost,-1
+# if defined (CARTESIAN)
+       Yco(J) = Yco(J+1)-DY
+# else
+       Yco(J) = Yco(J+1)-DY(1,1)
+# endif
+     ENDDO
+
+          
      IF(SHOW_BREAKING)THEN
      AGE_BREAKING = ZERO
      ENDIF

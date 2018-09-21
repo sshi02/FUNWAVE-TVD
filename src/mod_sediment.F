@@ -117,7 +117,7 @@ SUBROUTINE SEDIMENT_INITIAL
   CHARACTER(LEN=80)::TMP_NAME=' '
   INTEGER :: Ifile,ierr
 
-! read vessel number and folder from input.txt
+! read  from input.txt
       FILE_NAME='input.txt'
 
 ! input is based on Babaks original but make default values
