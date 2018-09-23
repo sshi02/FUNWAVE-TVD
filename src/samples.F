@@ -509,7 +509,7 @@ END SUBROUTINE INITIAL_N_WAVE
 !
 !-------------------------------------------------------------------------------------
 SUBROUTINE INITIAL_SOLITARY_WAVE(M,N,DX,Xwavemaker,&
-           AMP_Soli,Dep_Soli,Beta,U,V,Eta)
+           AMP_Soli,Dep_Soli,Beta,U,V,Eta,SolitaryPositiveDirection)
      USE PARAM
 # if defined (PARALLEL)
      USE GLOBAL, only: npx,px,Mglob, &
@@ -526,6 +526,7 @@ SUBROUTINE INITIAL_SOLITARY_WAVE(M,N,DX,Xwavemaker,&
      REAL(SP),DIMENSION(M,N),INTENT(OUT) :: U,V,Eta
      REAL(SP),INTENT(IN) :: AMP_Soli
      REAL(SP) :: A,B,A1,A2,alpha,SC,Cph,C_ph
+     LOGICAL,INTENT(IIN) :: SolitaryPositiveDirection
 
 !     alpha=0.5_SP*Beta*Beta+Beta
    ! something wrong here. if beta=-0.531, then alpha should be -0.39
@@ -557,7 +558,11 @@ SUBROUTINE INITIAL_SOLITARY_WAVE(M,N,DX,Xwavemaker,&
 # endif
 # endif
        Eta(I,J)=A1*SC*SC+A2*SC*SC*SC*SC
-       U(I,J)=A*SC*SC
+       IF(SolitaryPositiveDirection)THEN
+         U(I,J)=A*SC*SC
+       ELSE
+         U(I,J)=-A*SC*SC
+       ENDIF
        V(I,J)=ZERO
      ENDDO
      ENDDO

@@ -797,7 +797,7 @@ SUBROUTINE INITIALIZATION
 ! initial solitary wave
      IF(WaveMaker(1:7)=='INI_SOL') THEN
        CALL INITIAL_SOLITARY_WAVE(Mloc,Nloc, DX,Xwavemaker,& 
-          AMP_SOLI,Dep_Soli,Beta_ref,U,V,Eta)
+          AMP_SOLI,Dep_Soli,Beta_ref,U,V,Eta,SolitaryPositiveDirection)
      ENDIF
 
 

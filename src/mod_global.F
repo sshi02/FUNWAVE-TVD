@@ -236,6 +236,7 @@ MODULE GLOBAL
                   Xc,Yc, WID,Xc_WK,Tperiod,AMP_WK,DEP_WK,Theta_WK, &
                   rlamda,Time_ramp,D_gen,Beta_gen,Width_WK,Delta_WK,&
                   Ywidth_WK,Yc_WK
+        LOGICAL :: SolitaryPositiveDirection = .TRUE.
         REAL(SP),DIMENSION(:,:),ALLOCATABLE :: D_gen_ir,rlamda_ir,phase_ir
         REAL(SP),DIMENSION(:),ALLOCATABLE :: Beta_gen_ir,omgn_ir
         REAL(SP),DIMENSION(:),ALLOCATABLE :: omgn2D

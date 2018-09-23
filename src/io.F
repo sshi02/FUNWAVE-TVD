@@ -1022,6 +1022,35 @@ SUBROUTINE READ_INPUT
 
         IF(WaveMaker(1:7)=='INI_SOL')THEN
 
+          CALL READ_LOGICAL(SolitaryPositiveDirection,FILE_NAME,  &
+               'SolitaryPositiveDirection',ierr)
+
+        IF(ierr==1)THEN
+          SolitaryPositiveDirection = .TRUE.
+        ENDIF
+
+        IF(SolitaryPositiveDirection) THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'Solitary wave propagate in + X direction'
+         WRITE(3,'(A60)')'Solitary wave propagate in + X direction'
+      endif
+# else
+         WRITE(*,'(A60)')'Solitary wave propagate in + X direction'
+         WRITE(3,'(A60)')'Solitary wave propagate in + X direction'
+# endif
+        ELSE
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'Solitary wave propagate in - X direction'
+         WRITE(3,'(A60)')'Solitary wave propagate in - X direction'
+      endif
+# else
+         WRITE(*,'(A60)')'Solitary wave propagate in - X direction'
+         WRITE(3,'(A60)')'Solitary wave propagate in - X direction'
+# endif
+        ENDIF
+
           CALL READ_FLOAT(AMP_SOLI,FILE_NAME,'AMP',ierr)
       IF(ierr==1)THEN
 # if defined (PARALLEL)
