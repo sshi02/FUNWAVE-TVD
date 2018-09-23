@@ -526,7 +526,7 @@ SUBROUTINE INITIAL_SOLITARY_WAVE(M,N,DX,Xwavemaker,&
      REAL(SP),DIMENSION(M,N),INTENT(OUT) :: U,V,Eta
      REAL(SP),INTENT(IN) :: AMP_Soli
      REAL(SP) :: A,B,A1,A2,alpha,SC,Cph,C_ph
-     LOGICAL,INTENT(IIN) :: SolitaryPositiveDirection
+     LOGICAL,INTENT(IN) :: SolitaryPositiveDirection
 
 !     alpha=0.5_SP*Beta*Beta+Beta
    ! something wrong here. if beta=-0.531, then alpha should be -0.39
