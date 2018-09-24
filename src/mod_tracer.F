@@ -547,18 +547,26 @@ END SUBROUTINE MOVE_TRACER
 SUBROUTINE OUTPUT_TRACKING
      IMPLICIT NONE
      LOGICAL, SAVE :: FirstCallTrackingOutput = .TRUE.
+     CHARACTER(LEN=14)::FORMAT_LEN_TRACKING=' '
 
 # if defined (PARALLEL)
     if(myid==0)then
 # endif
      IF(FirstCallTrackingOutput)THEN
        FirstCallTrackingOutput = .FALSE.
+
+! format length
+        write(FORMAT_LEN_TRACKING(1:1),'(A1)') '('
+        write(FORMAT_LEN_TRACKING(2:8),'(I7)') NumTracker+1
+        write(FORMAT_LEN_TRACKING(9:13),'(A5)') 'E16.6'
+        write(FORMAT_LEN_TRACKING(14:14),'(A1)') ')'
+
        OPEN(8,FILE=TRIM(RESULT_FOLDER)//'tk_x.txt')
        OPEN(9,FILE=TRIM(RESULT_FOLDER)//'tk_y.txt')
      ENDIF
 
-     WRITE(8,'(1000E20.10E3)')TIME,(X_TRACK(I),I=1,NumTracker)
-     WRITE(9,'(1000E20.10E3)')TIME,(Y_TRACK(I),I=1,NumTracker)
+     WRITE(8,FORMAT_LEN_TRACKING)TIME,(X_TRACK(I),I=1,NumTracker)
+     WRITE(9,FORMAT_LEN_TRACKING)TIME,(Y_TRACK(I),I=1,NumTracker)
 # if defined (PARALLEL)
     endif
 # endif
