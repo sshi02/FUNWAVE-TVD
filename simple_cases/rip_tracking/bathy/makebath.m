@@ -1,13 +1,13 @@
 % makebath.m
 % 
 % generate bathymetry for TVD-boussinesq model to study effect of symmetry
-% breaking in periodic bathymetry
+% breaking in periodic bathymetry and sediment
 %
 %--------------------------------------------------------------------------
 
 % number of cells in periodic interval
 
-  ncell=5;
+  ncell=2;
   
 % basic call spacing
 
@@ -15,7 +15,7 @@
   
 % cross-shore scale 
 
-  xcell=100;
+  xcell=60;
   
 % basic domain
 
@@ -40,7 +40,7 @@
       
   end
   
-h(h>13)=13;
+h(h>8)=8;
 
   v=[ 0 1 2 3 4 5 6 7 8 9 10 ];
   

@@ -30,8 +30,8 @@ RESULT_FOLDER = output/
    ! ----------------- TIME---------------------------------- 
    ! time: total computational time/ plot time / screen interval  
    ! all in seconds 
- TOTAL_TIME = 1000.0 
- PLOT_INTV = 100.0 
+ TOTAL_TIME = 100.0 
+ PLOT_INTV = 10.0 
  PLOT_INTV_STATION = 0.5 
  SCREEN_INTV = 100.0 
 
@@ -54,14 +54,12 @@ RESULT_FOLDER = output/
    !                 and then use Wei and Kirby 1999  
    !          need input WaveCompFile (including 3 columns: per,amp,pha) 
    !          NumWaveComp,PeakPeriod,DEP_WK,Xc_WK,Ywidth_WK 
-WAVEMAKER = WK_REG
-DEP_WK = 8.0 
-Xc_WK = 250.0 
-Tperiod = 8.0 
-AMP_WK = 0.5 
-Theta_WK = 0.0 
-Delta_WK = 3.0 
-
+WAVEMAKER = INI_SOLI
+AMP = 0.1
+DEP = 13.0
+LAGTIME = 0.0
+XWAVEMAKER = 250.0
+SolitaryPositiveDirection = F
   ! ---------------- PERIODIC BOUNDARY CONDITION --------- 
   ! South-North periodic boundary condition 
   ! 
