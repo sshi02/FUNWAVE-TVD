@@ -545,6 +545,10 @@ SUBROUTINE WK_WAVEMAKER_2D_SPECTRAL_DATA &
 
        Dir2D(nfre,ndir) = angle2
 
+    ELSE ! theta = zero
+     
+       Dir2D(nfre,ndir) = ZERO
+
     ENDIF ! end theta .ne.zero
 
     ENDDO
