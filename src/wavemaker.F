@@ -421,6 +421,9 @@ SUBROUTINE WK_WAVEMAKER_2D_SPECTRAL_DATA &
                (NumFreq,NumDir,Freq,DireD,WAVE_COMP,PeakPeriod,H_gen,delta,D_gen,beta_gen,rlamda,width)
      USE PARAM
      USE GLOBAL, ONLY : PERIODIC,DY,Nglob
+# if defined (PARALLEL)
+     USE GLOBAL,ONLY : myid,ier
+# endif
      IMPLICIT NONE
      INTEGER,INTENT(IN) :: NumFreq,NumDir
      REAL(SP) :: alpha,alpha1,omgn,tb,tc,wkn,C_phase,wave_length,&
@@ -521,8 +524,16 @@ SUBROUTINE WK_WAVEMAKER_2D_SPECTRAL_DATA &
       ENDIF 
 
 # if defined (PARALLEL)
-# else
+     IF(myid==0)THEN
+       WRITE(*,*) 'wave angle you set:', Dire(ndir)*180/pi
+       WRITE(*,*) 'wave angle in calculation:', angle2*180/pi
+       WRITE(*,*) 'chosen between', angle1*180/pi, 'and', tmp3*180/pi
 
+       WRITE(3,*) 'wave angle you set:', Dire(ndir)*180/pi
+       WRITE(3,*) 'wave angle in calculation:', angle2*180/pi
+       WRITE(3,*) 'chosen between', angle1*180/pi, 'and', tmp3*180/pi
+     ENDIF
+# else
        WRITE(*,*) 'wave angle you set:', Dire(ndir)*180/pi
        WRITE(*,*) 'wave angle in calculation:', angle2*180/pi
        WRITE(*,*) 'chosen between', angle1*180/pi, 'and', tmp3*180/pi
