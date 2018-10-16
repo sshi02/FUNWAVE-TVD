@@ -18,6 +18,7 @@
 #             FLAG_8 = -DCOUPLING
 #             FLAG_9 = -DZALPHA
 #             FLAG_10 = -DMANNING
+#               FLAG_15 = -DTRACKING
 
 #--------------------------------------------------------------------------
 #  mpi defs 
@@ -66,7 +67,8 @@
 #--------------------------------------------------------------------------
 
 MODS  = mod_param.F	mod_global.F	mod_input.F mod_vessel.F  mod_bathy_correction.F \
-        mod_parallel_field_io.F mod_meteo.F
+        mod_parallel_field_io.F mod_meteo.F mod_sediment.F \
+        mod_tracer.F
 
 MAIN  = main.F bc.F fluxes.F init.F io.F tridiagnal.F       \
         breaker.F derivatives.F dispersion.F etauv_solver.F \
