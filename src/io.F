@@ -2541,15 +2541,15 @@ SUBROUTINE READ_INPUT
 # if defined (ZALPHA)
           CALL READ_FLOAT(Beta_ref,FILE_NAME,'Beta_ref',ierr)
       IF(ierr==1)THEN
-        Beta_ref = 0.531_SP
+        Beta_ref = -0.531_SP
 # if defined (PARALLEL)
       if (myid.eq.0) THEN
-         WRITE(*,'(A40)')'Beta_ref Default:  0.531'
-         WRITE(3,'(A40)')'Beta_ref Default:  0.531'
+         WRITE(*,'(A40)')'Beta_ref Default:  -0.531'
+         WRITE(3,'(A40)')'Beta_ref Default:  -0.531'
       endif
 # else
-         WRITE(*,'(A40)')'Beta_ref Default:  0.531'
-         WRITE(3,'(A40)')'Beta_ref Default:  0.531'
+         WRITE(*,'(A40)')'Beta_ref Default:  -0.531'
+         WRITE(3,'(A40)')'Beta_ref Default:  -0.531'
 # endif
        ENDIF
 # endif
