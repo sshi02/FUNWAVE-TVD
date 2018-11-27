@@ -250,6 +250,9 @@ Program FUNWAVE_TVD
 
    DO WHILE (TIME<TOTAL_TIME)
 
+!     move output here to get the initial condition 11/27/2018
+
+      CALL OUTPUT
 
      IF(WaveMaker(1:7)=='LEF_SOL')THEN
        CALL SOLITARY_WAVE_LEFT_BOUNDARY
@@ -413,9 +416,7 @@ Program FUNWAVE_TVD
 
       IF (OUT_Hmax.OR.OUT_Hmin.OR.OUT_Umax.OR.OUT_MFmax.OR.OUT_VORmax)THEN
         CALL MAX_MIN_PROPERTY
-      ENDIF
-        
-      CALL OUTPUT
+      ENDIF        
 
       CALL CHECK_BLOWUP
 
