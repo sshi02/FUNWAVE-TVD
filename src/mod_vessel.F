@@ -530,9 +530,15 @@ SUBROUTINE VESSEL_FORCING
 !  make initial draft 09/12/2018
     IF(MakeVesselDraft)THEN
        MakeVesselDraft = .FALSE.
-       Eta= - VesselPressureTotal
+        DO J=1,Nloc
+        DO I=1,Mloc
+          IF(ABS(VesselPressureTotal(I,J)).GT.SMALL)THEN      
+            Eta(I,J) = - VesselPressureTotal(I,J)
+            ETA0(I,J) = ETA(I,J)
+          ENDIF
+        ENDDO
+        ENDDO
     ENDIF
-    ETA0 = ETA
 
 END SUBROUTINE VESSEL_FORCING
 
