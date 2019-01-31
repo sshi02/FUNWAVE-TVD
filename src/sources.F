@@ -247,7 +247,7 @@ SUBROUTINE SourceTerms
 # if defined (MANNING)
                    -(GRAV*Cd(I,J)**2/  &
                    Max(H(I,J),MinDepthFrc)**(0.333333_SP))  &
-                   *U(I,J)*SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J)) &
+                   *V(I,J)*SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J)) &
 # else
                    -Cd(I,J)*V(I,J)*SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J)) &
 # endif                          
@@ -420,7 +420,7 @@ SUBROUTINE SourceTerms
 # if defined (MANNING)
                    -(GRAV*Cd(I,J)**2/  &
                    Max(H(I,J),MinDepthFrc)**(0.333333_SP))  &
-                   *U(I,J)*SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J)) &
+                   *V(I,J)*SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J)) &
 # else
                    -Cd(I,J)*V(I,J)*SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J)) &
 # endif
@@ -453,7 +453,7 @@ SUBROUTINE SourceTerms
 # if defined (MANNING)
                    -(GRAV*Cd(I,J)**2/  &
                    Max(H(I,J),MinDepthFrc)**(0.333333_SP))  &
-                   *U(I,J)*SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J)) &
+                   *V(I,J)*SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J)) &
 # else
                    -Cd(I,J)*V(I,J)*SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J)) &
 # endif
