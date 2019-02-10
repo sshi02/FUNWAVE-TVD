@@ -51,14 +51,14 @@
 SUBROUTINE UPDATE_MASK
      USE GLOBAL
      IMPLICIT NONE
-     REAL(SP)::left,right,top,bottom
      INTEGER,DIMENSION(:,:),ALLOCATABLE :: MASKtmp
-     REAL(SP):: Eta_Actual
+     INTEGER,DIMENSION(:,:),ALLOCATABLE :: ETAtmp
 # if defined (PARALLEL)
      REAL(SP)::myvar
 # endif
 
-     ALLOCATE(MASKtmp(Mloc,Nloc))    
+     ALLOCATE(MASKtmp(Mloc,Nloc))
+     ALLOCATE(ETAtmp(Mloc,Nloc))
 
 ! for the serial code, MASK at ghost cells keep no change
 
@@ -68,6 +68,7 @@ SUBROUTINE UPDATE_MASK
 #endif
 
      MASKtmp=MASK
+     ETAtmp=ETA
      Dmass = ZERO
 
      DO J=Jbeg-2,Jend+2
@@ -76,41 +77,32 @@ SUBROUTINE UPDATE_MASK
      IF(MASK_STRUC(I,J)==1)THEN
        IF(MASK(I,J)<1)THEN
          ! left
-        IF(I/=1)THEN
-         IF(MASK(I-1,J)==1.AND.Eta(I-1,J)>Eta(I,j))THEN
+         IF(MASK(I-1,J)==1.AND.Eta(I-1,J)>Eta(I,J))THEN
            MASKtmp(I,J)=1
          ENDIF
-        ENDIF
          ! right
-        IF(I/=Mloc)THEN
-         IF(MASK(I+1,J)==1.AND.Eta(I+1,J)>Eta(I,j))THEN
+         IF(MASK(I+1,J)==1.AND.Eta(I+1,J)>Eta(I,J))THEN
            MASKtmp(I,J)=1
          ENDIF
-        ENDIF
          ! bottom
-        IF(J/=1)THEN
          IF(MASK(I,J-1)==1.AND.Eta(I,J-1)>Eta(I,j))THEN
            MASKtmp(I,J)=1
          ENDIF
-        ENDIF
          ! top
-        IF(J/=Nloc)THEN
          IF(MASK(I,J+1)==1.AND.Eta(I,J+1)>Eta(I,j))THEN
            MASKtmp(I,J)=1
          ENDIF
-        ENDIF
 ! drying
        ELSE
          IF(Eta(I,J)<-Depth(I,J))THEN
-          Eta_Actual = Eta(I,J)
           MASKtmp(I,J)=0
-          ETA(I,J)=MinDepth-Depth(I,J)
+          ETAtmp(I,J)=MinDepth-Depth(I,J)
 
           IF(I.GE.Ibeg.AND.I.LE.Iend.AND.J.GE.Jbeg.AND.J.LE.Jend)THEN
 # if defined (CARTESIAN)
-          Dmass = Dmass + (Eta(I,J)-Eta_Actual)*DX*DY
+          Dmass = Dmass + (ETAtmp(I,J)-ETA(I,J))*DX*DY
 # else
-          Dmass = Dmass + (Eta(I,J)-Eta_Actual)*DX(I,J)*DY(I,J)
+          Dmass = Dmass + (ETAtmp(I,J)-ETA(I,J))*DX(I,J)*DY(I,J)
 # endif
           ENDIF ! ibeg-iend, jbeg,jend
          ENDIF    
@@ -139,6 +131,7 @@ SUBROUTINE UPDATE_MASK
      ENDDO
 
      MASK=MASKtmp
+     ETA=ETAtmp
 
      DO J=Jbeg-1,Jend+1
      DO I=Ibeg-1,Iend+1
@@ -163,8 +156,9 @@ SUBROUTINE UPDATE_MASK
 # endif
 
      DEALLOCATE(MASKtmp)
+     DEALLOCATE(ETAtmp)
 
-!!!!! # if defined (CHECK_MASS_CONSERVATION)
+# if defined (CHECK_MASS_CONSERVATION)
 !   now check_mass_conservation is a general setting after tests
 
      WetArea = ZERO
@@ -204,7 +198,7 @@ SUBROUTINE UPDATE_MASK
      ENDDO
 ! then eta will be exchanged at bc in Main.F
 
-!!!!!     # endif
+# endif
 ! end mass conservation
 
 END SUBROUTINE UPDATE_MASK
