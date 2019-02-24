@@ -225,6 +225,7 @@ SUBROUTINE INITIALIZATION
      USE IFPORT
 # endif
      IMPLICIT NONE
+     INTEGER :: VTYPE
      CHARACTER(LEN=80) :: WHAT
 # if defined (PARALLEL)
      REAL(SP),DIMENSION(:,:),ALLOCATABLE :: VarGlob
@@ -667,29 +668,12 @@ SUBROUTINE INITIALIZATION
 # endif
 
 ! depth at ghost cells and re-construct depth at x,y-interfaces
+! use mirror instead of continuous used before, date: 02/24/2019
+! the reason for using mirror is eta bc is mirror at open bc
+! it is important for complex bathy/topo at bc
 
-# if defined(PARALLEL)
-! done at the last step
-# else
-! ghost cells
-     DO I=Ibeg,Iend
-       DO J=1,Nghost
-        Depth(I,J)=Depth(I,Jbeg)
-       ENDDO
-       DO J=Jend+1,Nloc
-        Depth(I,J)=Depth(I,Jend)
-       ENDDO
-     ENDDO
-
-     DO J=1,Nloc
-       DO I=1,Nghost
-        Depth(I,J)=Depth(Ibeg,J)
-       ENDDO
-       DO I=Iend+1,Mloc
-        Depth(I,J)=Depth(Iend,J)
-       ENDDO
-     ENDDO  
-# endif  
+    VTYPE=1
+    CALL PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,Depth,VTYPE)
 
 ! correction bathymetry
     IF (BATHY_CORRECTION)THEN
