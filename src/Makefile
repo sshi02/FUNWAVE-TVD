@@ -1,29 +1,29 @@
 #-----------BEGIN MAKEFILE-------------------------------------------------
             SHELL         = /bin/sh
             DEF_FLAGS     = -P -traditional 
-            EXEC          = funwave_vessel
+            EXEC          = funwave
 #==========================================================================
 #--------------------------------------------------------------------------
 #        PRECISION          DEFAULT PRECISION: SINGLE                     
 #                           UNCOMMENT TO SELECT DOUBLE PRECISION
+#    
 #--------------------------------------------------------------------------
 
-            FLAG_1 = -DDOUBLE_PRECISION 
-            FLAG_2 = -DPARALLEL
-#            FLAG_3 = -DSAMPLES
-            FLAG_4 = -DCARTESIAN
-#              FLAG_6 = -DINTEL
-#             FLAG_7 = -DMIXING
-              FLAG_8 = -DCOUPLING
-#             FLAG_9 = -DZALPHA
-#             FLAG_10 = -DMANNING
-#             FLAG_11 = -DSPHERICAL_IJ_STATION
-#               FLAG_12 = -DVESSEL
-#              FLAG_13 = -DVIS_KENNEDY
-#              FLAG_14 = -DVESSEL_PANEL_SOURCE
-#              FLAG_15 = -DREALISTIC_VESSEL_BODY
-#              FLAG_16 = -DMETEO
-#              FLAG_17 = -DWIND
+#            FLAG_1 = -DDOUBLE_PRECISION 
+#             FLAG_2 = -DPARALLEL
+             FLAG_3 = -DCARTESIAN
+#              FLAG_4 = -DINTEL
+#               FLAG_5 = -DCOUPLING
+#             FLAG_6 = -DZALPHA
+#              FLAG_7 = -DMANNING
+#                FLAG_8 = -DVESSEL
+#               FLAG_9 = -DMETEO
+#              FLAG_10 = -DWIND
+#               FLAG_11 = -DSEDIMENT
+#               FLAG_12 = -DCHECK_MASS_CONSERVATION
+#               FLAG_13 = -DDEBUG
+#               FLAG_14 = -DTMP
+#               FLAG_15 = -DTRACKING
 #--------------------------------------------------------------------------
 #  mpi defs 
 #--------------------------------------------------------------------------
@@ -64,13 +64,14 @@
 .F.o:
 	$(CPP) $(CPPARGS) $*.F > $*.f90
 	$(FC)  -c $(FFLAGS) $(INCS) $*.f90
-	/bin/rm $*.f90
+#	/bin/rm $*.f90
 #--------------------------------------------------------------------------
 #  FUNWAVE-TVD Source Code.
 #--------------------------------------------------------------------------
 
 MODS  = mod_param.F mod_global.F mod_input.F mod_vessel.F mod_bathy_correction.F \
-        mod_meteo.F mod_parallel_field_io.F
+        mod_meteo.F mod_parallel_field_io.F mod_sediment.F \
+        mod_tracer.F
 
 MAIN  = main.F bc.F fluxes.F init.F io.F tridiagnal.F       \
         breaker.F derivatives.F dispersion.F etauv_solver.F \

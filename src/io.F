@@ -3320,6 +3320,7 @@ SUBROUTINE STATIONS
 
      INTEGER :: iunit
      REAL(SP) :: dum1,dum2
+     REAL(SP) :: eta_sta,u_sta,v_sta
      CHARACTER(LEN=80)::FILE_NAME=' '
      CHARACTER(LEN=80)::TMP_NAME=' '
      CHARACTER(LEN=80)::FDIR=' '
@@ -3393,8 +3394,18 @@ SUBROUTINE STATIONS
      do i=1,NumberStations
        if (nsta(i).eq.1) then
           iunit=100+i
-          write (iunit,'(20E16.8)') time, eta(ista(i),jsta(i)),&
-                          u(ista(i),jsta(i)),v(ista(i),jsta(i))
+!          write (iunit,'(20E16.8)') time, eta(ista(i),jsta(i)),&
+!                          u(ista(i),jsta(i)),v(ista(i),jsta(i))
+           IF(mask(ista(i),jsta(i))<1)THEN
+             eta_sta=ZERO
+             u_sta=ZERO
+             v_sta=ZERO
+           ELSE  ! to avoid topography on nested water surface  
+             eta_sta=eta(ista(i),jsta(i))
+             u_sta=u(ista(i),jsta(i))
+             v_sta=v(ista(i),jsta(i)) 
+           ENDIF
+            write (iunit,'(20E16.5E4)') time, eta_sta,u_sta,v_sta
        endif
      enddo
 
@@ -3498,7 +3509,7 @@ SUBROUTINE STATIONS_SPHERICAL_IJ
             u_sta=u(ista(i),jsta(i))
             v_sta=v(ista(i),jsta(i)) 
           ENDIF
-          write (iunit,'(20E16.8)') time, eta_sta,&
+          write (iunit,'(20E16.5E4)') time, eta_sta,&
                           u_sta,v_sta
        endif
      enddo
@@ -3604,7 +3615,7 @@ SUBROUTINE STATIONS
             v_sta=v(ista(i),jsta(i)) 
           ENDIF
 
-          write (iunit,'(20E16.5)') time, eta_sta,&
+          write (iunit,'(20E16.5E4)') time, eta_sta,&
                           u_sta,v_sta
 
 !          write (iunit,*) time, eta(ista(i),jsta(i)),u(ista(i),jsta(i)),&
@@ -4090,7 +4101,7 @@ SUBROUTINE PutFile(FILE,PHI)
 ! format length
         write(FORMAT_LEN(1:1),'(A1)') '('
         write(FORMAT_LEN(2:8),'(I7)') Mglob
-        write(FORMAT_LEN(9:13),'(A5)') 'E16.6'
+        write(FORMAT_LEN(9:13),'(A7)') 'E16.6E4'
         write(FORMAT_LEN(14:14),'(A1)') ')'
      ENDIF
 

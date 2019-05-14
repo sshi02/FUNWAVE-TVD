@@ -67,7 +67,7 @@ MODULE VESSEL_MODULE
     INTEGER :: NumVessel,Kves
     REAL(SP),DIMENSION(:),ALLOCATABLE :: Xvessel1,Yvessel1,Xvessel2,Yvessel2, &
                                        LengthVessel,WidthVessel, &
-                                       AlphaVessel,BetaVessel,Pvessel, &
+                                       AlphaVessel1,AlphaVessel2,BetaVessel,Pvessel, &
                                        TimeVessel1,TimeVessel2,ThetaVessel
     REAL(SP),DIMENSION(:,:),ALLOCATABLE :: VesselPressureTotal,VesselPressureEach, &
                                        VesselPressureX,VesselPressureY
@@ -75,7 +75,7 @@ MODULE VESSEL_MODULE
     REAL(SP),DIMENSION(:),ALLOCATABLE :: ResistanceX,ResistanceY,ResPosX,ResNegX, &
                                          ResPosY,ResNegY
     REAL(SP):: PLOT_INTV_VESSEL,PLOT_COUNT_VESSEL
-# if defined (VESSEL_PANEL_SOURCE)
+# if defined (VESSEL_PANEL_SOURCE) || defined (SLENDER)
     REAL(SP),DIMENSION(:,:),ALLOCATABLE :: VesselFluxGradient,VesselFluxGradientEach, &
                                            Gz
     REAL(SP),DIMENSION(:),ALLOCATABLE :: Uvel,Vvel
@@ -110,6 +110,7 @@ SUBROUTINE VESSEL_INITIAL
   CHARACTER(LEN=80)::TMP_NAME=' '
   INTEGER :: Ifile,ierr
   CHARACTER(LEN=80):: VesselName
+  INTEGER :: VesselType = 10
 
 ! read vessel number and folder from input.txt
       FILE_NAME='input.txt'
@@ -135,7 +136,8 @@ SUBROUTINE VESSEL_INITIAL
                 Xvessel2(NumVessel),Yvessel2(NumVessel),  &
                 TimeVessel1(NumVessel),TimeVessel2(NumVessel), &
                 LengthVessel(NumVessel),WidthVessel(NumVessel), &
-                AlphaVessel(NumVessel),BetaVessel(NumVessel),  &
+                AlphaVessel1(NumVessel),AlphaVessel2(NumVessel), &
+                BetaVessel(NumVessel),  &
                 Pvessel(NumVessel),ThetaVessel(NumVessel),&
                 ResistanceX(NumVessel),ResistanceY(NumVessel), &
                 ResPosX(NumVessel),ResNegX(NumVessel), &
@@ -210,10 +212,24 @@ SUBROUTINE VESSEL_INITIAL
 
 ! read file
          READ(Ifile,*)  ! title
-         READ(Ifile,*)  VesselName  ! vessel name
+         READ(Ifile,*,END=105)  VesselName, VesselType
+105      CONTINUE
+         IF(VesselType.GE.10) THEN
+            VesselName = 'No Vessel Name, Use default VesselType=1 '
+            VesselType = 1       
+# if defined (PARALLEL)
+   IF(MYID==0)THEN
+   WRITE(3,*) 'Vessel Name: ',  TRIM(VesselName)
+   WRITE(3,*) 'Vessel Type: ',  VesselType
+# else
+   WRITE(3,*) 'Vessel Name: ',  TRIM(VesselName)
+   WRITE(3,*) 'Vessel Type: ',  VesselType
+# endif
+         ENDIF
+
          READ(Ifile,*)  ! length and width
          READ(Ifile,*)  LengthVessel(Kves), WidthVessel(Kves), &
-                      AlphaVessel(Kves),BetaVessel(Kves),Pvessel(Kves)
+                      AlphaVessel1(Kves),BetaVessel(Kves),Pvessel(Kves)
          READ(Ifile,*)  ! t, x, y
          READ(Ifile,*)  TimeVessel2(Kves),Xvessel2(Kves),Yvessel2(Kves)
 
@@ -221,26 +237,32 @@ SUBROUTINE VESSEL_INITIAL
          Xvessel1(Kves) = Xvessel2(Kves)
          Yvessel1(Kves) = Yvessel2(Kves)
 
-         AlphaVessel(Kves) = Max(SMALL, AlphaVessel(Kves))
+         AlphaVessel1(Kves) = Max(SMALL, AlphaVessel1(Kves))
          BetaVessel(Kves) = Max(SMALL, BetaVessel(Kves))
-         AlphaVessel(Kves) = Min(1.0_SP, AlphaVessel(Kves))
+         AlphaVessel1(Kves) = Min(1.0_SP, AlphaVessel1(Kves))
          BetaVessel(Kves) = Min(1.0_SP, BetaVessel(Kves))
+
+         IF(VesselType == 1) AlphaVessel2(Kves) = AlphaVessel1(Kves)
 
 # if defined (PARALLEL)
    IF(MYID==0)THEN
    WRITE(3,*) 'Vessel Name: ',  TRIM(VesselName)
+   WRITE(3,*) 'Vessel Type: ',  VesselType
    WRITE(3,*) 'Vessel Length', LengthVessel(Kves)
    WRITE(3,*) 'Vessel Width', WidthVessel(Kves)
-   WRITE(3,*) 'Vessel Alpha', AlphaVessel(Kves)
+   WRITE(3,*) 'Vessel Alpha_1', AlphaVessel1(Kves)
+   WRITE(3,*) 'Vessel Alpha_2', AlphaVessel2(Kves)
    WRITE(3,*) 'Vessel Beta', BetaVessel(Kves)
    WRITE(3,*) 'Vessel P', PVessel(Kves)
    WRITE(3,*) 'Initial Time, X, Y', TimeVessel2(Kves),Xvessel2(Kves),Yvessel2(Kves)
    ENDIF
 # else
    WRITE(3,*) 'Vessel Name: ',  TRIM(VesselName)
+   WRITE(3,*) 'Vessel Type: ',  VesselType
    WRITE(3,*) 'Vessel Length', LengthVessel(Kves)
    WRITE(3,*) 'Vessel Width', WidthVessel(Kves)
-   WRITE(3,*) 'Vessel Alpha', AlphaVessel(Kves)
+   WRITE(3,*) 'Vessel Alpha_1', AlphaVessel1(Kves)
+   WRITE(3,*) 'Vessel Alpha_2', AlphaVessel2(Kves)
    WRITE(3,*) 'Vessel Beta', BetaVessel(Kves)
    WRITE(3,*) 'Vessel P', PVessel(Kves)
    WRITE(3,*) 'Initial Time, X, Y', TimeVessel2(Kves),Xvessel2(Kves),Yvessel2(Kves)
@@ -321,7 +343,14 @@ SUBROUTINE VESSEL_FORCING
 
      CALL GREEN_FUNCTION_SOURCE (Xves,Yves)
 
-# else  
+# elif defined (SLENDER)
+   ! slender body
+
+     CALL SLENDER_BODY_SOURCE (Xves,Yves)
+
+# else
+
+   IF(VesselType == 1.OR.VesselType == 2) THEN
    ! pressure source
 
 ! rectangular
@@ -336,56 +365,7 @@ SUBROUTINE VESSEL_FORCING
     DO I=1,Mloc
       Lves=(Xco(I)-Xves)*COS(ThetaVessel(Kves)) + (Yco(J)-Yves)*SIN(ThetaVessel(Kves))
       Wves=-(Xco(I)-Xves)*SIN(ThetaVessel(Kves)) + (Yco(J)-Yves)*COS(ThetaVessel(Kves))
-# if defined (TORSVIK)
-      
-      IF(ABS(Lves)<=0.5_SP*LengthVessel(Kves).AND. &
-         ABS(Wves)<=0.5_SP*WidthVessel(Kves)) THEN
-         VesselPressureEach(I,J) = Pvessel(Kves)  &
-                  *COS(PI*Lves/(LengthVessel(Kves)))**2 &
-                  *COS(PI*Wves/(WidthVessel(Kves)))**2                  
-      ENDIF
-# elif defined (TMP)
 
-    IF(ABS(Lves)<=0.5_SP*LengthVessel(Kves).AND. &
-         ABS(Wves)<=0.5_SP*WidthVessel(Kves)) THEN
-
-      Px = ZERO
-      Py = ZERO
-
-! I multiplide 0.01 here 
-     IF(Lves>ZERO)THEN
-      IF(ABS(Lves)>0.5_SP*LengthVessel(Kves)*AlphaVessel(Kves)*0.01.AND. &
-         ABS(Lves)<0.5_SP*LengthVessel(Kves))THEN
-          Px = COS(PI*(Lves-0.5_SP*AlphaVessel(Kves)*0.01*LengthVessel(Kves))  &
-                   /((1.0_SP-AlphaVessel(Kves)*0.01)*LengthVessel(Kves)))**2
-      ELSEIF(ABS(Lves)<=0.5_SP*LengthVessel(Kves)*AlphaVessel(Kves)*0.1)THEN
-          Px = 1.0_SP
-      ENDIF
-     ENDIF
-
-     IF(Lves<=ZERO)THEN
-      IF(ABS(Lves)>0.5_SP*LengthVessel(Kves)*AlphaVessel(Kves).AND. &
-         ABS(Lves)<0.5_SP*LengthVessel(Kves))THEN
-          Px = COS(PI*(Lves-0.5_SP*AlphaVessel(Kves)*LengthVessel(Kves))  &
-                   /((1.0_SP-AlphaVessel(Kves))*LengthVessel(Kves)))**2
-      ELSEIF(ABS(Lves)<=0.5_SP*LengthVessel(Kves)*AlphaVessel(Kves))THEN
-          Px = 1.0_SP
-      ENDIF
-     ENDIF
-
-      IF(ABS(Wves)>0.5_SP*WidthVessel(Kves)*BetaVessel(Kves).AND. &
-         ABS(Wves)<0.5_SP*WidthVessel(Kves)) THEN
-          Py = COS(PI*(Wves-0.5_SP*BetaVessel(Kves)*WidthVessel(Kves))  &
-                  /((1.0_SP-BetaVessel(Kves))*WidthVessel(Kves)))**2
-      ELSEIF(ABS(Wves)<=0.5_SP*WidthVessel(Kves)*BetaVessel(Kves)) THEN
-          Py = 1.0_SP
-      ENDIF
-
-         VesselPressureEach(I,J) = Pvessel(Kves)*Px*Py
-
-    ENDIF  ! end inside ship rectangule
-
-# else
    ! Ertekin et al. JFM 1986
 
     IF(ABS(Lves)<=0.5_SP*LengthVessel(Kves).AND. &
@@ -394,14 +374,21 @@ SUBROUTINE VESSEL_FORCING
       Px = ZERO
       Py = ZERO
 
-      IF(ABS(Lves)>0.5_SP*LengthVessel(Kves)*AlphaVessel(Kves).AND. &
-         ABS(Lves)<0.5_SP*LengthVessel(Kves))THEN
+      IF(Lves>0.5_SP*LengthVessel(Kves)*AlphaVessel1(Kves).AND. &
+         Lves<0.5_SP*LengthVessel(Kves))THEN
           
-          Px = COS(PI*(Lves-0.5_SP*AlphaVessel(Kves)*LengthVessel(Kves))  &
-                   /((1.0_SP-AlphaVessel(Kves))*LengthVessel(Kves)))**2
-      ELSEIF(ABS(Lves)<=0.5_SP*LengthVessel(Kves)*AlphaVessel(Kves))THEN
+          Px = COS(PI*(Lves-0.5_SP*AlphaVessel1(Kves)*LengthVessel(Kves))  &
+                   /((1.0_SP-AlphaVessel1(Kves))*LengthVessel(Kves)))**2
+      ELSEIF(Lves<-0.5_SP*LengthVessel(Kves)*AlphaVessel2(Kves).AND. &
+         Lves>-0.5_SP*LengthVessel(Kves))THEN
+          Px = COS(PI*(Lves-0.5_SP*AlphaVessel2(Kves)*LengthVessel(Kves))  &
+                   /((1.0_SP-AlphaVessel2(Kves))*LengthVessel(Kves)))**2
+
+      ELSEIF(Lves<=0.5_SP*LengthVessel(Kves)*AlphaVessel1(Kves).AND. &
+         Lves=>-0.5_SP*LengthVessel(Kves)*AlphaVessel2(Kves))THEN
           Px = 1.0_SP
       ENDIF
+
       IF(ABS(Wves)>0.5_SP*WidthVessel(Kves)*BetaVessel(Kves).AND. &
          ABS(Wves)<0.5_SP*WidthVessel(Kves)) THEN
           Py = COS(PI*(Wves-0.5_SP*BetaVessel(Kves)*WidthVessel(Kves))  &
@@ -414,7 +401,7 @@ SUBROUTINE VESSEL_FORCING
 
     ENDIF  ! end inside ship rectangule
 
-# endif
+   ENDIF ! end vessel type 1 type 2
      
     ENDDO
     ENDDO  ! end grid
@@ -425,20 +412,9 @@ SUBROUTINE VESSEL_FORCING
 
     DO J=Jbeg,Jend
     DO I=Ibeg,Iend
-# if defined (TORSVIK)
-    ! do nothing
-# else
 
          DetaX = (ETA(I+1,J)-ETA(I-1,J))/2.0_SP
          DetaY = (ETA(I,J+1)-ETA(I,J-1))/2.0_SP
-
-!         ResistanceX(Kves)=ResistanceX(Kves)  &
-!                 +VesselPressureEach(I,J)*RHO_WATER*GRAV  &
-!                  *DetaX*DY
-
-!         ResistanceY(Kves)=ResistanceY(Kves)  &
-!                 +VesselPressureEach(I,J)*RHO_WATER*GRAV  &
-!                  *DetaY*DX
 
          IF(DetaX>=0)THEN
            ResPosX(Kves) = ResPosX(Kves) &
@@ -463,8 +439,6 @@ SUBROUTINE VESSEL_FORCING
          ResistanceX(Kves) = ResPosX(Kves) + ResNegX(Kves)
          ResistanceY(Kves) = ResPosY(Kves) + ResNegY(Kves)
       
-# endif
- ! end torsvik
     ENDDO
     ENDDO
 
@@ -641,6 +615,53 @@ SUBROUTINE GREEN_FUNCTION_SOURCE (Xves,Yves)
 END SUBROUTINE GREEN_FUNCTION_SOURCE
 # endif 
   ! end panel source
+
+
+# if defined (SLENDER)
+SUBROUTINE SLENDER_BODY_SOURCE (Xves,Yves)
+  USE GLOBAL,ONLY : Mloc,Nloc,tmp1,tmp2,SMALL,TIME,ZERO, H,U,V,  &
+                    DX,DY,Ibeg,Iend,Jbeg,Jend,DEPTH
+  IMPLICIT NONE
+  INTEGER :: ierr,I,J
+  REAL(SP) :: Xves,Yves,Lves,Wves
+
+
+  VesselFluxGradientEach = ZERO
+
+! initial parabolic function by Tanimoto et al. 2000
+  
+
+
+    DO J=1,Nloc
+    DO I=1,Mloc
+      Lves=(Xco(I)-Xves)*COS(ThetaVessel(Kves)) + (Yco(J)-Yves)*SIN(ThetaVessel(Kves))
+      Wves=-(Xco(I)-Xves)*SIN(ThetaVessel(Kves)) + (Yco(J)-Yves)*COS(ThetaVessel(Kves))
+
+      
+      IF(ABS(Lves)<=0.5_SP*LengthVessel(Kves).AND. &
+         ABS(Wves)<=0.5_SP*WidthVessel(Kves)) THEN
+         VesselFluxGradientEach(I,J) = Pvessel(Kves)  &
+                  *SIN(2.0*PI*Lves/(LengthVessel(Kves))) &
+                  *COS(PI*Wves/(WidthVessel(Kves)))**2   
+
+!   print*,i,j,VesselFluxGradientEach(I,J), SIN(2.0*PI*Lves/(LengthVessel(Kves))), &
+!          COS(PI*Wves/(WidthVessel(Kves)))**2
+      ENDIF
+    ENDDO
+    ENDDO
+
+
+!open(99,file='tmp.txt')
+!do j=1,Nloc
+! write(99,108)(VesselFluxGradientEach(i,j),i=1,Mloc)
+!enddo
+!close(99)
+!108 format(5000E12.3)
+!stop
+
+END SUBROUTINE SLENDER_BODY_SOURCE
+# endif 
+  ! end slender body source
 
 
 END MODULE VESSEL_MODULE
