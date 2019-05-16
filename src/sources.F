@@ -471,12 +471,8 @@ SUBROUTINE SourceTerms
      ENDDO
 
 # if defined (VESSEL)
-# if defined (VESSEL_PANEL_SOURCE)
-   ! no pressure term for panel source 
-# else
       SourceX = SourceX + VesselPressureX
       SourceY = SourceY + VesselPressureY
-# endif
 # endif
 
 # if defined (METEO)

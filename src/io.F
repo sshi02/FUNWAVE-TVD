@@ -4101,8 +4101,8 @@ SUBROUTINE PutFile(FILE,PHI)
 ! format length
         write(FORMAT_LEN(1:1),'(A1)') '('
         write(FORMAT_LEN(2:8),'(I7)') Mglob
-        write(FORMAT_LEN(9:13),'(A7)') 'E16.6E4'
-        write(FORMAT_LEN(14:14),'(A1)') ')'
+        write(FORMAT_LEN(9:15),'(A7)') 'E16.6E4'
+        write(FORMAT_LEN(16:16),'(A1)') ')'
      ENDIF
 
         OPEN(1,FILE=TRIM(FILE))
