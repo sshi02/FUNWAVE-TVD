@@ -1,0 +1,381 @@
+ -------------- LOG FILE -----------------
+ VESSEL                                                                          
+  --------------input start --------------
+                                          
+ -------------- PARALLEL -----------------
+ PX   =  4 PY   =  1
+                                          
+ -------------- GRID INFO -----------------
+ Mglob=     250 Nglob=     360
+ DX=        1.00 DY=        1.00
+ DEPTH_TYPE:FLAT                                              
+DEPTH_FLAT       10.00
+                                          
+ -------------- TIME INFO -----------------
+ TOTAL_TIME=       50.00
+ PLOT_INTV=         1.00
+ SCREEN_INTV=        1.00
+                                          
+ -------------- HOT START -----------------
+                                          
+ -------------- STILL WATER INFO -----------------
+       WaterLevel =      0.00000
+                                          
+ -------------- WAVEMAKER -----------------
+                            No WaveMaker
+ WAVEMAKER:nothing                                           
+          EqualEnergy NOT USED in frequency domain
+                                          
+ -------------- PERIODIC BC -----------------
+  PERIODIC: F
+                                          
+ -------------- SPONGE -----------------
+              No WavemakerCurrentBalance
+                                          
+ -------- OBSTACLE and BREAKWATER -----------------
+ OBSTACLE_FILE:   NO
+    BREAKWATER_FILE:   NO
+     BreakWaterAbsorbCoef Default:  10.0
+                                          
+ -------------- PHYSICS -----------------
+         DISPERSION Default:  DISPERSION
+        Gamma1 Default:  1.0: DISPERSION
+              Gamma2 Default:  1.0: Full nonlinear
+               Beta_ref Default:  -0.531
+                      Gamma3 Default:  1.0: NOT fully linear
+  Summary of Physics
+ Gamma1 =         1.00
+ Gamma2 =         1.00
+Beta_ref=        -0.53
+ Gamma3 =         1.00
+                   VISCOSITY_BREAKING Default:  SWE Breaking
+               SWE_ETA_DEP Default:  0.8
+ SWE_ETA_DEP=        0.80
+             Friction_Matrix Default:  constant Cd
+                  Cd_fixed Default:  0.0
+Cd_fixed             0.00
+                                          
+ -------------- NUMERICS -----------------
+       Time_Scheme Default:  Runge_Kutta
+ TIME_SCHEME:Runge_Kutta                                       
+  CONSTRUCTION                              NOT DEFINED, USE HLL
+ CONSTRUCTION:HLLC                                              
+  HIGH_ORDER                     NOT DEFINED, USE FOURTH-ORDER
+ HIGH_ORDER:FOURTH                                            
+                       CFL Default:  0.5
+ CFL=        0.50
+                 FroudeCap Default:  3.0
+  FroudeCap=        3.00
+                MinDepth Default:  0.1 m
+             MinDepthFrc Default:  0.1 m
+          USE MIN(MinDepthFrc, MinDepth)
+ MinDepth=    0.100000
+ MinDepthFrc=    0.100000
+                                          
+ --------- WAVE BREAKING -----------------
+            SHOW_BREAKING Default:  TRUE
+                    Cbrk1 Default:  0.65
+                    Cbrk2 Default:  0.35
+            WAVEMAKER_Cbrk Default:  1.0
+  WAVEMAKER_Cbrk =         1.000000
+           WAVEMAKER_VIS Default:  FALSE
+                                          
+ -------- WAVE-AVERAGED PROPERTY -----------------
+             T_INTV_mean Default:  LARGE
+             STEADY_TIME Default:  LARGE
+                     C_smg Default:  0.0
+ T_INTV_mean =************
+ STEADY_TIME =************
+ C_smg =    0.000000
+                    nu_bkg Default:  0.0
+                                          
+ -------------- OUTPUT INFO -----------------
+ RESULT_FOLDER:output/                                           
+ FIELD_IO_TYPE = ASCII                                                                           
+         OUTPUT_RES NOT FOUND, OUTPUT_RES=1: full resolution
+     OUTPUT_RES         1
+      EtaBlowVal Default:  100xmax_depth
+      OUT_DEPTH F
+          OUT_U F
+          OUT_V F
+        OUT_ETA T
+       OUT_Hmax F
+       OUT_Hmin F
+       OUT_Umax F
+      OUT_MFmax F
+     OUT_VORmax F
+       OUT_MASK F
+      OUT_MASK9 F
+      OUT_Umean F
+      OUT_Vmean F
+    OUT_ETAmean F
+ OUT_WaveHeight F
+        OUT_SXL F
+        OUT_SXR F
+        OUT_SYL F
+        OUT_SYR F
+    OUT_SourceX F
+    OUT_SourceY F
+          OUT_P F
+          OUT_Q F
+         OUT_Fx F
+         OUT_Fy F
+         OUT_Gx F
+         OUT_Gy F
+        OUT_AGE F
+         OUT_NU F
+        OUT_TMP F
+                                          
+  --------------input end --------------
+                                          
+ VESSEL_FOLDER:./                                                
+NumVessel =   5
+         PLOT_INTV_VESSEL not specified, use SMALL
+ ----- Vessel Name : Title: Vessel # 1
+ Vessel Source Type: PRESSURE
+ Vessel Type:            1
+ Vessel Length   20.0000000    
+ Vessel Width   8.00000000    
+ Vessel Alpha_1   9.99999997E-07
+ Vessel Alpha_2   0.00000000    
+ Vessel Beta  0.500000000    
+ Vessel P   3.00000000    
+ Initial Time, X, Y   0.00000000       50.0000000       60.0000000    
+ ----- Vessel Name : Title: Vessel # 2
+ Vessel Source Type: PRESSURE
+ Vessel Type:            1
+ Vessel Length   20.0000000    
+ Vessel Width   8.00000000    
+ Vessel Alpha_1  0.899999976    
+ Vessel Alpha_2  0.899999976    
+ Vessel Beta  0.500000000    
+ Vessel P   3.00000000    
+ Initial Time, X, Y   0.00000000       50.0000000       120.000000    
+ ----- Vessel Name : Title: Vessel # 3
+ Vessel Source Type: PRESSURE
+ Vessel Type:            2
+ Vessel Length   10.0000000    
+ Vessel Width   5.00000000    
+ Vessel Alpha_1   16.0000000    
+ Vessel Alpha_2   2.00000000    
+ Vessel Beta   16.0000000    
+ Vessel P   2.00000000    
+ Initial Time, X, Y   0.00000000       50.0000000       180.000000    
+ ----- Vessel Name : Title: Vessel # 4
+ Vessel Source Type: SLENDER
+ Vessel Type:            1
+ Vessel Length   10.0000000    
+ Vessel Width   5.00000000    
+ Vessel Alpha_1   0.00000000    
+ Vessel Alpha_2   0.00000000    
+ Vessel Beta  0.899999976    
+ Vessel P   12.0000000    
+ Initial Time, X, Y   0.00000000       50.0000000       240.000000    
+ ----- Vessel Name : Title: Vessel # 5
+ Vessel Source Type: SLENDER
+ Vessel Type:            2
+ Vessel Length   10.0000000    
+ Vessel Width   5.00000000    
+ Vessel Alpha_1  0.800000012    
+ Vessel Alpha_2  0.800000012    
+ Vessel Beta  0.899999976    
+ Vessel P   40.0000000    
+ Initial Time, X, Y   0.00000000       50.0000000       300.000000    
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.0000E+00  0.0000E+00
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+  0.0000E+00  0.4416E+08  0.0000E+00  0.0000E+00  0.0000E+00  0.0000E+00
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.0000E+00  0.9905E+00  0.0000E+00  0.0000E+00
+   PRINTING FILE NO.     0  TIME/TOTAL:        0.000 /      50.000
+ Read Vessel #            1
+ T,X,Y =    100.000000       1050.00000       60.0000000    
+ Read Vessel #            2
+ T,X,Y =    100.000000       1050.00000       120.000000    
+ Read Vessel #            3
+ T,X,Y =    100.000000       1050.00000       180.000000    
+ Read Vessel #            4
+ T,X,Y =    100.000000       1050.00000       240.000000    
+ Read Vessel #            5
+ T,X,Y =    100.000000       1050.00000       300.000000    
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.1001E+01  0.4449E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.5555E+03  0.4410E+08  0.2436E+01 -0.3314E+01  0.1122E+01  0.4188E+00
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1122E+01  0.1000E+02  0.1121E+00  0.0000E+00
+   PRINTING FILE NO.     1  TIME/TOTAL:        1.001 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.2026E+01  0.4446E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.5555E+03  0.4411E+08  0.2525E+01 -0.4694E+01  0.9746E+00  0.5961E+00
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.9746E+00  0.9905E+01  0.9840E-01  0.0000E+00
+   PRINTING FILE NO.     2  TIME/TOTAL:        2.026 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.3044E+01  0.4416E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.5555E+03  0.4412E+08  0.2572E+01 -0.5306E+01  0.1278E+01  0.7693E+00
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1278E+01  0.9905E+01  0.1290E+00  0.0000E+00
+   PRINTING FILE NO.     3  TIME/TOTAL:        3.044 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.4009E+01  0.4363E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.5555E+03  0.4413E+08  0.2807E+01 -0.5126E+01  0.1404E+01  0.9852E+00
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1436E+01  0.9908E+01  0.1449E+00  0.0000E+00
+   PRINTING FILE NO.     4  TIME/TOTAL:        4.009 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.5002E+01  0.4254E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.5555E+03  0.4413E+08  0.2970E+01 -0.5093E+01  0.1436E+01  0.1047E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1483E+01  0.1076E+02  0.1378E+00  0.0000E+00
+   PRINTING FILE NO.     5  TIME/TOTAL:        5.002 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.6009E+01  0.4142E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.5555E+03  0.4414E+08  0.3241E+01 -0.5064E+01  0.1449E+01  0.1075E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1512E+01  0.9987E+01  0.1514E+00  0.0000E+00
+   PRINTING FILE NO.     6  TIME/TOTAL:        6.009 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.7040E+01  0.4105E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.5555E+03  0.4415E+08  0.3391E+01 -0.5041E+01  0.1449E+01  0.1093E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1540E+01  0.9939E+01  0.1549E+00  0.0000E+00
+   PRINTING FILE NO.     7  TIME/TOTAL:        7.040 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.8025E+01  0.4094E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.5555E+03  0.4416E+08  0.3424E+01 -0.5018E+01  0.1449E+01  0.1106E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1563E+01  0.9986E+01  0.1565E+00  0.0000E+00
+   PRINTING FILE NO.     8  TIME/TOTAL:        8.025 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.9008E+01  0.4099E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.5555E+03  0.4416E+08  0.3419E+01 -0.4993E+01  0.1443E+01  0.1114E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1580E+01  0.9908E+01  0.1595E+00  0.0000E+00
+   PRINTING FILE NO.     9  TIME/TOTAL:        9.008 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.1003E+02  0.4106E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.5555E+03  0.4417E+08  0.3347E+01 -0.4979E+01  0.1435E+01  0.1122E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1590E+01  0.9916E+01  0.1603E+00  0.0000E+00
+   PRINTING FILE NO.    10  TIME/TOTAL:       10.034 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.1102E+02  0.4110E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.5555E+03  0.4417E+08  0.3279E+01 -0.4960E+01  0.1428E+01  0.1126E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1598E+01  0.9940E+01  0.1608E+00  0.0000E+00
+   PRINTING FILE NO.    11  TIME/TOTAL:       11.019 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.1201E+02  0.4118E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.5555E+03  0.4418E+08  0.3238E+01 -0.4942E+01  0.1420E+01  0.1129E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1603E+01  0.1134E+02  0.1413E+00  0.0000E+00
+   PRINTING FILE NO.    12  TIME/TOTAL:       12.007 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.1304E+02  0.4111E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.5555E+03  0.4419E+08  0.3280E+01 -0.4930E+01  0.1412E+01  0.1133E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1606E+01  0.1132E+02  0.1418E+00  0.0000E+00
+   PRINTING FILE NO.    13  TIME/TOTAL:       13.037 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.1401E+02  0.4029E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.5555E+03  0.4419E+08  0.3583E+01 -0.4914E+01  0.1406E+01  0.1134E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1608E+01  0.1116E+02  0.1440E+00  0.0000E+00
+   PRINTING FILE NO.    14  TIME/TOTAL:       14.013 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.1501E+02  0.3953E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.5555E+03  0.4420E+08  0.3875E+01 -0.4900E+01  0.1399E+01  0.1135E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1609E+01  0.9905E+01  0.1624E+00  0.0000E+00
+   PRINTING FILE NO.    15  TIME/TOTAL:       15.009 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.1603E+02  0.3892E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.5555E+03  0.4421E+08  0.4111E+01 -0.4890E+01  0.1393E+01  0.1137E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1610E+01  0.9908E+01  0.1625E+00  0.0000E+00
+   PRINTING FILE NO.    16  TIME/TOTAL:       16.028 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.1703E+02  0.3840E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.5555E+03  0.4421E+08  0.4318E+01 -0.4875E+01  0.1388E+01  0.1137E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1612E+01  0.9909E+01  0.1627E+00  0.0000E+00
+   PRINTING FILE NO.    17  TIME/TOTAL:       17.032 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.1803E+02  0.3799E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.5555E+03  0.4422E+08  0.4486E+01 -0.4852E+01  0.1394E+01  0.1138E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1617E+01  0.1165E+02  0.1388E+00  0.0000E+00
+   PRINTING FILE NO.    18  TIME/TOTAL:       18.025 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.1901E+02  0.3770E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.5555E+03  0.4422E+08  0.4591E+01 -0.4766E+01  0.1461E+01  0.1139E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1648E+01  0.1186E+02  0.1389E+00  0.0000E+00
+   PRINTING FILE NO.    19  TIME/TOTAL:       19.009 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.2002E+02  0.3743E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.6223E+03  0.4422E+08  0.4701E+01 -0.4356E+01  0.1783E+01  0.1136E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1854E+01  0.1191E+02  0.1557E+00  0.0000E+00
+   PRINTING FILE NO.    20  TIME/TOTAL:       20.023 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.2103E+02  0.3726E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.6604E+03  0.4421E+08  0.4810E+01 -0.5778E+01  0.1591E+01  0.1138E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1951E+01  0.1203E+02  0.1622E+00  0.0000E+00
+   PRINTING FILE NO.    21  TIME/TOTAL:       21.031 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.2203E+02  0.3719E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.6604E+03  0.4421E+08  0.4958E+01 -0.3791E+01  0.1534E+01  0.1967E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1967E+01  0.9912E+01  0.1985E+00  0.0000E+00
+   PRINTING FILE NO.    22  TIME/TOTAL:       22.035 /      50.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.2300E+02  0.3727E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
