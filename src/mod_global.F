@@ -340,12 +340,14 @@ MODULE GLOBAL
                   OUT_Hmin=.FALSE., &
                   OUT_Umax=.FALSE.
        LOGICAL :: OUT_MFmax=.FALSE., &
-                  OUT_VORmax=.FALSE.
+                  OUT_VORmax=.FALSE., &
+                  OUT_ROLLER = .FALSE., &
+                  OUT_UNDERTOW = .FALSE.
 
        LOGICAL :: OUT_Umean=.FALSE.,OUT_Vmean=.FALSE.,&
                   OUT_ETAmean=.FALSE.,&
                   OUT_WaveHeight = .FALSE.,&
-	            OUT_WaveHeightSig = .FALSE.    !ykchoi
+	          OUT_WaveHeightSig = .FALSE.    !ykchoi
 	 
 
 
@@ -381,6 +383,7 @@ MODULE GLOBAL
 
 ! eddy viscosity breaking
         REAL(SP),DIMENSION(:,:),ALLOCATABLE :: AGE_BREAKING
+        REAL(SP),DIMENSION(:,:),ALLOCATABLE :: ROLLER_FLUX,UNDERTOW_U,UNDERTOW_V
         REAL(SP) :: Cbrk1=0.65,Cbrk2=0.35,T_brk
         ! use T_brk to judge breakers
         LOGICAL :: INI_UVZ=.FALSE.

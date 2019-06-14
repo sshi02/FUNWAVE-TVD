@@ -713,7 +713,6 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
 
          IF(BedLoad)THEN
 !  bedload
-         tmp4preview(I,J)=Tau_xy
 
           IF (tau_xy.GT.Tau_cr_bedload) THEN
              Angle_cur = ATAN2(V(I,J),U(I,J))

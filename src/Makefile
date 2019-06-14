@@ -10,16 +10,16 @@
 #--------------------------------------------------------------------------
 
 #            FLAG_1 = -DDOUBLE_PRECISION 
-             FLAG_2 = -DPARALLEL
+#             FLAG_2 = -DPARALLEL
              FLAG_3 = -DCARTESIAN
 #              FLAG_4 = -DINTEL
 #               FLAG_5 = -DCOUPLING
 #             FLAG_6 = -DZALPHA
 #              FLAG_7 = -DMANNING
-                FLAG_8 = -DVESSEL
+#                FLAG_8 = -DVESSEL
 #               FLAG_9 = -DMETEO
 #              FLAG_10 = -DWIND
-#               FLAG_11 = -DSEDIMENT
+               FLAG_11 = -DSEDIMENT
 #               FLAG_12 = -DCHECK_MASS_CONSERVATION
 #               FLAG_13 = -DDEBUG
 #               FLAG_14 = -DTMP
