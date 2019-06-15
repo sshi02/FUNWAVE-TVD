@@ -265,7 +265,8 @@ MODULE GLOBAL
         CHARACTER(LEN=80) CD_FILE
         REAL(SP),DIMENSION(:,:),ALLOCATABLE :: Cd
 
-
+        LOGICAL :: ROLLER=.FALSE.
+        REAL(SP) :: ROLLER_SWITCH 
 
 ! sponge
         REAL(SP),DIMENSION(:,:),ALLOCATABLE :: SPONGE,SpongeMaker

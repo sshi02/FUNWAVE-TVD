@@ -57,7 +57,8 @@ MODULE SEDIMENT_MODULE
   USE PARAM
   USE GLOBAL,ONLY : Mloc,Nloc,Mloc1,Nloc1,Nghost,Ibeg,Iend,Jbeg,Jend,DX,DY, &
                     H,ETA,U,V,P,Q,MinDepth,MASK,DT,Gamma3,Depth,tmp4preview, &
-                    ALPHA,BETA,MASK9,DepthX,DepthY,PERIODIC
+                    ALPHA,BETA,MASK9,DepthX,DepthY,PERIODIC, &
+                    UNDERTOW_U, UNDERTOW_V, ROLLER_SWITCH
   USE INPUT_READ
 #if defined (PARALLEL)
   USE GLOBAL,ONLY : myid,ier, npx,npy,PX,PY
@@ -534,13 +535,13 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
         IF(MASK(I-1,J)==0)THEN
           Scalx(I,J) = ZERO
         ELSE
-          Scalx(I,J) = P(I,J)*CH(I-1,J)
+          Scalx(I,J) = (P(I,J)+UNDERTOW_U(I,J)*ROLLER_SWITCH)*CH(I-1,J)
         ENDIF
       ELSE
         IF(MASK(I,J)==0)THEN
           Scalx(I,J) = ZERO
         ELSE
-          Scalx(I,J) = P(I,J)*CH(I,J)
+          Scalx(I,J) = (P(I,J)+UNDERTOW_U(I,J)*ROLLER_SWITCH)*CH(I,J)
         ENDIF
       ENDIF
      ENDDO
@@ -554,13 +555,13 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
         IF(MASK(I,J-1)==0)THEN
           Scaly(I,J) = ZERO
         ELSE
-          Scaly(I,J) = Q(I,J)*CH(I,J-1)
+          Scaly(I,J) = (Q(I,J)+UNDERTOW_V(I,J)*ROLLER_SWITCH)*CH(I,J-1)
         ENDIF
       ELSE
         IF(MASK(I,J)==0)THEN
           Scaly(I,J) = ZERO
         ELSE
-          Scaly(I,J) = Q(I,J)*CH(I,J)
+          Scaly(I,J) = (Q(I,J)+UNDERTOW_V(I,J)*ROLLER_SWITCH)*CH(I,J)
         ENDIF
       ENDIF
      ENDDO
@@ -576,13 +577,13 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
         IF(MASK(I-1,J)==0)THEN
           Scalx(I,J) = ZERO
         ELSE
-          Scalx(I,J) = P(I,J)*(Weight0*CH(I-1,J)+Weight1*CH(I,J))
+          Scalx(I,J) = (P(I,J)+UNDERTOW_U(I,J)*ROLLER_SWITCH)*(Weight0*CH(I-1,J)+Weight1*CH(I,J))
         ENDIF
       ELSE
         IF(MASK(I,J)==0)THEN
           Scalx(I,J) = ZERO
         ELSE
-          Scalx(I,J) = P(I,J)*(Weight0*CH(I,J)+Weight1*CH(I-1,J))
+          Scalx(I,J) = (P(I,J)+UNDERTOW_U(I,J)*ROLLER_SWITCH)*(Weight0*CH(I,J)+Weight1*CH(I-1,J))
         ENDIF
       ENDIF
      ENDDO
@@ -596,13 +597,15 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
         IF(MASK(I,J-1)==0)THEN
           Scaly(I,J) = ZERO
         ELSE
-          Scaly(I,J) = Q(I,J)*(Weight0*CH(I,J-1)+Weight1*CH(I,J))
+          Scaly(I,J) = (Q(I,J)+ &
+            UNDERTOW_V(I,J)*ROLLER_SWITCH)*(Weight0*CH(I,J-1)+Weight1*CH(I,J))
         ENDIF
       ELSE
         IF(MASK(I,J)==0)THEN
           Scaly(I,J) = ZERO
         ELSE
-          Scaly(I,J) = Q(I,J)*(Weight0*CH(I,J)+Weight1*CH(I,J-1))
+          Scaly(I,J) = (Q(I,J)+ &
+            UNDERTOW_V(I,J)*ROLLER_SWITCH)*(Weight0*CH(I,J)+Weight1*CH(I,J-1))
 
         ENDIF
       ENDIF
@@ -611,7 +614,7 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
 
   ENDIF
 
-! diffusion 
+! diffusion (roller effect is not included in diffusion)
 
     DO J=Jbeg,Jend
     DO I=Ibeg,Iend

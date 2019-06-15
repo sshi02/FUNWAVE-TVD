@@ -2653,6 +2653,35 @@ SUBROUTINE READ_INPUT
 # endif
        ENDIF
 
+      CALL READ_LOGICAL(ROLLER,FILE_NAME,'ROLLER_EFFECT',ierr)
+      IF(ierr==1)THEN
+        ROLLER = .FALSE.
+      ENDIF
+
+       IF(ROLLER)THEN
+         ROLLER_SWITCH = 1.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'ROLLER_EFFECT:  INCLUDED'
+         WRITE(3,'(A40)')'ROLLER_EFFECT:  INCLUDED'
+      endif
+# else
+         WRITE(*,'(A40)')'ROLLER_EFFECT:  INCLUDED'
+         WRITE(3,'(A40)')'ROLLER_EFFECT:  INCLUDED'
+# endif
+       ELSE
+         ROLLER_SWITCH = ZERO
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'ROLLER_EFFECT:  NO'
+         WRITE(3,'(A40)')'ROLLER_EFFECT:  NO'
+      endif
+# else
+         WRITE(*,'(A40)')'ROLLER_EFFECT:  NO'
+         WRITE(3,'(A40)')'ROLLER_EFFECT:  NO'
+# endif
+       ENDIF
+
     IF(IN_Cd)THEN
         CALL READ_STRING(CD_FILE,FILE_NAME,'Cd_file',ierr) 
       IF(ierr==1)THEN
