@@ -106,7 +106,8 @@ FroudeCap = 1.0
 MinDepth=0.01 
 
   ! -------------- BREAKING ----------------------------
-VISCOSITY_BREAKING = F  
+VISCOSITY_BREAKING = T
+ROLLER_EFFECT = T  
 Cbrk1 = 0.65 
 Cbrk2 = 0.35 
   ! ----------------- WAVE AVERAGE ------------------------ 
@@ -131,6 +132,8 @@ ETAmean = T
 MASK = T 
 MASK9 = F 
 WaveHeight = T
+UNDERTOW = T
+ROLLER = T
   ! ------  Sediment
 Bed_Change = T
 BedLoad = T

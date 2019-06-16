@@ -2594,7 +2594,7 @@ SUBROUTINE READ_INPUT
 
       CALL READ_LOGICAL(VISCOSITY_BREAKING,FILE_NAME,'VISCOSITY_BREAKING',ierr)
       IF(ierr==1)THEN
-        VISCOSITY_BREAKING = .FALSE.
+        VISCOSITY_BREAKING = .TRUE.
 # if defined (PARALLEL)
       if (myid.eq.0) THEN
          WRITE(*,'(A60)')'VISCOSITY_BREAKING Default:  SWE Breaking'
@@ -2605,6 +2605,8 @@ SUBROUTINE READ_INPUT
          WRITE(3,'(A60)')'VISCOSITY_BREAKING Default:  SWE Breaking'
 # endif
        ENDIF
+
+      IF(ROLLER) VISCOSITY_BREAKING = .TRUE.
 
       IF(VISCOSITY_BREAKING)THEN
 # if defined (PARALLEL)
@@ -2650,35 +2652,6 @@ SUBROUTINE READ_INPUT
 # else
          WRITE(*,'(A50)')'Friction_Matrix Default:  constant Cd'
          WRITE(3,'(A50)')'Friction_Matrix Default:  constant Cd'
-# endif
-       ENDIF
-
-      CALL READ_LOGICAL(ROLLER,FILE_NAME,'ROLLER_EFFECT',ierr)
-      IF(ierr==1)THEN
-        ROLLER = .FALSE.
-      ENDIF
-
-       IF(ROLLER)THEN
-         ROLLER_SWITCH = 1.0_SP
-# if defined (PARALLEL)
-      if (myid.eq.0) THEN
-         WRITE(*,'(A40)')'ROLLER_EFFECT:  INCLUDED'
-         WRITE(3,'(A40)')'ROLLER_EFFECT:  INCLUDED'
-      endif
-# else
-         WRITE(*,'(A40)')'ROLLER_EFFECT:  INCLUDED'
-         WRITE(3,'(A40)')'ROLLER_EFFECT:  INCLUDED'
-# endif
-       ELSE
-         ROLLER_SWITCH = ZERO
-# if defined (PARALLEL)
-      if (myid.eq.0) THEN
-         WRITE(*,'(A40)')'ROLLER_EFFECT:  NO'
-         WRITE(3,'(A40)')'ROLLER_EFFECT:  NO'
-      endif
-# else
-         WRITE(*,'(A40)')'ROLLER_EFFECT:  NO'
-         WRITE(3,'(A40)')'ROLLER_EFFECT:  NO'
 # endif
        ENDIF
 
@@ -2908,6 +2881,39 @@ SUBROUTINE READ_INPUT
       WRITE(3,*)'                                         '
       WRITE(3,*)'-------- WAVE BREAKING -----------------'   
 # endif
+
+! roller
+
+      CALL READ_LOGICAL(ROLLER,FILE_NAME,'ROLLER_EFFECT',ierr)
+      IF(ierr==1)THEN
+        ROLLER = .FALSE.
+      ENDIF
+
+       IF(ROLLER)THEN
+         ROLLER_SWITCH = 1.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'ROLLER_EFFECT:  INCLUDED'
+         WRITE(3,'(A40)')'ROLLER_EFFECT:  INCLUDED'
+      endif
+# else
+         WRITE(*,'(A40)')'ROLLER_EFFECT:  INCLUDED'
+         WRITE(3,'(A40)')'ROLLER_EFFECT:  INCLUDED'
+# endif
+       ELSE
+         ROLLER_SWITCH = ZERO
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'ROLLER_EFFECT:  NO'
+         WRITE(3,'(A40)')'ROLLER_EFFECT:  NO'
+      endif
+# else
+         WRITE(*,'(A40)')'ROLLER_EFFECT:  NO'
+         WRITE(3,'(A40)')'ROLLER_EFFECT:  NO'
+# endif
+       ENDIF
+
+! end roller
 
 ! show breaking
       CALL READ_LOGICAL(SHOW_BREAKING,FILE_NAME,'SHOW_BREAKING',ierr)
