@@ -453,7 +453,7 @@ SUBROUTINE PRESSURE_SOURCE (Xves,Yves)
 
       IF(ABS(Wves)>0.5_SP*WidthVessel(Kves)*BetaVessel(Kves).AND. &
          ABS(Wves)<0.5_SP*WidthVessel(Kves)) THEN
-          P_y = COS(PI*(Wves-0.5_SP*BetaVessel(Kves)*WidthVessel(Kves))  &
+          P_y = COS(PI*(ABS(Wves)-0.5_SP*BetaVessel(Kves)*WidthVessel(Kves))  &
                   /((1.0_SP-BetaVessel(Kves))*WidthVessel(Kves)))**2
       ELSEIF(ABS(Wves)<=0.5_SP*WidthVessel(Kves)*BetaVessel(Kves)) THEN
           P_y = 1.0_SP
