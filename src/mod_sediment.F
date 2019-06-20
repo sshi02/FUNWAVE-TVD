@@ -414,7 +414,7 @@ SUBROUTINE SEDIMENT_INITIAL
 
         Depth_ini = Depth
         ava=ZERO
-        Zs=ZERO		
+        Zs=LARGE		
         ZbOld=ZERO
         dZb=ZERO
         CH0=ZERO
@@ -517,7 +517,7 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
 
     ALLOCATE(Scalx(Mloc1,Nloc),Scaly(Mloc,Nloc1))
 
-    H=Eta*Gamma3+Depth+Zb
+    H=Eta*Gamma3+Depth
     DO J=1,Nloc
     DO I=1,Mloc
       Hpo(I,J)=MAX(H(I,J),MinDepth)
@@ -842,38 +842,28 @@ SUBROUTINE MORPHOLOGICAL_CHANGE
 # endif
                     
   IMPLICIT NONE
+  INTEGER :: VTYPE
 
-    DO J=1,Nloc
-    DO I=1,Mloc
+    DO J=Jbeg,Jend
+    DO I=Ibeg,Iend
       TotalSuspendLoad(I,J) = TotalSuspendLoad(I,J)+(-Pickup(I,J)+D(I,J))*DT
       TotalBedLoad(I,J) = TotalBedLoad(I,J)  &
                     -(BedFluxX(I+1,J)-BedFluxX(I-1,J))/2.0_SP/DX*DT  &
                     -(BedFluxY(I,J+1)-BedFluxY(I,J-1))/2.0_SP/DY*DT
+
+           ! zb: positive for erosion
+      Zb(I,J) = -(TotalSuspendLoad(I,J) + TotalBedLoad(I,J))/(1.0_SP-n_porosity)
+      IF(Zb(I,J)>Zs(I,J)) Zb(I,J)=Zs(I,J)
+ 
     ENDDO
     ENDDO
 
 ! update depth
 
-    Depth = Depth_ini - (TotalSuspendLoad + TotalBedLoad)/(1.0_SP-n_porosity)
+    Depth = Depth_ini + Zb
 
-! ghost cells
-     DO I=Ibeg,Iend
-       DO J=1,Nghost
-        Depth(I,J)=Depth(I,Jbeg)
-       ENDDO
-       DO J=Jend+1,Nloc
-        Depth(I,J)=Depth(I,Jend)
-       ENDDO
-     ENDDO
-
-     DO J=1,Nloc
-       DO I=1,Nghost
-        Depth(I,J)=Depth(Ibeg,J)
-       ENDDO
-       DO I=Iend+1,Mloc
-        Depth(I,J)=Depth(Iend,J)
-       ENDDO
-     ENDDO  
+    VTYPE=1
+    CALL PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,Depth,VTYPE,PERIODIC)
 
 ! re-construct Depth
 
