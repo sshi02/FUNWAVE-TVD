@@ -25,7 +25,7 @@ Xslp = 300.0
    ! -------------------PRINT--------------------------------- 
    ! PRINT*, 
    ! result folder 
-RESULT_FOLDER = output/ 
+RESULT_FOLDER = output_after_hotstart/ 
    ! ------------------DIMENSION----------------------------- 
    ! global grid dimension 
  Mglob = 250
@@ -34,7 +34,7 @@ RESULT_FOLDER = output/
    ! ----------------- TIME---------------------------------- 
    ! time: total computational time/ plot time / screen interval  
    ! all in seconds 
- TOTAL_TIME = 200.0 
+ TOTAL_TIME = 50.0 
  PLOT_INTV = 2.0 
  PLOT_INTV_STATION = 0.5 
  SCREEN_INTV = 2.0 
@@ -43,6 +43,15 @@ RESULT_FOLDER = output/
    ! if use spherical grid, in decimal degrees 
  DX = 2.0 
  DY = 2.0 
+  ! --------------- INITIAL UVZ ---------------------------
+  ! INI_UVZ - initial UVZ e.g., initial deformation
+  !         must provide three (3) files 
+INI_UVZ = T
+  ! if true, input eta u and v file names
+ETA_FILE = output/eta_00010
+U_FILE =  output/u_00010
+V_FILE =  output/v_00010
+HotStartTime = 20.03
    ! ----------------WAVEMAKER------------------------------ 
    !  wave maker 
    ! LEF_SOL- left boundary solitary, need AMP,DEP, LAGTIME 
@@ -126,8 +135,8 @@ NumberStations = 0
 STATIONS_FILE = gauges.txt 
   ! output variables, T=.TRUE, F = .FALSE. 
 DEPTH_OUT = T 
-U = T 
-V = T 
+U = F 
+V = F 
 ETA = T 
 Hmax = F 
 Hmin = F 

@@ -675,13 +675,6 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
     CALL PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,CH,1,PERIODIC)
 # endif
 
-!open(2,file='/Users/fengyanshi15/tmp1/tmp.txt')
-!    do j=1,nloc
-!      write(2,100)(chh(i,j),i=1,mloc)
-!    enddo
-!100 format(500f12.6)
-!close(2)
-!stop
 
 ! sources
 
@@ -861,7 +854,7 @@ SUBROUTINE MORPHOLOGICAL_CHANGE
 
 ! update depth
 
-    Depth = Depth_ini + (TotalSuspendLoad + TotalBedLoad)/(1.0_SP-n_porosity)
+    Depth = Depth_ini - (TotalSuspendLoad + TotalBedLoad)/(1.0_SP-n_porosity)
 
 ! ghost cells
      DO I=Ibeg,Iend

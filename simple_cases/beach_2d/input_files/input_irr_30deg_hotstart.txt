@@ -25,7 +25,7 @@ Xslp = 300.0
    ! -------------------PRINT--------------------------------- 
    ! PRINT*, 
    ! result folder 
-RESULT_FOLDER = output/ 
+RESULT_FOLDER = output_after_hotstart/ 
    ! ------------------DIMENSION----------------------------- 
    ! global grid dimension 
  Mglob = 250
@@ -34,7 +34,7 @@ RESULT_FOLDER = output/
    ! ----------------- TIME---------------------------------- 
    ! time: total computational time/ plot time / screen interval  
    ! all in seconds 
- TOTAL_TIME = 200.0 
+ TOTAL_TIME = 40.0 
  PLOT_INTV = 2.0 
  PLOT_INTV_STATION = 0.5 
  SCREEN_INTV = 2.0 
@@ -43,6 +43,16 @@ RESULT_FOLDER = output/
    ! if use spherical grid, in decimal degrees 
  DX = 2.0 
  DY = 2.0 
+  ! --------------- INITIAL UVZ ---------------------------
+  ! INI_UVZ - initial UVZ e.g., initial deformation
+  !         must provide three (3) files 
+INI_UVZ = T
+  ! if true, input eta u and v file names
+ETA_FILE = output/eta_00010
+U_FILE =  output/u_00010
+V_FILE =  output/v_00010
+HotStartTime = 20.06
+
    ! ----------------WAVEMAKER------------------------------ 
    !  wave maker 
    ! LEF_SOL- left boundary solitary, need AMP,DEP, LAGTIME 
@@ -58,14 +68,18 @@ RESULT_FOLDER = output/
    !                 and then use Wei and Kirby 1999  
    !          need input WaveCompFile (including 3 columns: per,amp,pha) 
    !          NumWaveComp,PeakPeriod,DEP_WK,Xc_WK,Ywidth_WK 
-WAVEMAKER = WK_REG
+WAVEMAKER = WK_IRR
 DEP_WK = 8.0 
 Xc_WK = 150.0 
 Yc_WK = 0.0 
-Tperiod = 8.0 
-AMP_WK = 0.5 
-Theta_WK = 0.0 
-Delta_WK = 3.0
+FreqPeak = 0.0833 
+FreqMin = 0.05
+FreqMax = 0.3 
+Hmo = 1.0 
+GammaTMA = 5.0 
+ThetaPeak = 30.0 
+Sigma_Theta = 10.0 
+
   ! ---------------- PERIODIC BOUNDARY CONDITION --------- 
   ! South-North periodic boundary condition 
   ! 
