@@ -446,7 +446,7 @@ SUBROUTINE PRESSURE_SOURCE (Xves,Yves)
                    /((1.0_SP-AlphaVessel1(Kves))*LengthVessel(Kves)))**2
       ELSEIF(Lves<-0.5_SP*LengthVessel(Kves)*AlphaVessel2(Kves).AND. &
          Lves>-0.5_SP*LengthVessel(Kves))THEN
-          P_x = COS(PI*(Lves-0.5_SP*AlphaVessel2(Kves)*LengthVessel(Kves))  &
+          P_x = COS(PI*(ABS(Lves)-0.5_SP*AlphaVessel2(Kves)*LengthVessel(Kves))  &
                    /((1.0_SP-AlphaVessel2(Kves))*LengthVessel(Kves)))**2
 
       ELSEIF(Lves<=0.5_SP*LengthVessel(Kves)*AlphaVessel1(Kves).AND. &
