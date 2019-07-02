@@ -662,9 +662,9 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
 
         CHH(I,J)=ALPHA(ISTEP)*CHH0(I,J)+BETA(ISTEP)*(CHH(I,J)+DT*R1(I,J))
 
+        IF(CHH(I,J)<ZERO) CHH(I,J)=ZERO
+
         CH(I,J)=CHH(I,J)/Hpo(I,J)
-
-
 
       ENDIF ! mask
 
@@ -701,8 +701,8 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
             c_a=reduction*c_b*D50/(MAX(0.01_SP*Hpo(I,J),0.01_SP))
             Pickup(I,J)=MAX(0.0_SP,c_a*WS)
 ! satuation
-            IF(Pickup(I,J)*3.0_SP*DT/Hpo(I,J)>=Satuation)  &
-               Pickup(I,J)=Satuation*Hpo(I,J)/3.0_SP/DT
+            IF(Pickup(I,J)*DT*0.3333_SP/Hpo(I,J)>=Satuation)  &
+               Pickup(I,J)=Satuation*Hpo(I,J)*3.0_SP/DT
 
           ELSE
             Pickup(I,J)=0.0_SP
