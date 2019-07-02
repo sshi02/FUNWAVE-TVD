@@ -701,7 +701,8 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
             c_a=reduction*c_b*D50/(MAX(0.01_SP*Hpo(I,J),0.01_SP))
             Pickup(I,J)=MAX(0.0_SP,c_a*WS)
 ! satuation
-            IF(Pickup(I,J)/Hpo(I,J)>=Satuation) Pickup(I,J)=Satuation*Hpo(I,J)
+            IF(Pickup(I,J)*3.0_SP*DT/Hpo(I,J)>=Satuation)  &
+               Pickup(I,J)=Satuation*Hpo(I,J)/3.0_SP/DT
 
           ELSE
             Pickup(I,J)=0.0_SP
