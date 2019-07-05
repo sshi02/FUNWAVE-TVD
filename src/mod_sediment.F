@@ -531,17 +531,18 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
      Scalx = ZERO
      DO J=Jbeg,Jend
      DO I=Ibeg,Iend+1
-      IF(P(I,J)>=0.0)THEN
+      tmp1=P(I,J)+0.5_SP*(UNDERTOW_U(I-1,J)+UNDERTOW_U(I,J))*ROLLER_SWITCH
+      IF(tmp1>=0.0)THEN
         IF(MASK(I-1,J)==0)THEN
           Scalx(I,J) = ZERO
         ELSE
-          Scalx(I,J) = (P(I,J)+UNDERTOW_U(I,J)*ROLLER_SWITCH)*CH(I-1,J)
+          Scalx(I,J) = tmp1*CH(I-1,J)
         ENDIF
       ELSE
         IF(MASK(I,J)==0)THEN
           Scalx(I,J) = ZERO
         ELSE
-          Scalx(I,J) = (P(I,J)+UNDERTOW_U(I,J)*ROLLER_SWITCH)*CH(I,J)
+          Scalx(I,J) = tmp1*CH(I,J)
         ENDIF
       ENDIF
      ENDDO
@@ -551,17 +552,18 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
      Scaly = ZERO
      DO J=Jbeg,Jend+1
      DO I=Ibeg,Iend
-      IF(Q(I,J)>=0.0)THEN
+      tmp2=Q(I,J)+0.5_SP*(UNDERTOW_V(I,J-1)+UNDERTOW_V(I,J))*ROLLER_SWITCH
+      IF(tmp2>=0.0)THEN
         IF(MASK(I,J-1)==0)THEN
           Scaly(I,J) = ZERO
         ELSE
-          Scaly(I,J) = (Q(I,J)+UNDERTOW_V(I,J)*ROLLER_SWITCH)*CH(I,J-1)
+          Scaly(I,J) = tmp2*CH(I,J-1)
         ENDIF
       ELSE
         IF(MASK(I,J)==0)THEN
           Scaly(I,J) = ZERO
         ELSE
-          Scaly(I,J) = (Q(I,J)+UNDERTOW_V(I,J)*ROLLER_SWITCH)*CH(I,J)
+          Scaly(I,J) = tmp2*CH(I,J)
         ENDIF
       ENDIF
      ENDDO
@@ -573,17 +575,18 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
      Scalx = ZERO
      DO J=Jbeg,Jend
      DO I=Ibeg,Iend+1
-      IF(P(I,J)>=ZERO)THEN
+      tmp1=P(I,J)+0.5_SP*(UNDERTOW_U(I-1,J)+UNDERTOW_U(I,J))*ROLLER_SWITCH
+      IF(tmp1>=ZERO)THEN
         IF(MASK(I-1,J)==0)THEN
           Scalx(I,J) = ZERO
         ELSE
-          Scalx(I,J) = (P(I,J)+UNDERTOW_U(I,J)*ROLLER_SWITCH)*(Weight0*CH(I-1,J)+Weight1*CH(I,J))
+          Scalx(I,J) = tmp1*(Weight0*CH(I-1,J)+Weight1*CH(I,J))
         ENDIF
       ELSE
         IF(MASK(I,J)==0)THEN
           Scalx(I,J) = ZERO
         ELSE
-          Scalx(I,J) = (P(I,J)+UNDERTOW_U(I,J)*ROLLER_SWITCH)*(Weight0*CH(I,J)+Weight1*CH(I-1,J))
+          Scalx(I,J) = tmp1*(Weight0*CH(I,J)+Weight1*CH(I-1,J))
         ENDIF
       ENDIF
      ENDDO
@@ -593,19 +596,18 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
      Scaly = ZERO
      DO J=Jbeg,Jend+1
      DO I=Ibeg,Iend
-      IF(Q(I,J)>=ZERO)THEN
+      tmp2=Q(I,J)+0.5_SP*(UNDERTOW_V(I,J-1)+UNDERTOW_V(I,J))*ROLLER_SWITCH
+      IF(tmp2>=ZERO)THEN
         IF(MASK(I,J-1)==0)THEN
           Scaly(I,J) = ZERO
         ELSE
-          Scaly(I,J) = (Q(I,J)+ &
-            UNDERTOW_V(I,J)*ROLLER_SWITCH)*(Weight0*CH(I,J-1)+Weight1*CH(I,J))
+          Scaly(I,J) = tmp2*(Weight0*CH(I,J-1)+Weight1*CH(I,J))
         ENDIF
       ELSE
         IF(MASK(I,J)==0)THEN
           Scaly(I,J) = ZERO
         ELSE
-          Scaly(I,J) = (Q(I,J)+ &
-            UNDERTOW_V(I,J)*ROLLER_SWITCH)*(Weight0*CH(I,J)+Weight1*CH(I,J-1))
+          Scaly(I,J) = tmp2*(Weight0*CH(I,J)+Weight1*CH(I,J-1))
 
         ENDIF
       ENDIF

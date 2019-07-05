@@ -149,8 +149,8 @@ SUBROUTINE BREAKING(M,N,ETAx,ETAy,ETAT,Cbrk1,Cbrk2,H,MinDepthFrc,&
       IF(AGE(I,J).GT.ZERO)THEN
         AGE(I,J)=AGE(I,J)+DT
       ELSE
-        tmp1=MAX(SQRT(ETAx(I,J)*ETAx(I,J)+ETAy(I,J)*ETAy(I,J)),SMALL)
-        C=MIN(ABS(ETAt(I,J))/tmp1,SQRT(GRAV*ABS(H(I,J))))
+        tmp4=MAX(SQRT(ETAx(I,J)*ETAx(I,J)+ETAy(I,J)*ETAy(I,J)),SMALL)
+        C=MIN(ABS(ETAt(I,J))/tmp4,SQRT(GRAV*ABS(H(I,J))))
 ! propagation time between a dx, dy and ds
 # if defined (CARTESIAN)
         DXg=DX
@@ -316,8 +316,8 @@ SUBROUTINE BREAKING(M,N,ETAx,ETAy,ETAT,Cbrk1,Cbrk2,H,MinDepthFrc,&
 !    R is limited by angle =20deg, schaffer et al 1993
 !    which gives R = 0.1638
 !
-!         C1=MIN(ABS(ETAt(I,J))/tmp1,SQRT(GRAV*ABS(H(I,J))))
-         C1=MAX(ABS(ETAt(I,J))/tmp1,SQRT(GRAV*ABS(H(I,J))))
+!         C1=MIN(ABS(ETAt(I,J))/tmp4,SQRT(GRAV*ABS(H(I,J))))
+         C1=MAX(ABS(ETAt(I,J))/tmp4,SQRT(GRAV*ABS(H(I,J))))
          R=ABS(0.45*ETAt(I,J)/MAX(C1,SMALL))
 !         tmp4preview(I,J) = ETAt(I,J)
          R=MIN(R,0.1638_SP)  
