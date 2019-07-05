@@ -76,7 +76,7 @@ MODULE SEDIMENT_MODULE
     LOGICAL :: BedLoad = .FALSE.
 
     INTEGER :: Counter_s=0, Counter_ava=0
-    INTEGER :: Morph_step,c_dum
+    INTEGER :: Morph_step,c_dum,Morph_factor
 
     REAL(SP):: PLOT_INTV_SEDIMENT,PLOT_COUNT_SEDIMENT
 
@@ -284,6 +284,21 @@ SUBROUTINE SEDIMENT_INITIAL
 # else
          WRITE(*,'(A60)')'You dont specify Morph_step, use default: 25'
          WRITE(3,'(A60)')'You dont specify Morph_step, use default: 25'
+# endif
+      ENDIF
+
+      CALL READ_INTEGER(Morph_factor,FILE_NAME,'Morph_factor',ierr)
+
+      IF(ierr==1)THEN
+        Morph_factor = 1
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'You dont specify Morph_factor, use default: 1'
+         WRITE(3,'(A60)')'You dont specify Morph_factor, use default: 1'
+      endif
+# else
+         WRITE(*,'(A60)')'You dont specify Morph_factor, use default: 1'
+         WRITE(3,'(A60)')'You dont specify Morph_factor, use default: 1'
 # endif
       ENDIF
 
@@ -863,7 +878,7 @@ SUBROUTINE MORPHOLOGICAL_CHANGE
 
 ! update depth
 
-    Depth = Depth_ini + Zb
+    Depth = Depth_ini + Zb*Morph_factor
 
     VTYPE=1
     CALL PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,Depth,VTYPE,PERIODIC)
