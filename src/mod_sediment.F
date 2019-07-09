@@ -57,7 +57,8 @@ MODULE SEDIMENT_MODULE
   USE PARAM
   USE GLOBAL,ONLY : Mloc,Nloc,Mloc1,Nloc1,Nghost,Ibeg,Iend,Jbeg,Jend,DX,DY, &
                     H,ETA,U,V,P,Q,MinDepth,MASK,DT,Gamma3,Depth,tmp4preview, &
-                    ALPHA,BETA,MASK9,DepthX,DepthY,PERIODIC
+                    ALPHA,BETA,MASK9,DepthX,DepthY,PERIODIC, &
+                    UNDERTOW_U, UNDERTOW_V, ROLLER_SWITCH
   USE INPUT_READ
 #if defined (PARALLEL)
   USE GLOBAL,ONLY : myid,ier, npx,npy,PX,PY
@@ -75,7 +76,7 @@ MODULE SEDIMENT_MODULE
     LOGICAL :: BedLoad = .FALSE.
 
     INTEGER :: Counter_s=0, Counter_ava=0
-    INTEGER :: Morph_step,c_dum
+    INTEGER :: Morph_step,c_dum,Morph_factor
 
     REAL(SP):: PLOT_INTV_SEDIMENT,PLOT_COUNT_SEDIMENT
 
@@ -286,6 +287,21 @@ SUBROUTINE SEDIMENT_INITIAL
 # endif
       ENDIF
 
+      CALL READ_INTEGER(Morph_factor,FILE_NAME,'Morph_factor',ierr)
+
+      IF(ierr==1)THEN
+        Morph_factor = 1
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'You dont specify Morph_factor, use default: 1'
+         WRITE(3,'(A60)')'You dont specify Morph_factor, use default: 1'
+      endif
+# else
+         WRITE(*,'(A60)')'You dont specify Morph_factor, use default: 1'
+         WRITE(3,'(A60)')'You dont specify Morph_factor, use default: 1'
+# endif
+      ENDIF
+
       CALL READ_LOGICAL(Avalanche,FILE_NAME,'Avalanche',ierr)
       IF(ierr == 1)THEN
        Avalanche = .FALSE. 
@@ -413,7 +429,7 @@ SUBROUTINE SEDIMENT_INITIAL
 
         Depth_ini = Depth
         ava=ZERO
-        Zs=ZERO		
+        Zs=LARGE		
         ZbOld=ZERO
         dZb=ZERO
         CH0=ZERO
@@ -516,7 +532,7 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
 
     ALLOCATE(Scalx(Mloc1,Nloc),Scaly(Mloc,Nloc1))
 
-    H=Eta*Gamma3+Depth+Zb
+    H=Eta*Gamma3+Depth
     DO J=1,Nloc
     DO I=1,Mloc
       Hpo(I,J)=MAX(H(I,J),MinDepth)
@@ -530,17 +546,18 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
      Scalx = ZERO
      DO J=Jbeg,Jend
      DO I=Ibeg,Iend+1
-      IF(P(I,J)>=0.0)THEN
+      tmp1=P(I,J)+0.5_SP*(UNDERTOW_U(I-1,J)+UNDERTOW_U(I,J))*ROLLER_SWITCH
+      IF(tmp1>=0.0)THEN
         IF(MASK(I-1,J)==0)THEN
           Scalx(I,J) = ZERO
         ELSE
-          Scalx(I,J) = P(I,J)*CH(I-1,J)
+          Scalx(I,J) = tmp1*CH(I-1,J)
         ENDIF
       ELSE
         IF(MASK(I,J)==0)THEN
           Scalx(I,J) = ZERO
         ELSE
-          Scalx(I,J) = P(I,J)*CH(I,J)
+          Scalx(I,J) = tmp1*CH(I,J)
         ENDIF
       ENDIF
      ENDDO
@@ -550,17 +567,18 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
      Scaly = ZERO
      DO J=Jbeg,Jend+1
      DO I=Ibeg,Iend
-      IF(Q(I,J)>=0.0)THEN
+      tmp2=Q(I,J)+0.5_SP*(UNDERTOW_V(I,J-1)+UNDERTOW_V(I,J))*ROLLER_SWITCH
+      IF(tmp2>=0.0)THEN
         IF(MASK(I,J-1)==0)THEN
           Scaly(I,J) = ZERO
         ELSE
-          Scaly(I,J) = Q(I,J)*CH(I,J-1)
+          Scaly(I,J) = tmp2*CH(I,J-1)
         ENDIF
       ELSE
         IF(MASK(I,J)==0)THEN
           Scaly(I,J) = ZERO
         ELSE
-          Scaly(I,J) = Q(I,J)*CH(I,J)
+          Scaly(I,J) = tmp2*CH(I,J)
         ENDIF
       ENDIF
      ENDDO
@@ -572,17 +590,18 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
      Scalx = ZERO
      DO J=Jbeg,Jend
      DO I=Ibeg,Iend+1
-      IF(P(I,J)>=ZERO)THEN
+      tmp1=P(I,J)+0.5_SP*(UNDERTOW_U(I-1,J)+UNDERTOW_U(I,J))*ROLLER_SWITCH
+      IF(tmp1>=ZERO)THEN
         IF(MASK(I-1,J)==0)THEN
           Scalx(I,J) = ZERO
         ELSE
-          Scalx(I,J) = P(I,J)*(Weight0*CH(I-1,J)+Weight1*CH(I,J))
+          Scalx(I,J) = tmp1*(Weight0*CH(I-1,J)+Weight1*CH(I,J))
         ENDIF
       ELSE
         IF(MASK(I,J)==0)THEN
           Scalx(I,J) = ZERO
         ELSE
-          Scalx(I,J) = P(I,J)*(Weight0*CH(I,J)+Weight1*CH(I-1,J))
+          Scalx(I,J) = tmp1*(Weight0*CH(I,J)+Weight1*CH(I-1,J))
         ENDIF
       ENDIF
      ENDDO
@@ -592,17 +611,18 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
      Scaly = ZERO
      DO J=Jbeg,Jend+1
      DO I=Ibeg,Iend
-      IF(Q(I,J)>=ZERO)THEN
+      tmp2=Q(I,J)+0.5_SP*(UNDERTOW_V(I,J-1)+UNDERTOW_V(I,J))*ROLLER_SWITCH
+      IF(tmp2>=ZERO)THEN
         IF(MASK(I,J-1)==0)THEN
           Scaly(I,J) = ZERO
         ELSE
-          Scaly(I,J) = Q(I,J)*(Weight0*CH(I,J-1)+Weight1*CH(I,J))
+          Scaly(I,J) = tmp2*(Weight0*CH(I,J-1)+Weight1*CH(I,J))
         ENDIF
       ELSE
         IF(MASK(I,J)==0)THEN
           Scaly(I,J) = ZERO
         ELSE
-          Scaly(I,J) = Q(I,J)*(Weight0*CH(I,J)+Weight1*CH(I,J-1))
+          Scaly(I,J) = tmp2*(Weight0*CH(I,J)+Weight1*CH(I,J-1))
 
         ENDIF
       ENDIF
@@ -611,7 +631,7 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
 
   ENDIF
 
-! diffusion 
+! diffusion (roller effect is not included in diffusion)
 
     DO J=Jbeg,Jend
     DO I=Ibeg,Iend
@@ -659,9 +679,9 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
 
         CHH(I,J)=ALPHA(ISTEP)*CHH0(I,J)+BETA(ISTEP)*(CHH(I,J)+DT*R1(I,J))
 
+        IF(CHH(I,J)<ZERO) CHH(I,J)=ZERO
+
         CH(I,J)=CHH(I,J)/Hpo(I,J)
-
-
 
       ENDIF ! mask
 
@@ -672,13 +692,6 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
     CALL PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,CH,1,PERIODIC)
 # endif
 
-!open(2,file='/Users/fengyanshi15/tmp1/tmp.txt')
-!    do j=1,nloc
-!      write(2,100)(chh(i,j),i=1,mloc)
-!    enddo
-!100 format(500f12.6)
-!close(2)
-!stop
 
 ! sources
 
@@ -705,7 +718,8 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
             c_a=reduction*c_b*D50/(MAX(0.01_SP*Hpo(I,J),0.01_SP))
             Pickup(I,J)=MAX(0.0_SP,c_a*WS)
 ! satuation
-            IF(Pickup(I,J)/Hpo(I,J)>=Satuation) Pickup(I,J)=Satuation*Hpo(I,J)
+            IF(Pickup(I,J)*DT*0.3333_SP/Hpo(I,J)>=Satuation)  &
+               Pickup(I,J)=Satuation*Hpo(I,J)*3.0_SP/DT
 
           ELSE
             Pickup(I,J)=0.0_SP
@@ -713,7 +727,6 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
 
          IF(BedLoad)THEN
 !  bedload
-         tmp4preview(I,J)=Tau_xy
 
           IF (tau_xy.GT.Tau_cr_bedload) THEN
              Angle_cur = ATAN2(V(I,J),U(I,J))
@@ -847,38 +860,28 @@ SUBROUTINE MORPHOLOGICAL_CHANGE
 # endif
                     
   IMPLICIT NONE
+  INTEGER :: VTYPE
 
-    DO J=1,Nloc
-    DO I=1,Mloc
+    DO J=Jbeg,Jend
+    DO I=Ibeg,Iend
       TotalSuspendLoad(I,J) = TotalSuspendLoad(I,J)+(-Pickup(I,J)+D(I,J))*DT
       TotalBedLoad(I,J) = TotalBedLoad(I,J)  &
                     -(BedFluxX(I+1,J)-BedFluxX(I-1,J))/2.0_SP/DX*DT  &
                     -(BedFluxY(I,J+1)-BedFluxY(I,J-1))/2.0_SP/DY*DT
+
+           ! zb: positive for erosion
+      Zb(I,J) = -(TotalSuspendLoad(I,J) + TotalBedLoad(I,J))/(1.0_SP-n_porosity)
+      IF(Zb(I,J)>Zs(I,J)) Zb(I,J)=Zs(I,J)
+ 
     ENDDO
     ENDDO
 
 ! update depth
 
-    Depth = Depth_ini + (TotalSuspendLoad + TotalBedLoad)/(1.0_SP-n_porosity)
+    Depth = Depth_ini + Zb*Morph_factor
 
-! ghost cells
-     DO I=Ibeg,Iend
-       DO J=1,Nghost
-        Depth(I,J)=Depth(I,Jbeg)
-       ENDDO
-       DO J=Jend+1,Nloc
-        Depth(I,J)=Depth(I,Jend)
-       ENDDO
-     ENDDO
-
-     DO J=1,Nloc
-       DO I=1,Nghost
-        Depth(I,J)=Depth(Ibeg,J)
-       ENDDO
-       DO I=Iend+1,Mloc
-        Depth(I,J)=Depth(Iend,J)
-       ENDDO
-     ENDDO  
+    VTYPE=1
+    CALL PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,Depth,VTYPE,PERIODIC)
 
 ! re-construct Depth
 

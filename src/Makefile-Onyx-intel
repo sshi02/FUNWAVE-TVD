@@ -1,7 +1,7 @@
 #-----------BEGIN MAKEFILE-------------------------------------------------
             SHELL         = /bin/sh
             DEF_FLAGS     = -P -traditional 
-            EXEC          = funwave_intel
+            EXEC          = funwave_central
 #==========================================================================
 #--------------------------------------------------------------------------
 #        PRECISION          DEFAULT PRECISION: SINGLE                     
@@ -75,8 +75,7 @@ MODS  = mod_param.F	mod_global.F	mod_input.F mod_vessel.F  mod_bathy_correction.
 MAIN  = main.F bc.F fluxes.F init.F io.F tridiagnal.F       \
         breaker.F derivatives.F dispersion.F etauv_solver.F \
         sponge.F sources.F masks.F parallel.F statistics.F  \
-        wavemaker.F mixing.F nesting.F misc.F samples.F\
-	sediment.F \
+        wavemaker.F mixing.F nesting.F misc.F samples.F
 
 SRCS = $(MODS)  $(MAIN)
 

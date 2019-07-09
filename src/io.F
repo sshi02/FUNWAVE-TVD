@@ -2594,7 +2594,7 @@ SUBROUTINE READ_INPUT
 
       CALL READ_LOGICAL(VISCOSITY_BREAKING,FILE_NAME,'VISCOSITY_BREAKING',ierr)
       IF(ierr==1)THEN
-        VISCOSITY_BREAKING = .FALSE.
+        VISCOSITY_BREAKING = .TRUE.
 # if defined (PARALLEL)
       if (myid.eq.0) THEN
          WRITE(*,'(A60)')'VISCOSITY_BREAKING Default:  SWE Breaking'
@@ -2605,6 +2605,8 @@ SUBROUTINE READ_INPUT
          WRITE(3,'(A60)')'VISCOSITY_BREAKING Default:  SWE Breaking'
 # endif
        ENDIF
+
+      IF(ROLLER) VISCOSITY_BREAKING = .TRUE.
 
       IF(VISCOSITY_BREAKING)THEN
 # if defined (PARALLEL)
@@ -2879,6 +2881,39 @@ SUBROUTINE READ_INPUT
       WRITE(3,*)'                                         '
       WRITE(3,*)'-------- WAVE BREAKING -----------------'   
 # endif
+
+! roller
+
+      CALL READ_LOGICAL(ROLLER,FILE_NAME,'ROLLER_EFFECT',ierr)
+      IF(ierr==1)THEN
+        ROLLER = .FALSE.
+      ENDIF
+
+       IF(ROLLER)THEN
+         ROLLER_SWITCH = 1.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'ROLLER_EFFECT:  INCLUDED'
+         WRITE(3,'(A40)')'ROLLER_EFFECT:  INCLUDED'
+      endif
+# else
+         WRITE(*,'(A40)')'ROLLER_EFFECT:  INCLUDED'
+         WRITE(3,'(A40)')'ROLLER_EFFECT:  INCLUDED'
+# endif
+       ELSE
+         ROLLER_SWITCH = ZERO
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'ROLLER_EFFECT:  NO'
+         WRITE(3,'(A40)')'ROLLER_EFFECT:  NO'
+      endif
+# else
+         WRITE(*,'(A40)')'ROLLER_EFFECT:  NO'
+         WRITE(3,'(A40)')'ROLLER_EFFECT:  NO'
+# endif
+       ENDIF
+
+! end roller
 
 ! show breaking
       CALL READ_LOGICAL(SHOW_BREAKING,FILE_NAME,'SHOW_BREAKING',ierr)
@@ -3232,6 +3267,8 @@ SUBROUTINE READ_INPUT
       CALL READ_LOGICAL(OUT_Gx,FILE_NAME,'Gx',ierr)
       CALL READ_LOGICAL(OUT_Gy,FILE_NAME,'Gy',ierr)
       CALL READ_LOGICAL(OUT_AGE,FILE_NAME,'AGE',ierr)
+      CALL READ_LOGICAL(OUT_ROLLER,FILE_NAME,'ROLLER',ierr)
+      CALL READ_LOGICAL(OUT_UNDERTOW,FILE_NAME,'UNDERTOW',ierr)
       CALL READ_LOGICAL(OUT_NU,FILE_NAME,'OUT_NU',ierr)
       CALL READ_LOGICAL(OUT_TMP,FILE_NAME,'TMP',ierr)
 
@@ -3283,6 +3320,8 @@ SUBROUTINE READ_INPUT
       WRITE(3,'(A15,L2)')'OUT_Gx',OUT_Gx
       WRITE(3,'(A15,L2)')'OUT_Gy',OUT_Gy
       WRITE(3,'(A15,L2)')'OUT_AGE',OUT_AGE
+      WRITE(3,'(A15,L2)')'OUT_ROLLER',OUT_ROLLER
+      WRITE(3,'(A15,L2)')'OUT_UNDERTOW',OUT_UNDERTOW
       WRITE(3,'(A15,L2)')'OUT_NU',OUT_NU
       WRITE(3,'(A15,L2)')'OUT_TMP',OUT_TMP
 # if defined (PARALLEL)
@@ -3782,6 +3821,18 @@ SUBROUTINE PREVIEW
         TMP_NAME = TRIM(FDIR)//'age_'//TRIM(FILE_NAME)
          call PutFile(TMP_NAME,AGE_BREAKING)
       ENDIF
+     ENDIF
+
+     IF(OUT_ROLLER)THEN
+        TMP_NAME = TRIM(FDIR)//'roller_'//TRIM(FILE_NAME)
+         call PutFile(TMP_NAME,ROLLER_FLUX)
+     ENDIF
+
+     IF(OUT_UNDERTOW)THEN
+        TMP_NAME = TRIM(FDIR)//'U_undertow_'//TRIM(FILE_NAME)
+         call PutFile(TMP_NAME,UNDERTOW_U)
+        TMP_NAME = TRIM(FDIR)//'V_undertow_'//TRIM(FILE_NAME)
+         call PutFile(TMP_NAME,UNDERTOW_V)
      ENDIF
 
       IF(VISCOSITY_BREAKING)THEN

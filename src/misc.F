@@ -310,7 +310,7 @@ SUBROUTINE MAX_MIN_PROPERTY
     USE METEO_MODULE
 # endif
     IMPLICIT NONE
-    REAL(SP) :: maxv, MaxAbsEta
+    REAL(SP) :: maxv, MaxAbsEta,omega_0
 
       DO J=1,Nloc
       DO I=1,Mloc
@@ -347,6 +347,23 @@ SUBROUTINE MAX_MIN_PROPERTY
 
       ENDDO
       ENDDO
+
+      IF(OUT_VORmax) THEN
+# if defined (CARTESIAN)
+   ! the vorticity has been calculated in dispersion.F
+# else
+     CALL DERIVATIVE_X(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,MASK9,DX,V,Vx)
+     CALL DERIVATIVE_Y(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,MASK9,DY,U,Uy)
+     DO J=Jbeg,Jend
+     DO I=Ibeg,Iend
+        omega_0=ABS(Vx(I,J)-Uy(I,J))
+        IF(omega_0.GT.VorticityMax(I,J)) THEN
+          VorticityMax(I,J)=omega_0
+        ENDIF
+     ENDDO
+     ENDDO
+# endif
+      ENDIF ! max vorticity
 
 # if defined (PARALLEL)
       IF(OUT_VORmax) THEN

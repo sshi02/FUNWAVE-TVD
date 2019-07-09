@@ -1,7 +1,7 @@
 #-----------BEGIN MAKEFILE-------------------------------------------------
             SHELL         = /bin/sh
             DEF_FLAGS     = -P -traditional 
-            EXEC          = funwave_ves_sed
+            EXEC          = funwave_vessel
 #==========================================================================
 #--------------------------------------------------------------------------
 #        PRECISION          DEFAULT PRECISION: SINGLE                     
@@ -18,7 +18,7 @@
 #             FLAG_8 = -DCOUPLING
 #             FLAG_9 = -DZALPHA
 #             FLAG_10 = -DMANNING
-	      FLAG_11 = -DSEDIMENT
+#	      FLAG_11 = -DSEDIMENT
 #	      FLAG_12 = -DCHECK_MASS_CONSERVATION
 #	      FLAG_13 = -DWIND
 #	      FLAG_14 = -DMETEO
@@ -41,7 +41,7 @@
 #--------------------------------------------------------------------------
 #  CAT Preprocessing Flags
 #--------------------------------------------------------------------------
-           CPPARGS = $(CPPFLAGS) $(DEF_FLAGS) $(FLAG_1) $(FLAG_2) \
+           CPPARGS = $(CPPFLAGS) $(FLAG_1) $(FLAG_2) \
 			$(FLAG_3) $(FLAG_4) $(FLAG_5) $(FLAG_6) \
 			$(FLAG_7) $(FLAG_8) $(FLAG_9) $(FLAG_10)  \
 			$(FLAG_11) $(FLAG_12) $(FLAG_13) $(FLAG_14) \
@@ -70,7 +70,7 @@
 #--------------------------------------------------------------------------
 
 MODS  = mod_param.F	mod_global.F	mod_input.F mod_vessel.F  mod_bathy_correction.F \
-        mod_parallel_field_io.F mod_meteo.F mod_sediment.F
+        mod_parallel_field_io.F mod_meteo.F mod_sediment.F mod_tracer.F
 
 MAIN  = main.F bc.F fluxes.F init.F io.F tridiagnal.F       \
         breaker.F derivatives.F dispersion.F etauv_solver.F \

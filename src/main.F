@@ -361,9 +361,6 @@ Program FUNWAVE_TVD
 
 # if defined (SEDIMENT)
      CALL SEDIMENT_ADVECTION_DIFFUSION(ISTAGE) 
-     IF(Bed_Change)THEN
-       CALL MORPHOLOGICAL_CHANGE
-     ENDIF
 # endif
 
        CALL WAVE_BREAKING
@@ -404,6 +401,13 @@ Program FUNWAVE_TVD
        ENDIF
 
      ENDDO
+
+# if defined (SEDIMENT)
+!   moved out of the RK loop 07/02/2019
+     IF(Bed_Change)THEN
+       CALL MORPHOLOGICAL_CHANGE
+     ENDIF
+# endif
 
      CALL MIXING_STUFF
 

@@ -218,11 +218,14 @@ SUBROUTINE VESSEL_INITIAL
                       BetaVessel(Kves),Pvessel(Kves)
 !                for type 2 divid and volker 2017, alpha1 is cl,alpha2 is cb
 !                beta is a
-          IF(VesselType(Kves)==2)THEN
-            IF(AlphaVessel1(Kves)<16.0_SP)AlphaVessel1(Kves)=16.0_SP
-            IF(AlphaVessel2(Kves)<2.0_SP)AlphaVessel2(Kves)=2.0_SP
-            IF(BetaVessel(Kves)<16.0_SP)BetaVessel(Kves) = 16.0_SP
-          ENDIF
+
+!   I remove the following protection, but will figure out how to avoid 
+!   some crazy parameters
+!          IF(VesselType(Kves)==2)THEN
+!            IF(AlphaVessel1(Kves)<16.0_SP)AlphaVessel1(Kves)=16.0_SP
+!            IF(AlphaVessel2(Kves)<2.0_SP)AlphaVessel2(Kves)=2.0_SP
+!            IF(BetaVessel(Kves)<16.0_SP)BetaVessel(Kves) = 16.0_SP
+!          ENDIF
 
          IF(VesselType(Kves)==1)THEN
             AlphaVessel1(Kves) = Max(SMALL, AlphaVessel1(Kves))
@@ -443,7 +446,7 @@ SUBROUTINE PRESSURE_SOURCE (Xves,Yves)
                    /((1.0_SP-AlphaVessel1(Kves))*LengthVessel(Kves)))**2
       ELSEIF(Lves<-0.5_SP*LengthVessel(Kves)*AlphaVessel2(Kves).AND. &
          Lves>-0.5_SP*LengthVessel(Kves))THEN
-          P_x = COS(PI*(Lves-0.5_SP*AlphaVessel2(Kves)*LengthVessel(Kves))  &
+          P_x = COS(PI*(ABS(Lves)-0.5_SP*AlphaVessel2(Kves)*LengthVessel(Kves))  &
                    /((1.0_SP-AlphaVessel2(Kves))*LengthVessel(Kves)))**2
 
       ELSEIF(Lves<=0.5_SP*LengthVessel(Kves)*AlphaVessel1(Kves).AND. &
@@ -453,7 +456,7 @@ SUBROUTINE PRESSURE_SOURCE (Xves,Yves)
 
       IF(ABS(Wves)>0.5_SP*WidthVessel(Kves)*BetaVessel(Kves).AND. &
          ABS(Wves)<0.5_SP*WidthVessel(Kves)) THEN
-          P_y = COS(PI*(Wves-0.5_SP*BetaVessel(Kves)*WidthVessel(Kves))  &
+          P_y = COS(PI*(ABS(Wves)-0.5_SP*BetaVessel(Kves)*WidthVessel(Kves))  &
                   /((1.0_SP-BetaVessel(Kves))*WidthVessel(Kves)))**2
       ELSEIF(ABS(Wves)<=0.5_SP*WidthVessel(Kves)*BetaVessel(Kves)) THEN
           P_y = 1.0_SP

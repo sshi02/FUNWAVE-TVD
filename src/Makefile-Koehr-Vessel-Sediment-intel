@@ -10,7 +10,7 @@
 
 #            FLAG_1 = -DDOUBLE_PRECISION 
             FLAG_2 = -DPARALLEL
-#            FLAG_3 = -DSAMPLES
+            FLAG_3 = -DSAMPLES
             FLAG_4 = -DCARTESIAN
 	    FLAG_5 = -DVESSEL
             FLAG_6 = -DINTEL
@@ -19,7 +19,7 @@
 #             FLAG_9 = -DZALPHA
 #             FLAG_10 = -DMANNING
 	      FLAG_11 = -DSEDIMENT
-#	      FLAG_12 = -DCHECK_MASS_CONSERVATION
+	      FLAG_12 = -DCHECK_MASS_CONSERVATION
 #	      FLAG_13 = -DWIND
 #	      FLAG_14 = -DMETEO
 
@@ -28,16 +28,16 @@
 #--------------------------------------------------------------------------
          CPP      = /usr/bin/cpp 
          CPPFLAGS = $(DEF_FLAGS)
-         FC       = ftn
+         FC       = ifort
          DEBFLGS  = 
          OPT      = 
          CLIB     = 
 #==========================================================================
 
-         FFLAGS = $(DEBFLGS) $(OPT) #-fPIC -g -O2
+         FFLAGS = $(DEBFLGS) $(OPT) -fPIC
          MDEPFLAGS = --cpp --fext=f90 --file=-
          RANLIB = ranlib
-	 MPILIB = 
+	 MPILIB = -lmpi
 #--------------------------------------------------------------------------
 #  CAT Preprocessing Flags
 #--------------------------------------------------------------------------
@@ -70,18 +70,21 @@
 #--------------------------------------------------------------------------
 
 MODS  = mod_param.F	mod_global.F	mod_input.F mod_vessel.F  mod_bathy_correction.F \
-        mod_parallel_field_io.F mod_meteo.F mod_sediment.F
+        mod_parallel_field_io.F mod_meteo.F mod_sediment.F mod_tracer.F
 
 MAIN  = main.F bc.F fluxes.F init.F io.F tridiagnal.F       \
         breaker.F derivatives.F dispersion.F etauv_solver.F \
-        sponge.F sources.F masks.F parallel.F statistics.F \
-        wavemaker.F mixing.F nesting.F misc.F samples.F\
+        sponge.F sources.F masks.F parallel.F statistics.F  \
+        wavemaker.F mixing.F nesting.F misc.F samples.F
 
 SRCS = $(MODS)  $(MAIN)
 
 OBJS = $(SRCS:.F=.o)
 
 #--------------------------------------------------------------------------
+
+
+
 #  Linking Directives               
 #--------------------------------------------------------------------------
 
