@@ -191,7 +191,7 @@ SUBROUTINE CHECK_STATISTICS( val )
        WRITE(*,*) 'NaN detected in statistics, stopping simulation!'
        WRITE(3,*) 'NaN detected in statistics, stopping simulation!'
 
- #if defined (PARALLEL)
+#if defined (PARALLEL)
        CALL MPI_ABORT( MPI_COMM_WORLD , 9 , ier)
 #endif
        STOP
