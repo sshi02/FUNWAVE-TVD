@@ -2657,7 +2657,7 @@ SUBROUTINE READ_INPUT
 # endif
       ENDIF
 
-      CALL READ_LOGICAL(IN_Cd,FILE_NAME,'Friction_Matrix',ierr)
+      CALL READ_LOGICAL(IN_Cd,FILE_NAME,'FRICTION_MATRIX',ierr)
       IF(ierr==1)THEN
         IN_Cd = .FALSE.
 # if defined (PARALLEL)
@@ -2672,17 +2672,17 @@ SUBROUTINE READ_INPUT
        ENDIF
 
     IF(IN_Cd)THEN
-        CALL READ_STRING(CD_FILE,FILE_NAME,'Cd_file',ierr) 
+        CALL READ_STRING(CD_FILE,FILE_NAME,'FRICTION_FILE',ierr) 
       IF(ierr==1)THEN
 # if defined (PARALLEL)
       if (myid.eq.0) THEN
-         WRITE(*,'(A80)')'Cd_file NOT FOUND, Please specify Cd_file in input.txt'
-         WRITE(3,'(A80)')'Cd_file NOT FOUND, Please specify Cd_file in input.txt'
+         WRITE(*,'(A80)')'FRICTION_FILE NOT FOUND, Please specify Cd_file in input.txt'
+         WRITE(3,'(A80)')'FRICTION_FILE NOT FOUND, Please specify Cd_file in input.txt'
       endif
        call MPI_FINALIZE ( ier )
 # else
-         WRITE(*,'(A80)')'Cd_file NOT FOUND, Please specify Cd_file in input.txt'
-         WRITE(3,'(A80)')'Cd_file NOT FOUND, Please specify Cd_file in input.txt'
+         WRITE(*,'(A80)')'FRICTION_FILE NOT FOUND, Please specify Cd_file in input.txt'
+         WRITE(3,'(A80)')'FRICTION_FILE NOT FOUND, Please specify Cd_file in input.txt'
 # endif
         STOP
       ELSE
