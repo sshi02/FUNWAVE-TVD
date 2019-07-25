@@ -2701,19 +2701,19 @@ SUBROUTINE READ_INPUT
         Cd_fixed = 0.0_SP
 # if defined (PARALLEL)
       if (myid.eq.0) THEN
-         WRITE(*,'(A40)')'Cd_fixed Default:  0.0'
-         WRITE(3,'(A40)')'Cd_fixed Default:  0.0'
+         WRITE(*,'(A40)')'Cd_fixed Default:  0.0, possibly you used FRICTION_MATRIX'
+         WRITE(3,'(A40)')'Cd_fixed Default:  0.0, possibly you used FRICTION_MATRIX'
       endif
 # else
-         WRITE(*,'(A40)')'Cd_fixed Default:  0.0'
-         WRITE(3,'(A40)')'Cd_fixed Default:  0.0'
+         WRITE(*,'(A40)')'Cd_fixed Default:  0.0, possibly you used FRICTION_MATRIX'
+         WRITE(3,'(A40)')'Cd_fixed Default:  0.0, possibly you used FRICTION_MATRIX'
 # endif
        ENDIF
      
 # if defined (PARALLEL)
-       if (myid.eq.0) WRITE(3,'(A13,F12.2)')'Cd_fixed         =', Cd_fixed
+       if (myid.eq.0) WRITE(3,'(A35,F12.2)')'Cd_fixed (if you used fixed Cd) =', Cd_fixed
 # else
-       WRITE(3,'(A13,F12.2)')'Cd_fixed         =', Cd_fixed
+       WRITE(3,'(A35,F12.2)')'Cd_fixed (if you used fixed Cd) =', Cd_fixed
 # endif
 
 # if defined (PARALLEL)
