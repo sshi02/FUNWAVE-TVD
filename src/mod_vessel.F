@@ -301,7 +301,7 @@ SUBROUTINE VESSEL_FORCING
     Ifile = 200 + Kves
 
 ! I add while to avoid dt is smaller than the time interval of vessel path 08/05/2019
-    DO WHILE (TimeVessel2(Kves).GT.TIME+DT)
+    DO WHILE (TimeVessel2(Kves).LT.TIME+DT)
       READ(Ifile,*,END=120)  TimeVessel2(Kves),Xvessel2(Kves),Yvessel2(Kves)
     END DO
 
