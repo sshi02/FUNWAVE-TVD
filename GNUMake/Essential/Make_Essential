@@ -43,7 +43,12 @@ else ifeq ($(PARALLEL),$(filter $(PARALLEL), false))
 	FC = pgfortran
 endif
 endif
+
+ifneq ($(COMPILER),$(filter $(COMPILER), intel pgi gnu))
+$(error Fatal ERROR: COMPILER=$(COMPILER) and DEF_FC is empty, Please correct the COMPILER or customize the DEF_FC.)
 endif
+endif
+
 
 #----------Debug and optimization flags---------------
 # DEBUG=true
@@ -52,7 +57,7 @@ ifeq ($(COMPILER),$(filter $(COMPILER), intel))
 	DEBFLGS  = -g -check -warn -fPIC
 	OPT      = -O0
 else ifeq ($(COMPILER),$(filter $(COMPILER), gnu))
-	DEBFLGS  = -g -Wall -fPIC
+	DEBFLGS  = -g -fcheck=all -Wall -fPIC
 	OPT      = -O0
 else ifeq ($(COMPILER),$(filter $(COMPILER), pgi))
 	DEBFLGS  = -g -fPIC
@@ -68,8 +73,8 @@ else ifeq ($(COMPILER),$(filter $(COMPILER), gnu))
 	DEBFLGS  = -fPIC
 	OPT      = -O3
 else ifeq ($(COMPILER),$(filter $(COMPILER), pgi))
-	DEBFLGS  = -fPIC
-	OPT      = -O2 
+	DEBFLGS  = -w -fPIC
+	OPT      = -O2
 endif
 endif
 
@@ -120,7 +125,12 @@ ifeq ($(EXEC),$(filter $(EXEC), funwave))
 FLAG_LIST = $(patsubst -D%,%,$(strip $(FLAG_ARGS)))
 $(foreach word,$(FLAG_LIST),$(eval FLAG_FILENAME := $(FLAG_FILENAME)$(word)-))
 
-EXEC_SUFFIX = $(FLAG_FILENAME)-$(COMPILER)
+ifneq ($(DEF_FC),$(filter $(DEF_FC), ''))
+	EXEC_SUFFIX = $(FLAG_FILENAME)-$(DEF_FC)
+else
+	EXEC_SUFFIX = $(FLAG_FILENAME)-$(COMPILER)
+endif
+
 ifeq ($(PARALLEL),$(filter $(PARALLEL), false))
 	EXEC_SUFFIX := $(EXEC_SUFFIX)-sequential
 else ifeq ($(PARALLEL),$(filter $(PARALLEL), true))
@@ -143,7 +153,7 @@ endif
 EXEC := $(WORK_DIR)/$(EXEC)
 
 #------------------Library name-----------------------
-ifneq ($(DEF_FC),$(filter $(DEF_FC), ''))
+ifeq ($(DEF_FC),$(filter $(DEF_FC), ''))
 	FCFLAGS := $(DEBFLGS) $(OPT) $(INCS)
 else
 	FCFLAGS := $(DEF_FLAGS) $(INCS)
@@ -192,7 +202,6 @@ $(PRE_DIR):
 	mkdir -p $(PRE_DIR)
 	mkdir -p $(OBJ_DIR)
 	mkdir -p $(MOD_DIR)
-
 
 #--------------Cleaning targets-----------------------
 clean:
