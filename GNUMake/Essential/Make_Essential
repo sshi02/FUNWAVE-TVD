@@ -2,7 +2,7 @@
 SHELL    = /bin/sh
 
 #-----Eliminate the leading and ending white space----
-FUNWAVE_DIR := $(strip $(FUNWAVE_TVD))
+FUNWAVE_DIR := $(strip $(FUNWAVE_DIR))
 WORK_DIR    := $(strip $(WORK_DIR))
 COMPILER    := $(strip $(COMPILER))
 PARALLEL    := $(strip $(PARALLEL))
