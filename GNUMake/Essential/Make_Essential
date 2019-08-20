@@ -1,6 +1,20 @@
 #--------------------Use shell------------------------
 SHELL    = /bin/sh
 
+#-----Eliminate the leading and ending white space----
+FUNWAVE_DIR := $(strip $(FUNWAVE_TVD))
+WORK_DIR    := $(strip $(WORK_DIR))
+COMPILER    := $(strip $(COMPILER))
+PARALLEL    := $(strip $(PARALLEL))
+PRECISION   := $(strip $(PRECISION))
+EXEC        := $(strip $(EXEC))
+
+DEF_FC      := $(strip $(DEF_FC))
+DEF_FC_FLAG := $(strip $(DEF_FC_FLAG))
+MPI         := $(strip $(MPI))
+SPHERICAL   := $(strip $(SPHERICAL))
+DEBUG       := $(strip $(DEBUG))
+
 #----------------C Pre-processor----------------------
 #  note: CPP is not C++
 CPP       = /usr/bin/cpp
@@ -16,7 +30,7 @@ else
 ifeq ($(COMPILER),$(filter $(COMPILER), intel))
 	USE_MOD = -module $(MOD_DIR)
 ifeq ($(PARALLEL),$(filter $(PARALLEL), true))
-ifeq ($(MPI),$(filter $(COMPILER), intelmpi))
+ifeq ($(MPI),$(filter $(MPI), intelmpi))
 	FC = mpiifort
 else
 	FC = mpif90
