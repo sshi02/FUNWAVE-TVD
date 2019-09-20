@@ -411,7 +411,7 @@ SUBROUTINE CHECK_BLOWUP
 	   ICOUNT=99998;
 	   CALL PREVIEW
 
-# if defined (PARALLEL
+# if defined (PARALLEL)
      ! 2019/09/04 mayhl: Switched MPI_FINALIZE to MPI_ABORT 
      !call MPI_FINALIZE ( ier )
      call MPI_ABORT( MPI_COMM_WORLD , 9 , ier )
