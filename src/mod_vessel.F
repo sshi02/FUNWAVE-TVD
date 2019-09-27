@@ -55,7 +55,7 @@
 MODULE VESSEL_MODULE
   USE PARAM
   USE GLOBAL,ONLY : Mloc,Nloc,Nghost,Ibeg,Iend,Jbeg,Jend,DX,DY, &
-                    H,ETA,ETA0,Xco,Yco
+                    H,ETA,ETA0,Xco,Yco,MASK9
   USE INPUT_READ
 #if defined (PARALLEL)
   USE GLOBAL,ONLY : myid,ier, npx,npy,PX,PY
@@ -391,6 +391,10 @@ SUBROUTINE VESSEL_FORCING
        VesselPressureY(I,J) = -Grav*H(I,J)*  &
                (VesselPressureTotal(I,J+1)-VesselPressureTotal(I,J-1))/2.0_SP  &
                /DY
+# if defined (SWE_VESSEL)
+! test for SWE 
+       IF(VesselPressureTotal(I,J).GT.ZERO) MASK9(I,J) = 0
+# endif
 
     ENDDO
     ENDDO
