@@ -223,6 +223,9 @@ SUBROUTINE INITIALIZATION
      USE GLOBAL
      USE INPUT_READ
      USE BATHY_CORRECTION_MODULE
+# if defined (HDF5IO)
+     Use PARALLEL_FIELD_IO
+# endif
 # if defined(INTEL)
      USE IFPORT
 # endif
@@ -1098,6 +1101,10 @@ SUBROUTINE INITIALIZATION
       IF(SHOW_BREAKING)THEN
        T_brk=20.0_SP
       ENDIF
+
+# if defined (HDF5IO)
+      Call H5Init(h5_field)
+# endif
 
 
 END SUBROUTINE INITIALIZATION

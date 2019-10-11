@@ -409,4 +409,63 @@ MODULE GLOBAL
        LOGICAL :: WAVEMAKER_VIS=.FALSE.
 !	 REAL(SP) :: PLOT_SMALLINTV
 
+# if defined (HDF5IO)
+
+    INTEGER(HSIZE_T), DIMENSION(2) :: h5_total_dims
+    INTEGER(HSIZE_T), DIMENSION(2) :: h5_block_dims
+
+    INTEGER(HSSIZE_T), DIMENSION(2) :: h5_offset
+
+    Type HDF5File
+      Integer(HID_T) :: file_id
+      Character(100) :: filename
+    End Type HDF5File
+
+    Type(HDF5File) :: h5_field 
+
+    Type HDF5Group
+      Integer(HID_T) :: group_id
+      Character(100) :: groupname
+    End Type HDF5Group
+
+    Type(HDF5Group) :: h5group_dep
+    Type(HDF5Group) :: h5group_breakwater
+    Type(HDF5Group) :: h5group_eta
+    Type(HDF5Group) :: h5group_hmax
+    Type(HDF5Group) :: h5group_hmin
+    Type(HDF5Group) :: h5group_umax
+    Type(HDF5Group) :: h5group_MFmax
+    Type(HDF5Group) :: h5group_VORmax
+    Type(HDF5Group) :: h5group_u
+    Type(HDF5Group) :: h5group_v
+    Type(HDF5Group) :: h5group_mask
+    Type(HDF5Group) :: h5group_mask9
+    Type(HDF5Group) :: h5group_p
+    Type(HDF5Group) :: h5group_q
+    Type(HDF5Group) :: h5group_age
+    Type(HDF5Group) :: h5group_roller
+    Type(HDF5Group) :: h5group_undertow_u
+    Type(HDF5Group) :: h5group_undertow_v
+    Type(HDF5Group) :: h5group_nubrk
+# if defined(METEO)
+    Type(HDF5Group) :: h5group_Pstorm
+    Type(HDF5Group) :: h5group_Ustorm
+    Type(HDF5Group) :: h5group_Vstorm
+#endif
+# if defined(Vessel)
+    Type(HDF5Group) :: h5group_Fves
+    Type(HDF5Group) :: h5group_Pves
+# endif
+# if defined(SEDIMENT)
+    Type(HDF5Group) :: h5group_c
+    Type(HDF5Group) :: h5group_Pick
+    Type(HDF5Group) :: h5group_Depo
+    Type(HDF5Group) :: h5group_DchgS
+    Type(HDF5Group) :: h5group_DchgB
+    Type(HDF5Group) :: h5group_BedFx
+    Type(HDF5Group) :: h5group_BedFy
+# endif
+    Type(HDF5Group) :: h5group_tmp
+#endif
+
 END MODULE GLOBAL

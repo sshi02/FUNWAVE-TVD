@@ -1,6 +1,3 @@
-#--------------------Use shell------------------------
-SHELL    = /bin/sh
-
 #-----Eliminate the leading and ending white space----
 FUNWAVE_DIR := $(strip $(FUNWAVE_DIR))
 WORK_DIR    := $(strip $(WORK_DIR))
@@ -14,6 +11,9 @@ DEF_FC_FLAG := $(strip $(DEF_FC_FLAG))
 MPI         := $(strip $(MPI))
 SPHERICAL   := $(strip $(SPHERICAL))
 DEBUG       := $(strip $(DEBUG))
+
+#--------------------Use shell------------------------
+SHELL    = /bin/sh
 
 #----------------C Pre-processor----------------------
 #  note: CPP is not C++
@@ -30,7 +30,7 @@ else
 ifeq ($(COMPILER),$(filter $(COMPILER), intel))
 	USE_MOD = -module $(MOD_DIR)
 ifeq ($(PARALLEL),$(filter $(PARALLEL), true))
-ifeq ($(MPI),$(filter $(MPI), intelmpi))
+ifeq ($(MPI),$(filter $(COMPILER), intelmpi))
 	FC = mpiifort
 else
 	FC = mpif90
@@ -57,12 +57,7 @@ else ifeq ($(PARALLEL),$(filter $(PARALLEL), false))
 	FC = pgfortran
 endif
 endif
-
-ifneq ($(COMPILER),$(filter $(COMPILER), intel pgi gnu))
-$(error Fatal ERROR: COMPILER=$(COMPILER) and DEF_FC is empty, Please correct the COMPILER or customize the DEF_FC.)
 endif
-endif
-
 
 #----------Debug and optimization flags---------------
 # DEBUG=true
@@ -71,7 +66,7 @@ ifeq ($(COMPILER),$(filter $(COMPILER), intel))
 	DEBFLGS  = -g -check -warn -fPIC
 	OPT      = -O0
 else ifeq ($(COMPILER),$(filter $(COMPILER), gnu))
-	DEBFLGS  = -g -fcheck=all -Wall -fPIC
+	DEBFLGS  = -g -Wall -fPIC
 	OPT      = -O0
 else ifeq ($(COMPILER),$(filter $(COMPILER), pgi))
 	DEBFLGS  = -g -fPIC
@@ -87,11 +82,19 @@ else ifeq ($(COMPILER),$(filter $(COMPILER), gnu))
 	DEBFLGS  = -fPIC
 	OPT      = -O3
 else ifeq ($(COMPILER),$(filter $(COMPILER), pgi))
-	DEBFLGS  = -w -fPIC
-	OPT      = -O2
+	DEBFLGS  = -fPIC
+	OPT      = -O2 
 endif
 endif
 
+#--------------Liraries-------------------------------
+ifeq ($(HDF5),$(filter $(HDF5), true))
+	HDF5INCS = -I$(HDF5_PATH)/include
+endif
+
+ifeq ($(HDF5),$(filter $(HDF5), true))
+	HDF5LIBS =  $(HDF5_PATH)/lib/libhdf5hl_fortran.a $(HDF5_PATH)/lib/libhdf5_hl.a $(HDF5_PATH)/lib/libhdf5_fortran.a $(HDF5_PATH)/lib/libhdf5.a -lz -ldl -lm
+endif
 
 
 #---------------Pre-processor flags-------------------
@@ -117,6 +120,10 @@ ifeq ($(COMPILER),$(filter $(COMPILER), intel))
 	FLAG_INTEL = -DINTEL
 endif
 
+ifeq ($(HDF5),$(filter $(HDF5), true))
+	FLAG_HDF5 = -DHDF5IO
+endif
+
 ifeq ($(DEBUG),$(filter $(DEBUG), true))
 	FLAG_DEBUG = -DDEBUG
 endif
@@ -132,19 +139,14 @@ FLAG_ARGS = $(FLAG_1) $(FLAG_2) \
 			$(FLAG_23) $(FLAG_24)
 CPPARGS = $(CPPFLAGS) $(DEF_FLAGS) $(FLAG_ARGS) \
 			$(FLAG_PARALLEL) $(FLAG_INTEL) $(FLAG_DEBUG) \
-			$(FLAG_PRECISION) $(FLAG_CARTESIAN)
+			$(FLAG_PRECISION) $(FLAG_CARTESIAN) $(FLAG_HDF5)
 
 #--------------------EXEC name------------------------
 ifeq ($(EXEC),$(filter $(EXEC), funwave))
 FLAG_LIST = $(patsubst -D%,%,$(strip $(FLAG_ARGS)))
 $(foreach word,$(FLAG_LIST),$(eval FLAG_FILENAME := $(FLAG_FILENAME)$(word)-))
 
-ifneq ($(DEF_FC),$(filter $(DEF_FC), ''))
-	EXEC_SUFFIX = $(FLAG_FILENAME)-$(DEF_FC)
-else
-	EXEC_SUFFIX = $(FLAG_FILENAME)-$(COMPILER)
-endif
-
+EXEC_SUFFIX = $(FLAG_FILENAME)-$(COMPILER)
 ifeq ($(PARALLEL),$(filter $(PARALLEL), false))
 	EXEC_SUFFIX := $(EXEC_SUFFIX)-sequential
 else ifeq ($(PARALLEL),$(filter $(PARALLEL), true))
@@ -167,7 +169,7 @@ endif
 EXEC := $(WORK_DIR)/$(EXEC)
 
 #------------------Library name-----------------------
-ifeq ($(DEF_FC),$(filter $(DEF_FC), ''))
+ifneq ($(DEF_FC),$(filter $(DEF_FC), ''))
 	FCFLAGS := $(DEBFLGS) $(OPT) $(INCS)
 else
 	FCFLAGS := $(DEF_FLAGS) $(INCS)
@@ -216,6 +218,7 @@ $(PRE_DIR):
 	mkdir -p $(PRE_DIR)
 	mkdir -p $(OBJ_DIR)
 	mkdir -p $(MOD_DIR)
+
 
 #--------------Cleaning targets-----------------------
 clean:
