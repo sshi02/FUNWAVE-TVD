@@ -54,6 +54,10 @@ MODULE PARAM
 # if defined PARALLEL
        USE MPI
 # endif
+
+# if defined (HDF5IO)
+       use HDF5
+# endif
        IMPLICIT NONE    
 # if defined DOUBLE_PRECISION 
        INTEGER, PARAMETER::SP=8

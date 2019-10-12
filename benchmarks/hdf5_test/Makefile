@@ -1,7 +1,7 @@
 #-----------BEGIN MAKEFILE---------------------------
-FUNWAVE_DIR = .
-WORK_DIR    = funwave-work
-COMPILER    = gnu
+FUNWAVE_DIR = ../..
+WORK_DIR    = .
+COMPILER    = intel
 PARALLEL    = true
 EXEC        = funwave
 PRECISION   = single
@@ -25,16 +25,19 @@ DEF_FC_FLAG =
 SPHERICAL   = false
 MPI         = openmpi
 DEBUG       = false
-HDF5        = false
+HDF5        = true
 HDF5_PATH   = $(HOME)/hdf5/$(COMPILER)
 INCS        = $(HDF5INCS) $(IOINCS) $(GOTMINCS)
 LIBS        = $(HDF5LIBS) $(PV3LIB) $(CLIB)  $(PARLIB) $(IOLIBS) $(MPILIB) $(GOTMLIB)
-CLIB        = 
+CLIB        =
 MDEPFLAGS   = --cpp --fext=f90 --file=-
 RANLIB      = ranlib
 
 #----------include the essential makefiles------------
 include $(FUNWAVE_DIR)/GNUMake/Essential/Make_Essential
+
+
+
 
 ##-----------------------------------------------------
 ##      Instructions for Makefile

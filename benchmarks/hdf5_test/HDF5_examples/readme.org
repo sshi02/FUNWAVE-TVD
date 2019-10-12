@@ -1,0 +1,54 @@
+#+options: ^:nil
+
+* Install HDF5
+  
+download the latest version, with MPI environment activated. type
+
+#+begin_src bash
+CC=mpicc \
+FC=mpif90 \
+./configure \
+--prefix=[target_path] \
+--enable-fortran \
+--enable-parallel
+#+end_src
+
+Then
+#+begin_src bash
+make check
+make install
+#+end_src
+
+* Compile code with HDF5
+  
+for a fortran code =practise.f90=, compile with
+
+#+begin_src bash
+mpif90 practise.f90  \
+-I/home/yeldon/HDF5/intel/include \
+[path]/lib/libhdf5hl_fortran.a \
+[path]/lib/libhdf5_hl.a \
+[path]/lib/libhdf5_fortran.a \
+[path]/lib/libhdf5.a \
+-lz -ldl -lm
+#+end_src
+
+* example files
+
+- basic example files can be found in
+ https://support.hdfgroup.org/ftp/HDF5/examples/src-html/f90.html 
+ 
+- =hyperslab.f90= 
+
+see
+https://support.hdfgroup.org/HDF5/Tutor/phypecont.html
+
+- =par.f90=
+
+modified from =hyperslab.f90=, it can work with undevidable blocks
+
+=practise.f90=
+advanced version of =par.f90=, which can write multiple datasets to different groups.
+
+* Load HDF5 using python
+  use =jupyter-notebook= to open =example.ipynb= and see the example.

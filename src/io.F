@@ -128,6 +128,7 @@ END SUBROUTINE OUTPUT
 !  12/23/2014  Young-Kwang Choi, added option for intel compiler
 !  07/17/2019  Zhouteng Ye, added 1. get input from command line argument
 !                                 2. input file for post-processor
+!  10/8/2019  Zhouteng Ye, added HDF5 support
 !                       
 !
 !-------------------------------------------------------------------------------------
@@ -148,6 +149,7 @@ SUBROUTINE READ_INPUT
     INTEGER :: ierr
     INTEGER :: I_comp
     LOGICAL :: INPUT_PHASE = .FALSE.
+    CHARACTER(LEN=80) tmp_NAME
 
     !>by Zhouteng Ye
     CHARACTER(LEN=80)::INPUT_NAME=''
@@ -2657,7 +2659,7 @@ SUBROUTINE READ_INPUT
 # endif
       ENDIF
 
-      CALL READ_LOGICAL(IN_Cd,FILE_NAME,'FRICTION_MATRIX',ierr)
+      CALL READ_LOGICAL(IN_Cd,FILE_NAME,'Friction_Matrix',ierr)
       IF(ierr==1)THEN
         IN_Cd = .FALSE.
 # if defined (PARALLEL)
@@ -2672,17 +2674,17 @@ SUBROUTINE READ_INPUT
        ENDIF
 
     IF(IN_Cd)THEN
-        CALL READ_STRING(CD_FILE,FILE_NAME,'FRICTION_FILE',ierr) 
+        CALL READ_STRING(CD_FILE,FILE_NAME,'Cd_file',ierr) 
       IF(ierr==1)THEN
 # if defined (PARALLEL)
       if (myid.eq.0) THEN
-         WRITE(*,'(A80)')'FRICTION_FILE NOT FOUND, Please specify Cd_file in input.txt'
-         WRITE(3,'(A80)')'FRICTION_FILE NOT FOUND, Please specify Cd_file in input.txt'
+         WRITE(*,'(A80)')'Cd_file NOT FOUND, Please specify Cd_file in input.txt'
+         WRITE(3,'(A80)')'Cd_file NOT FOUND, Please specify Cd_file in input.txt'
       endif
        call MPI_FINALIZE ( ier )
 # else
-         WRITE(*,'(A80)')'FRICTION_FILE NOT FOUND, Please specify Cd_file in input.txt'
-         WRITE(3,'(A80)')'FRICTION_FILE NOT FOUND, Please specify Cd_file in input.txt'
+         WRITE(*,'(A80)')'Cd_file NOT FOUND, Please specify Cd_file in input.txt'
+         WRITE(3,'(A80)')'Cd_file NOT FOUND, Please specify Cd_file in input.txt'
 # endif
         STOP
       ELSE
@@ -2701,19 +2703,19 @@ SUBROUTINE READ_INPUT
         Cd_fixed = 0.0_SP
 # if defined (PARALLEL)
       if (myid.eq.0) THEN
-         WRITE(*,'(A40)')'Cd_fixed Default:  0.0, possibly you used FRICTION_MATRIX'
-         WRITE(3,'(A40)')'Cd_fixed Default:  0.0, possibly you used FRICTION_MATRIX'
+         WRITE(*,'(A40)')'Cd_fixed Default:  0.0'
+         WRITE(3,'(A40)')'Cd_fixed Default:  0.0'
       endif
 # else
-         WRITE(*,'(A40)')'Cd_fixed Default:  0.0, possibly you used FRICTION_MATRIX'
-         WRITE(3,'(A40)')'Cd_fixed Default:  0.0, possibly you used FRICTION_MATRIX'
+         WRITE(*,'(A40)')'Cd_fixed Default:  0.0'
+         WRITE(3,'(A40)')'Cd_fixed Default:  0.0'
 # endif
        ENDIF
      
 # if defined (PARALLEL)
-       if (myid.eq.0) WRITE(3,'(A35,F12.2)')'Cd_fixed (if you used fixed Cd) =', Cd_fixed
+       if (myid.eq.0) WRITE(3,'(A13,F12.2)')'Cd_fixed         =', Cd_fixed
 # else
-       WRITE(3,'(A35,F12.2)')'Cd_fixed (if you used fixed Cd) =', Cd_fixed
+       WRITE(3,'(A13,F12.2)')'Cd_fixed         =', Cd_fixed
 # endif
 
 # if defined (PARALLEL)
@@ -3189,6 +3191,14 @@ SUBROUTINE READ_INPUT
         RESULT_FOLDER = './output/'
       ENDIF
 
+      ! Zhouteng Ye
+#if defined (HDF5IO)
+      tmp_name = 'field.h5'
+      CALL READ_STRING(tmp_name,FILE_NAME,'HDF5_FILENAME',ierr)
+      h5_field%filename = trim(RESULT_FOLDER)//trim(tmp_name)
+      print *, tmp_name
+#endif
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A15,A50)')'RESULT_FOLDER:', RESULT_FOLDER
 # else
@@ -3302,6 +3312,7 @@ SUBROUTINE READ_INPUT
          WRITE(3,'(A40)')'EtaBlowVal Default:  100xmax_depth'
 # endif
        ENDIF
+
 
 !  fyshi set blowup value is 100xmax_depth in init.F  
 
@@ -3694,6 +3705,200 @@ END SUBROUTINE STATIONS
 
 # endif
 
+# if defined(HDF5IO)
+!-------------------------------------------------------------------------------------
+!
+!    This is the HDF5 version of Preview.
+!
+!  HISTORY:
+!    10/06/2019  Zhouteng Ye, modify from the original Preview
+!
+!-------------------------------------------------------------------------------------
+Subroutine Preview
+     USE GLOBAL
+     Use PARALLEL_FIELD_IO
+# if defined (VESSEL)
+     USE VESSEL_MODULE
+# endif
+# if defined(METEO)
+     USE METEO_MODULE
+# endif
+# if defined(SEDIMENT)
+     USE SEDIMENT_MODULE
+# endif
+
+     IMPLICIT NONE
+
+     CHARACTER(LEN=80)::FILE_NAME=' '
+     CHARACTER(LEN=80)::FILE_NAME_MEAN=' '
+     CHARACTER(LEN=80)::TMP_NAME=' '
+     CHARACTER(LEN=80)::FDIR=' '
+
+     FDIR=TRIM(RESULT_FOLDER)
+
+     ICOUNT=ICOUNT+1
+
+        if (myid.eq.0)then
+        WRITE(3,102)'PRINTING FILE NO.', icount, ' TIME/TOTAL: ', TIME,'/',Total_Time
+        WRITE(*,102)'PRINTING FILE NO.', icount, ' TIME/TOTAL: ', TIME,'/',Total_Time        
+        endif
+
+102     FORMAT(A20,I6,A14,F12.3,A2,F12.3)
+
+	   itmp1=mod(icount/10000,10)
+	   itmp2=mod(icount/1000,10)
+	   itmp3=mod(icount/100,10)
+	   itmp4=mod(icount/10,10)
+	   itmp5=mod(icount,10)
+
+    write(file_name(1:1),'(I1)')itmp1
+    write(file_name(2:2),'(I1)')itmp2
+    write(file_name(3:3),'(I1)')itmp3
+    write(file_name(4:4),'(I1)')itmp4
+    write(file_name(5:5),'(I1)')itmp5   !ykchoi
+
+     IF(ICOUNT==1)THEN
+     IF(OUT_DEPTH.OR.BREAKWATER)THEN
+       tmp_name = 'depth'
+        call HDF5PutFile(h5group_dep, DEPTH,tmp_name)
+        tmp_name = 'breakwater'
+        call HDF5PutFile(h5group_breakwater,CD_breakwater, tmp_name)
+     ENDIF
+     ENDIF
+
+
+     IF(OUT_ETA)THEN
+        call HDF5PutFile(h5group_eta,Eta, TRIM(File_Name))
+     ENDIF
+
+     IF(OUT_Hmax)THEN
+        call HDF5PutFile(h5group_hmax,HeightMax, TRIM(File_Name))
+     ENDIF
+
+     IF(OUT_Hmin)THEN
+        call HDF5PutFile(h5group_hmin,HeightMin, TRIM(File_Name))
+     ENDIF
+
+     IF(OUT_Umax)THEN
+        call HDF5PutFile(h5group_umax, VelocityMax, TRIM(File_Name))
+     ENDIF
+
+     IF(OUT_MFmax)THEN
+       call HDF5PutFile(h5group_MFmax, MomentumFluxMax, TRIM(File_Name))
+     ENDIF
+
+     IF(OUT_VORmax)THEN
+        call HDF5PutFile(h5group_VORmax, VorticityMax, TRIM(File_Name))
+     ENDIF
+
+     IF(OUT_U)THEN
+        call HDF5PutFile(h5group_U, U, TRIM(File_Name))
+     ENDIF
+
+     IF(OUT_V)THEN
+        call HDF5PutFile(h5group_V, V, TRIM(File_Name))
+     ENDIF
+
+     IF(OUT_MASK)THEN
+        TMP_NAME = TRIM(FDIR)//'mask_'//TRIM(FILE_NAME)
+        Int2Flo=MASK
+        call HDF5PutFile(h5group_mask, Int2Flo, TRIM(File_Name))
+     ENDIF
+
+     IF(OUT_MASK9)THEN
+       Int2Flo=MASK9
+        call HDF5PutFile(h5group_mask9, Int2Flo, TRIM(File_Name))
+     ENDIF
+
+210   FORMAT(5000I3)
+
+     IF(OUT_P)THEN
+        call HDF5PutFile(h5group_p, P, TRIM(File_Name))
+     ENDIF
+
+     IF(OUT_Q)THEN
+        call HDF5PutFile(h5group_q, Q, TRIM(File_Name))
+     ENDIF
+
+
+     IF(OUT_AGE)THEN
+      IF(SHOW_BREAKING)THEN
+         call HDF5PutFile(h5group_age, AGE_BREAKING, TRIM(File_Name))
+      ENDIF
+     ENDIF
+
+     IF(OUT_ROLLER)THEN
+       call HDF5PutFile(h5group_roller, ROLLER_FLUX, TRIM(File_Name))
+     ENDIF
+
+     IF(OUT_UNDERTOW)THEN
+       call HDF5PutFile(h5group_undertow_u, Undertow_U, TRIM(File_Name))
+       call HDF5PutFile(h5group_undertow_v, Undertow_V, TRIM(File_Name))
+     ENDIF
+
+      IF(VISCOSITY_BREAKING)THEN
+       IF(OUT_NU)THEN
+         call HDF5PutFile(h5group_nubrk, nu_break, TRIM(File_Name))
+       ENDIF
+!        TMP_NAME = TRIM(FDIR)//'etat_'//TRIM(FILE_NAME)
+!         call PutFile(TMP_NAME,etat) 
+      ENDIF
+
+# if defined (METEO)
+   IF(OUT_METEO)THEN
+
+    IF(WindHollandModel)THEN
+      call HDF5PutFile(h5group_Pstorm, StormPressureTotal, TRIM(File_Name))
+      call HDF5PutFile(h5group_Ustorm, WindU2D, TRIM(File_Name))
+      call HDF5PutFile(h5group_Vstorm, WindV2D, TRIM(File_Name))
+    ENDIF
+
+    IF(MeteoGausian)THEN
+      call HDF5PutFile(h5group_Pstorm, StormPressureTotal, TRIM(File_Name))
+    ENDIF
+
+    IF(SlideModel)THEN
+      call HDF5PutFile(h5group_Pstorm, StormPressureTotal, TRIM(File_Name))
+    ENDIF
+
+  ENDIF
+# endif
+     
+# if defined (VESSEL)
+     IF(OUT_VESSEL)THEN
+# if defined (VESSEL_PANEL_SOURCE)
+       call HDF5PutFile(h5group_Fves, VesselFluxGradient, TRIM(File_Name))
+# else
+       call HDF5PutFile(h5group_Pves, VesselPressureTotal, TRIM(File_Name))
+# endif
+   ! end panel source
+
+     ENDIF
+# endif
+
+! sediment
+# if defined (SEDIMENT)
+     call HDF5PutFile(h5group_c, CH *Sdensity*1000.0_SP, TRIM(File_Name))
+     call HDF5PutFile(h5group_pick, pickup, TRIM(File_Name))
+     call HDF5PutFile(h5group_depo, D, TRIM(File_Name))
+     call HDF5PutFile(h5group_Dchgs, TotalSuspendLoad, TRIM(File_Name))
+     call HDF5PutFile(h5group_DchgB, TotalBedLoad, TRIM(File_Name))
+     call HDF5PutFile(h5group_BedFx, BedFluxX, TRIM(File_Name))
+     call HDF5PutFile(h5group_BedFy, BedFluxY, TRIM(File_Name))
+     call HDF5PutFile(h5group_dep, Depth, TRIM(File_Name))
+# endif
+! end sediment
+
+     IF(OUT_TMP)THEN
+        TMP_NAME = TRIM(FDIR)//'tmp_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,tmp4preview)
+     ENDIF
+
+101   continue
+
+End Subroutine Preview
+
+# else
 !-------------------------------------------------------------------------------------
 !
 !    PREVIEW is subroutine for print-out of field data
@@ -3932,6 +4137,7 @@ SUBROUTINE PREVIEW
 101   continue
 
 END SUBROUTINE PREVIEW
+# endif
 
 !-------------------------------------------------------------------------------------
 !

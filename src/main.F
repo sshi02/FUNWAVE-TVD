@@ -147,6 +147,9 @@ Program FUNWAVE_TVD
 # if defined (TRACKING)
      USE TRACER
 # endif
+# if defined (HDF5IO)
+     USE PARALLEL_FIELD_IO
+# endif
 
      IMPLICIT NONE
 
@@ -201,6 +204,7 @@ Program FUNWAVE_TVD
 # endif
 
      CALL INITIALIZATION
+
       
 # if defined (DEBUG)
 #    if defined (PARALLEL)
@@ -462,6 +466,10 @@ ENDDO
      write(3,*) 'Simulation takes',tend-tbegin,'seconds'
      WRITE(*,*)'Normal Termination!'
      WRITE(3,*)'Normal Termination!'
+# endif
+
+# if defined(HDF5IO)
+     Call H5Finalize(h5_field)
 # endif
 
 # if defined (PARALLEL)

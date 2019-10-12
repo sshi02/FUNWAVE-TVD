@@ -1,0 +1,75 @@
+#+TITLE: NOTES on HDF5 with FUNWAVE-TVD
+#+options: ^:nil
+
+* Use HDF5 in FUNWAVE-TVD
+  - install HDF5 library
+  - enable =HDF5= in makefile and set the =HDF5_PATH=
+  - modify the output parameters if necessary (modify =HDF5_WRITE_PARAMETERS= in
+    =mod_parallel_field_io.F=)
+    
+** How HDF5 works In FUNWAVE-TVD
+   When =HDF5IO= flag is enabled,
+
+- creat the data file and groups in the initialization step
+- write the field data to the corresponding group every time when putfile is called.
+- write the required parameters as attribtes to the hdf5 data file and close the
+  groups and data file.
+
+* Example
+  - Basic examples is can be found in =HDF5_examples=
+  - The =Makefile= and =input_irr.txt= provides an example set up.
+    
+to compile, run
+#+begin_src bash
+make
+#+end_src
+
+to run the executable (with 3 processors)
+#+begin_src bash
+mpirun -np 3 ./funwave--intel-parallel-single input_irr.txt
+#+end_src
+
+to get access to the data file, use =jupyter-notebook= to open =test.ipynb=.
+
+* List of changes
+** =HDF5IO= flag
+   - set =HDF5= to enable HDF5 library and set the path of HDF5 library
+     =HDF5_PATH=.
+   - a compiler flag =-DHDF5IO= will be enabled with =HDF5 = true=, for more
+     details, see =Make_Essential= file. 
+
+** HDF5 global variables in =mod_global.F=
+   - user defined type =HDF5File=
+   - user defined type =HDF5Group=
+   - variable =h5_field= with type =HDF5File=
+   - multiple variables with type =HDF5Group=
+
+** read input and Putfile in =io.F=
+   - the default file would be =field.h5= at the output directory.
+   - if find =HDF5_FILENAME= in =input file=, the name will be used as the hdf5 filename
+   - When =HDF5IO= flag is enables, the ascii output will be disabled and all field data will be written into the hdf5 file.
+
+** HDF5 subroutines in =mod_parallel_io.F=
+   When =HDF5IO= flag is enabled,
+*** H5Init
+    - creat the hdf5 data file
+    - creat the =group names= according to the setup in =input file= (call
+      =HDF5CreateGroup=) 
+    - setup the =hyperslab= information for the field data
+      
+*** H5Finalize
+    - Write the required parameters as =attributes=
+    - close the hdf5 data file (Call =HDF5CloseGroup)
+    - close the groups
+
+*** HDF5CreateGroup
+    - create HDF group to the data file
+
+*** HDF5CloseGroup
+    - close the group
+
+*** HDF5PutFile
+    - write the data to the corresponding group in the hdf5 file.
+
+*** HDF5_WRITE_PARAMETERS
+    - write the required output parameters. This may be modified by users or developers.
