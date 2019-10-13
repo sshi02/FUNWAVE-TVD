@@ -11,7 +11,7 @@ FileNumber_HOTSTART = 1
   !    PX,PY - processor numbers in X and Y
   !    NOTE: make sure consistency with mpirun -np n (px*py)
   !
-PX = 120
+PX = 2
 PY = 2
   ! --------------------DEPTH-------------------------------------
   ! Depth types, DEPTH_TYPE=DATA: from depth file
@@ -75,7 +75,7 @@ MASK_FILE = ../result_irr/mask_0218
 HotStartTime = 2160.066
 OutputStartNumber = 219
   ! ----------------SHIP WAKES ----------------------------
-VESSEL_FOLDER = ./
+VESSEL_FOLDER = vessel/
 NumVessel = 8
   ! ----------------WAVEMAKER------------------------------
   !  wave maker

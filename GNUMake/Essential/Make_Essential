@@ -167,10 +167,10 @@ endif
 EXEC := $(WORK_DIR)/$(EXEC)
 
 #------------------Library name-----------------------
-ifeq ($(DEF_FC),$(filter $(DEF_FC), ''))
-	FCFLAGS := $(DEBFLGS) $(OPT) $(INCS)
+ifneq ($(DEF_FC),$(filter $(DEF_FC), ''))
+FCFLAGS := $(DEF_FC_FLAG) $(INCS)
 else
-	FCFLAGS := $(DEF_FLAGS) $(INCS)
+FCFLAGS := $(DEBFLGS) $(OPT) $(INCS)
 endif
 
 #----------------FUNWAVE souce code-------------------

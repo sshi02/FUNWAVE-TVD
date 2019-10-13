@@ -1,6 +1,6 @@
 #-----------BEGIN MAKEFILE---------------------------
-FUNWAVE_DIR = .
-WORK_DIR    = funwave-work
+FUNWAVE_DIR = ../..
+WORK_DIR    = .
 COMPILER    = gnu
 PARALLEL    = true
 EXEC        = funwave
@@ -11,7 +11,7 @@ PRECISION   = single
 # FLAG_1  = -DCOUPLING
 # FLAG_2  = -DZALPHA
 # FLAG_3  = -DMANNING
-  FLAG_4  = -DVESSEL
+# FLAG_4  = -DVESSEL
 # FLAG_5  = -DMETEO
 # FLAG_6  = -DWIND
 # FLAG_7  = -DSEDIMENT
@@ -27,7 +27,7 @@ MPI         = openmpi
 DEBUG       = false
 INCS        = $(IOINCS) $(GOTMINCS)
 LIBS        = $(PV3LIB) $(CLIB)  $(PARLIB) $(IOLIBS) $(MPILIB) $(GOTMLIB)
-CLIB        = -lmpi -Bdynamic
+CLIB        =
 MDEPFLAGS   = --cpp --fext=f90 --file=-
 RANLIB      = ranlib
 
