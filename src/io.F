@@ -88,6 +88,8 @@ SUBROUTINE OUTPUT
       ENDIF
 ! preview
 
+      IF(TIME>=PLOT_START_TIME)THEN
+
 	PLOT_COUNT=PLOT_COUNT+DT
       IF(PLOT_COUNT>=PLOT_INTV)THEN
        PLOT_COUNT=PLOT_COUNT-PLOT_INTV
@@ -115,6 +117,7 @@ SUBROUTINE OUTPUT
       ENDIF      
 # endif
 
+   ENDIF ! end plot start time
 
 
 END SUBROUTINE OUTPUT
@@ -599,6 +602,21 @@ SUBROUTINE READ_INPUT
 # endif
         STOP
       ENDIF
+
+      CALL READ_FLOAT(PLOT_START_TIME,FILE_NAME,'PLOT_START_TIME',ierr)
+
+      IF(ierr==1)THEN
+        PLOT_START_TIME = 0.0
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'PLOT_START_TIME Default:  0.0 s'
+         WRITE(3,'(A40)')'PLOT_START_TIME Default:  0.0 s'
+      endif
+# else
+         WRITE(*,'(A40)')'PLOT_START_TIME Default:  0.0 s'
+         WRITE(3,'(A40)')'PLOT_START_TIME Default:  0.0 s'
+# endif
+       ENDIF
 
       CALL READ_FLOAT(PLOT_INTV,FILE_NAME,'PLOT_INTV',ierr)
 
