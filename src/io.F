@@ -648,6 +648,19 @@ SUBROUTINE READ_INPUT
 # endif
        ENDIF
 
+      CALL READ_INTEGER(StationOutputBuffer,FILE_NAME,'StationOutputBuffer',ierr)
+      IF(ierr==1)THEN
+        StationOutputBuffer = 1000
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'StationOutputBuffer not specified, use default:1000'
+         WRITE(3,'(A80)')'StationOutputBuffer not specified, use default:1000'
+      endif
+# else
+         WRITE(*,'(A80)')'StationOutputBuffer not specified, use default:1000'
+         WRITE(3,'(A80)')'StationOutputBuffer not specified, use default:1000'
+# endif
+      ENDIF
 
       CALL READ_FLOAT(SCREEN_INTV,FILE_NAME,'SCREEN_INTV',ierr)
       IF(ierr==1)THEN
@@ -3392,13 +3405,15 @@ SUBROUTINE STATIONS
      IMPLICIT NONE
 
      INTEGER :: iunit
+     INTEGER, DIMENSION(:),ALLOCATABLE :: BufferCount
+     REAL(SP),DIMENSION(:,:,:),ALLOCATABLE :: ZUV_Buffer
      REAL(SP) :: dum1,dum2
      REAL(SP) :: eta_sta,u_sta,v_sta
      CHARACTER(LEN=80)::FILE_NAME=' '
      CHARACTER(LEN=80)::TMP_NAME=' '
      CHARACTER(LEN=80)::FDIR=' '
      LOGICAL :: FirstCallStation = .TRUE.
-     SAVE FirstCallStation
+     SAVE FirstCallStation, BufferCount,ZUV_Buffer
 
 ! initialize stations
      FDIR=TRIM(RESULT_FOLDER)
@@ -3407,6 +3422,9 @@ SUBROUTINE STATIONS
        ALLOCATE(ista(NumberStations),&
                 jsta(NumberStations),&
                 nsta(NumberStations))
+       ALLOCATE(BufferCount(NumberStations), &
+            ZUV_Buffer(StationOutputBuffer,NumberStations,4))
+       BufferCount = 0
 ! calculate how many output components
 
 ! check existing
@@ -3467,8 +3485,6 @@ SUBROUTINE STATIONS
      do i=1,NumberStations
        if (nsta(i).eq.1) then
           iunit=100+i
-!          write (iunit,'(20E16.8)') time, eta(ista(i),jsta(i)),&
-!                          u(ista(i),jsta(i)),v(ista(i),jsta(i))
            IF(mask(ista(i),jsta(i))<1)THEN
              eta_sta=ZERO
              u_sta=ZERO
@@ -3478,7 +3494,30 @@ SUBROUTINE STATIONS
              u_sta=u(ista(i),jsta(i))
              v_sta=v(ista(i),jsta(i)) 
            ENDIF
-            write (iunit,'(20E16.5E4)') time, eta_sta,u_sta,v_sta
+
+            IF(BufferCount(i)<StationOutputBuffer.AND.TIME<TOTAL_TIME)THEN
+              BufferCount(i) = BufferCount(i) +1
+              ZUV_BUFFER(BufferCount(i),i,1)=time
+              ZUV_BUFFER(BufferCount(i),i,2)=eta_sta
+              ZUV_BUFFER(BufferCount(i),i,3)=u_sta
+              ZUV_BUFFER(BufferCount(i),i,4)=v_sta
+            ELSE
+              DO j=1,StationOutputBuffer
+                write (iunit,'(4E16.5E4)') (ZUV_BUFFER(j,i,k),k=1,4)
+              ENDDO              
+              BufferCount(i) = 0
+              ZUV_BUFFER(:,i,1)=TOTAL_TIME
+              ZUV_BUFFER(:,i,2:4)=ZERO
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(*,*) 'WRITE OUT STATAION ...'
+# else
+      WRITE(*,*) 'WRITE OUT STATIONS ...'
+# endif
+
+
+            ENDIF ! end buffer
+
        endif
      enddo
 
@@ -3512,13 +3551,15 @@ SUBROUTINE STATIONS_SPHERICAL_IJ
      IMPLICIT NONE
 
      INTEGER :: iunit
+     INTEGER, DIMENSION(:),ALLOCATABLE :: BufferCount
+     REAL(SP),DIMENSION(:,:,:),ALLOCATABLE :: ZUV_Buffer
      REAL(SP) :: dum1,dum2
      REAL(SP) :: eta_sta,u_sta,v_sta
      CHARACTER(LEN=80)::FILE_NAME=' '
      CHARACTER(LEN=80)::TMP_NAME=' '
      CHARACTER(LEN=80)::FDIR=' '
      LOGICAL :: FirstCallStation = .TRUE.
-     SAVE FirstCallStation
+     SAVE FirstCallStation, BufferCount,ZUV_Buffer
 
 ! initialize stations
      FDIR=TRIM(RESULT_FOLDER)
@@ -3527,6 +3568,9 @@ SUBROUTINE STATIONS_SPHERICAL_IJ
        ALLOCATE(ista(NumberStations),&
                 jsta(NumberStations),&
                 nsta(NumberStations))
+       ALLOCATE(BufferCount(NumberStations), &
+            ZUV_Buffer(StationOutputBuffer,NumberStations,4))
+       BufferCount = 0
   
 ! calculate how many output components
               
@@ -3582,8 +3626,33 @@ SUBROUTINE STATIONS_SPHERICAL_IJ
             u_sta=u(ista(i),jsta(i))
             v_sta=v(ista(i),jsta(i)) 
           ENDIF
-          write (iunit,'(20E16.5E4)') time, eta_sta,&
-                          u_sta,v_sta
+
+            IF(BufferCount(i)<StationOutputBuffer.AND.TIME<TOTAL_TIME)THEN
+              BufferCount(i) = BufferCount(i) +1
+              ZUV_BUFFER(BufferCount(i),i,1)=time
+              ZUV_BUFFER(BufferCount(i),i,2)=eta_sta
+              ZUV_BUFFER(BufferCount(i),i,3)=u_sta
+              ZUV_BUFFER(BufferCount(i),i,4)=v_sta
+            ELSE
+              DO j=1,StationOutputBuffer
+                write (iunit,'(4E16.5E4)') (ZUV_BUFFER(j,i,k),k=1,4)
+              ENDDO              
+              BufferCount(i) = 0
+              ZUV_BUFFER(:,i,1)=TOTAL_TIME
+              ZUV_BUFFER(:,i,2:4)=ZERO
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(*,*) 'WRITE OUT STATAION ...'
+# else
+      WRITE(*,*) 'WRITE OUT STATIONS ...'
+# endif
+
+
+            ENDIF ! end buffer
+
+
+!          write (iunit,'(20E16.5E4)') time, eta_sta,&
+!                          u_sta,v_sta
        endif
      enddo
 
@@ -3612,13 +3681,15 @@ SUBROUTINE STATIONS
      IMPLICIT NONE
 
      INTEGER :: iunit
+     INTEGER, DIMENSION(:),ALLOCATABLE :: BufferCount
+     REAL(SP),DIMENSION(:,:,:),ALLOCATABLE :: ZUV_Buffer
      REAL(SP) :: dum1,dum2
      REAL(SP) :: eta_sta,u_sta,v_sta
      CHARACTER(LEN=80)::FILE_NAME=' '
      CHARACTER(LEN=80)::TMP_NAME=' '
      CHARACTER(LEN=80)::FDIR=' '
      LOGICAL :: FirstCallStationSP = .TRUE.
-     SAVE FirstCallStationSP
+     SAVE FirstCallStationSP, BufferCount,ZUV_Buffer
 
 
 ! initialize stations
@@ -3628,6 +3699,10 @@ SUBROUTINE STATIONS
        ALLOCATE(ista(NumberStations),&
                 jsta(NumberStations),&
                 nsta(NumberStations))
+       ALLOCATE(BufferCount(NumberStations), &
+            ZUV_Buffer(StationOutputBuffer,NumberStations,4))
+       BufferCount = 0
+
 !       ALLOCATE(envelope(Mloc,Nloc))
 !       envelope = 0.d0
        open(100,FILE=TRIM(STATIONS_FILE))
@@ -3688,8 +3763,32 @@ SUBROUTINE STATIONS
             v_sta=v(ista(i),jsta(i)) 
           ENDIF
 
-          write (iunit,'(20E16.5E4)') time, eta_sta,&
-                          u_sta,v_sta
+            IF(BufferCount(i)<StationOutputBuffer.AND.TIME<TOTAL_TIME)THEN
+              BufferCount(i) = BufferCount(i) +1
+              ZUV_BUFFER(BufferCount(i),i,1)=time
+              ZUV_BUFFER(BufferCount(i),i,2)=eta_sta
+              ZUV_BUFFER(BufferCount(i),i,3)=u_sta
+              ZUV_BUFFER(BufferCount(i),i,4)=v_sta
+            ELSE
+              DO j=1,StationOutputBuffer
+                write (iunit,'(4E16.5E4)') (ZUV_BUFFER(j,i,k),k=1,4)
+              ENDDO              
+              BufferCount(i) = 0
+              ZUV_BUFFER(:,i,1)=TOTAL_TIME
+              ZUV_BUFFER(:,i,2:4)=ZERO
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(*,*) 'WRITE OUT STATAION ...'
+# else
+      WRITE(*,*) 'WRITE OUT STATIONS ...'
+# endif
+
+
+            ENDIF ! end buffer
+
+
+!          write (iunit,'(20E16.5E4)') time, eta_sta,&
+!                          u_sta,v_sta
 
 !          write (iunit,*) time, eta(ista(i),jsta(i)),u(ista(i),jsta(i)),&
 !                                v(ista(i),jsta(i))

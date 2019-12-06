@@ -148,6 +148,8 @@ Program FUNWAVE_TVD
      USE TRACER
 # endif
 
+     USE TIDE_MODULE
+
      IMPLICIT NONE
 
 !     INTEGER::ISTAGE ! moved to mod_global 09/12/2017
@@ -201,6 +203,8 @@ Program FUNWAVE_TVD
 # endif
 
      CALL INITIALIZATION
+
+     CALL TIDE_INITIAL
       
 # if defined (DEBUG)
 #    if defined (PARALLEL)
@@ -351,6 +355,10 @@ Program FUNWAVE_TVD
 
        CALL ESTIMATE_HUV(ISTAGE) 
 
+       IF(TIDAL_BC)THEN
+         CALL TIDE_BC
+       ENDIF
+
 # if defined (DEBUG)
 #    if defined (PARALLEL)
        IF(myid==0) WRITE(*,*) 'ESTIMATE_HUV'     
@@ -433,6 +441,16 @@ Program FUNWAVE_TVD
 # endif
   
    END DO
+
+   IF(NumberStations>0)THEN
+# if defined (SPHERICAL_IJ_STATION)
+       ! use IJ for coupling purpose
+       CALL STATIONS_SPHERICAL_IJ
+# else
+       CALL STATIONS
+# endif
+   ENDIF
+
 
 # if defined (COUPLING)
      CLOSE(11)

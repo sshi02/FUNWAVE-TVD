@@ -61,6 +61,7 @@ SUBROUTINE WAVEMAKER_INITIALIZATION
      INTEGER :: FreqCount,DireCount
      REAL(SP),DIMENSION(:),ALLOCATABLE :: DireTmp,FreqTmp
      REAL(SP),DIMENSION(:,:),ALLOCATABLE :: WaveCompTmp
+     LOGICAL :: INPUT_WAVE_PHASE = .FALSE.
 ! internal wavemaker of wei and kirby
 
      IF(WaveMaker(1:6)=='WK_REG') THEN
@@ -196,7 +197,8 @@ SUBROUTINE WAVEMAKER_INITIALIZATION
       OPEN(1,FILE=TRIM(WaveCompFile))
        READ(1,*)NumFreq,NumDir
        ALLOCATE (WAVE_COMP(NumFreq,NumDir),Freq(NumFreq),Dire(NumDir), &
-                 DireTmp(NumDir),FreqTmp(NumFreq),WaveCompTmp(NumFreq,NumDir))
+                 DireTmp(NumDir),FreqTmp(NumFreq),WaveCompTmp(NumFreq,NumDir), &
+                 Phase2D(NumFreq,NumDir))
  
        READ(1,*)PeakPeriod
        DO J=1,NumFreq
@@ -208,7 +210,24 @@ SUBROUTINE WAVEMAKER_INITIALIZATION
        DO I=1,NumDir
          READ(1,*)(WAVE_COMP(J,I),J=1,NumFreq)
        ENDDO
+       DO I=1,NumDir
+         READ(1,*,END=110)(Phase2D(J,I),J=1,NumFreq)
+       ENDDO
+
        CLOSE(1)
+
+# if defined (PARALLEL)
+         if(myid.eq.0)then
+          WRITE(*,*) 'You input phase info'
+          WRITE(3,*) 'You input phase info'
+         endif
+# else
+          WRITE(*,*) 'You input phase info'
+          WRITE(3,*) 'You input phase info'
+# endif
+
+109    INPUT_WAVE_PHASE = .TRUE.
+110    CONTINUE
 
 !  ----
 ! remove bad components caused by conversion from other programs like SWAN or measurements
@@ -235,7 +254,6 @@ SUBROUTINE WAVEMAKER_INITIALIZATION
        DEALLOCATE (WAVE_COMP,Freq,Dire)   
 
        ALLOCATE (WAVE_COMP(NumFreq,NumDir),Beta_gen2D(NumFreq,NumDir),D_gen2D(NumFreq,NumDir),  &
-          Phase2D(NumFreq,NumDir), &
           Freq(NumFreq),Dire(NumDir),rlamda2D(NumFreq,NumDir))
 
        ! define cm sm here to make consistence with irregular wave
@@ -261,11 +279,11 @@ SUBROUTINE WAVEMAKER_INITIALIZATION
 # if defined (PARALLEL)
          if(myid.eq.0)then
           WRITE(*,*) 'You use NumFreq:', NumFreq
-          WRITE(*,*) 'You use NumDir:', NumDir
+          WRITE(3,*) 'You use NumDir:', NumDir
          endif
 # else
           WRITE(*,*) 'You use NumFreq:', NumFreq
-          WRITE(*,*) 'You use NumDir:', NumDir
+          WRITE(3,*) 'You use NumDir:', NumDir
 # endif
 
 !  ----
@@ -273,7 +291,16 @@ SUBROUTINE WAVEMAKER_INITIALIZATION
        CALL WK_WAVEMAKER_2D_SPECTRAL_DATA & 
                (NumFreq,NumDir,Freq,Dire,WAVE_COMP,PeakPeriod,DEP_WK,Delta_WK,D_gen2D,beta_gen2D,&
                rlamda2D,Width_WK)
-               
+
+     IF(INPUT_WAVE_PHASE)THEN   
+
+       DO J=1,NumFreq
+       DO I=1,NumDir
+          Phase2D(J,I)=Phase2D(J,I)*0.005555555555556*pi
+       ENDDO
+       ENDDO
+
+     ELSE            
 ! random phase
        DO J=1,NumFreq
        DO I=1,NumDir
@@ -286,7 +313,7 @@ SUBROUTINE WAVEMAKER_INITIALIZATION
 # endif
        ENDDO
        ENDDO
-
+     ENDIF
 
 !      make efficient calculation fyshi 07/07/2016
 

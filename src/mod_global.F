@@ -75,6 +75,7 @@ MODULE GLOBAL
        INTEGER :: NumberStations
        INTEGER,DIMENSION(:),ALLOCATABLE :: ista,jsta,nsta
        REAL(SP):: PLOT_INTV_STATION,PLOT_COUNT_STATION
+       INTEGER :: StationOutputBuffer
 
 ! timer
        REAL(SP) :: tbegin,tend
