@@ -3196,7 +3196,6 @@ SUBROUTINE READ_INPUT
       tmp_name = 'field.h5'
       CALL READ_STRING(tmp_name,FILE_NAME,'HDF5_FILENAME',ierr)
       h5_field%filename = trim(RESULT_FOLDER)//trim(tmp_name)
-      print *, tmp_name
 #endif
 
 # if defined (PARALLEL)
@@ -3705,7 +3704,7 @@ END SUBROUTINE STATIONS
 
 # endif
 
-# if defined(HDF5IO)
+# if defined(FASTHDF5IO)
 !-------------------------------------------------------------------------------------
 !
 !    This is the HDF5 version of Preview.
@@ -3768,77 +3767,77 @@ Subroutine Preview
 
 
      IF(OUT_ETA)THEN
-        call HDF5PutFile(h5group_eta,Eta, TRIM(File_Name))
+        call HDF5PutFile(h5group_eta,Eta, File_Name)
      ENDIF
 
      IF(OUT_Hmax)THEN
-        call HDF5PutFile(h5group_hmax,HeightMax, TRIM(File_Name))
+        call HDF5PutFile(h5group_hmax,HeightMax, File_Name)
      ENDIF
 
      IF(OUT_Hmin)THEN
-        call HDF5PutFile(h5group_hmin,HeightMin, TRIM(File_Name))
+        call HDF5PutFile(h5group_hmin,HeightMin, File_Name)
      ENDIF
 
      IF(OUT_Umax)THEN
-        call HDF5PutFile(h5group_umax, VelocityMax, TRIM(File_Name))
+        call HDF5PutFile(h5group_umax, VelocityMax,File_Name)
      ENDIF
 
      IF(OUT_MFmax)THEN
-       call HDF5PutFile(h5group_MFmax, MomentumFluxMax, TRIM(File_Name))
+       call HDF5PutFile(h5group_MFmax, MomentumFluxMax, File_Name)
      ENDIF
 
      IF(OUT_VORmax)THEN
-        call HDF5PutFile(h5group_VORmax, VorticityMax, TRIM(File_Name))
+        call HDF5PutFile(h5group_VORmax, VorticityMax, File_Name)
      ENDIF
 
      IF(OUT_U)THEN
-        call HDF5PutFile(h5group_U, U, TRIM(File_Name))
+        call HDF5PutFile(h5group_U, U, File_Name)
      ENDIF
 
      IF(OUT_V)THEN
-        call HDF5PutFile(h5group_V, V, TRIM(File_Name))
+        call HDF5PutFile(h5group_V, V, File_Name)
      ENDIF
 
      IF(OUT_MASK)THEN
-        TMP_NAME = TRIM(FDIR)//'mask_'//TRIM(FILE_NAME)
+        TMP_NAME = TRIM(FDIR)//'mask_'//FILE_NAME
         Int2Flo=MASK
-        call HDF5PutFile(h5group_mask, Int2Flo, TRIM(File_Name))
+        call HDF5PutFile(h5group_mask, Int2Flo, File_Name)
      ENDIF
 
      IF(OUT_MASK9)THEN
        Int2Flo=MASK9
-        call HDF5PutFile(h5group_mask9, Int2Flo, TRIM(File_Name))
+        call HDF5PutFile(h5group_mask9, Int2Flo, File_Name)
      ENDIF
 
 210   FORMAT(5000I3)
 
      IF(OUT_P)THEN
-        call HDF5PutFile(h5group_p, P, TRIM(File_Name))
+        call HDF5PutFile(h5group_p, P, File_Name)
      ENDIF
 
      IF(OUT_Q)THEN
-        call HDF5PutFile(h5group_q, Q, TRIM(File_Name))
+        call HDF5PutFile(h5group_q, Q, File_Name)
      ENDIF
 
 
      IF(OUT_AGE)THEN
       IF(SHOW_BREAKING)THEN
-         call HDF5PutFile(h5group_age, AGE_BREAKING, TRIM(File_Name))
+         call HDF5PutFile(h5group_age, AGE_BREAKING, File_Name)
       ENDIF
      ENDIF
 
      IF(OUT_ROLLER)THEN
-       call HDF5PutFile(h5group_roller, ROLLER_FLUX, TRIM(File_Name))
+       call HDF5PutFile(h5group_roller, ROLLER_FLUX, File_Name)
      ENDIF
 
      IF(OUT_UNDERTOW)THEN
-       call HDF5PutFile(h5group_undertow_u, Undertow_U, TRIM(File_Name))
-       call HDF5PutFile(h5group_undertow_v, Undertow_V, TRIM(File_Name))
+       call HDF5PutFile(h5group_undertow_u, Undertow_U, File_Name)
+       call HDF5PutFile(h5group_undertow_v, Undertow_V, File_Name)
      ENDIF
 
       IF(VISCOSITY_BREAKING)THEN
        IF(OUT_NU)THEN
-         call HDF5PutFile(h5group_nubrk, nu_break, TRIM(File_Name))
+         call HDF5PutFile(h5group_nubrk, nu_break, File_Name)
        ENDIF
 !        TMP_NAME = TRIM(FDIR)//'etat_'//TRIM(FILE_NAME)
 !         call PutFile(TMP_NAME,etat) 
@@ -3848,17 +3847,17 @@ Subroutine Preview
    IF(OUT_METEO)THEN
 
     IF(WindHollandModel)THEN
-      call HDF5PutFile(h5group_Pstorm, StormPressureTotal, TRIM(File_Name))
-      call HDF5PutFile(h5group_Ustorm, WindU2D, TRIM(File_Name))
-      call HDF5PutFile(h5group_Vstorm, WindV2D, TRIM(File_Name))
+      call HDF5PutFile(h5group_Pstorm, StormPressureTotal, File_Name)
+      call HDF5PutFile(h5group_Ustorm, WindU2D, File_Name)
+      call HDF5PutFile(h5group_Vstorm, WindV2D, File_Name)
     ENDIF
 
     IF(MeteoGausian)THEN
-      call HDF5PutFile(h5group_Pstorm, StormPressureTotal, TRIM(File_Name))
+      call HDF5PutFile(h5group_Pstorm, StormPressureTotal, File_Name)
     ENDIF
 
     IF(SlideModel)THEN
-      call HDF5PutFile(h5group_Pstorm, StormPressureTotal, TRIM(File_Name))
+      call HDF5PutFile(h5group_Pstorm, StormPressureTotal, File_Name)
     ENDIF
 
   ENDIF
@@ -3867,9 +3866,9 @@ Subroutine Preview
 # if defined (VESSEL)
      IF(OUT_VESSEL)THEN
 # if defined (VESSEL_PANEL_SOURCE)
-       call HDF5PutFile(h5group_Fves, VesselFluxGradient, TRIM(File_Name))
+       call HDF5PutFile(h5group_Fves, VesselFluxGradient, File_Name)
 # else
-       call HDF5PutFile(h5group_Pves, VesselPressureTotal, TRIM(File_Name))
+       call HDF5PutFile(h5group_Pves, VesselPressureTotal, File_Name)
 # endif
    ! end panel source
 
@@ -3878,14 +3877,14 @@ Subroutine Preview
 
 ! sediment
 # if defined (SEDIMENT)
-     call HDF5PutFile(h5group_c, CH *Sdensity*1000.0_SP, TRIM(File_Name))
-     call HDF5PutFile(h5group_pick, pickup, TRIM(File_Name))
-     call HDF5PutFile(h5group_depo, D, TRIM(File_Name))
-     call HDF5PutFile(h5group_Dchgs, TotalSuspendLoad, TRIM(File_Name))
-     call HDF5PutFile(h5group_DchgB, TotalBedLoad, TRIM(File_Name))
-     call HDF5PutFile(h5group_BedFx, BedFluxX, TRIM(File_Name))
-     call HDF5PutFile(h5group_BedFy, BedFluxY, TRIM(File_Name))
-     call HDF5PutFile(h5group_dep, Depth, TRIM(File_Name))
+     call HDF5PutFile(h5group_c, CH *Sdensity*1000.0_SP, File_Name)
+     call HDF5PutFile(h5group_pick, pickup, File_Name)
+     call HDF5PutFile(h5group_depo, D, File_Name)
+     call HDF5PutFile(h5group_Dchgs, TotalSuspendLoad, File_Name)
+     call HDF5PutFile(h5group_DchgB, TotalBedLoad, File_Name)
+     call HDF5PutFile(h5group_BedFx, BedFluxX, File_Name)
+     call HDF5PutFile(h5group_BedFy, BedFluxY, File_Name)
+     call HDF5PutFile(h5group_dep, Depth, File_Name)
 # endif
 ! end sediment
 
@@ -4339,7 +4338,7 @@ SUBROUTINE PutFile(FILE_NAME,PHI)
      CHARACTER(LEN=80)::TMP_NAME=' '
 
      SELECT CASE (TRIM(FIELD_IO_TYPE))
-      CASE ('ASCII' , 'ascii')
+      CASE ('ASCII' , 'ascii', 'hdf5', 'HDF5')
          CALL PutFileASCII(FILE_NAME,PHI)
       CASE ('BINARY' , 'binary' )
          Call PutFileBinary(FILE_NAME,PHI)

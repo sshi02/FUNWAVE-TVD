@@ -557,9 +557,13 @@ Subroutine H5Finalize(h5file)
      call HDF5CloseGroup( h5group_BedFy)
 # endif
 
-
+     
 
   Call h5fclose_f(h5file%file_id, error)
+
+#if !defined (FASTHDF5IO)
+  call Easy_HDF5
+#endif
 
 End Subroutine H5Finalize
 
@@ -595,6 +599,7 @@ SUBROUTINE HDF5PutFile(h5group, data, data_name)
   Type(hdf5group) :: h5group
   Real(SP), Intent(In) :: data(Mloc,Nloc)
   Character(80) :: data_name
+  Character(80) :: data_name1
 
   INTEGER(HID_T) :: filespace     ! Dataspace identifier in file 
   INTEGER(HID_T) :: memspace      ! Dataspace identifier in memory
@@ -607,16 +612,17 @@ SUBROUTINE HDF5PutFile(h5group, data, data_name)
 
   Integer :: h5error
 
+  data_name1 = trim(h5group%groupname) // '_' // trim(data_name)
 
   ! Create the data space for the  dataset. 
   CALL h5screate_simple_f(rank, h5_total_dims, filespace, h5error)
 
   ! Create the dataset with default properties.
 # if defined DOUBLE_PRECISION
-  CALL h5dcreate_f(h5group%group_id, data_name, H5T_NATIVE_DOUBLE, filespace, &
+  CALL h5dcreate_f(h5group%group_id, data_name1, H5T_NATIVE_DOUBLE, filespace, &
       dset_id, h5error)
 #else
-  CALL h5dcreate_f(h5group%group_id, data_name, H5T_NATIVE_REAL, filespace, &
+  CALL h5dcreate_f(h5group%group_id, data_name1, H5T_NATIVE_REAL, filespace, &
       dset_id, h5error)
 #endif
   CALL h5sclose_f(filespace, h5error)
@@ -770,8 +776,37 @@ Subroutine add_Parameter_Float(id, p_name, p_value, dim)
 
 End Subroutine add_Parameter_Float
 
-
-
+Subroutine Easy_HDF5
+Implicit None
+character(80) :: py_file
+py_file = trim(RESULT_FOLDER) // 'easyhdf5.py'
+if (myid .eq. 0) Then
+  open(4533, file=py_file, status='unknown')
+  Write(4533,'(A)') "import numpy as np"
+  Write(4533,'(A)') "import h5py"
+  Write(4533,'(A)') "f=h5py.File('field.h5')"
+  Write(4533,'(A)') "vars = f.keys()"
+  Write(4533,'(A)') "import os"
+  Write(4533,'(A)') "from os import listdir"
+  Write(4533,'(A)') "from os.path import isfile, join"
+  Write(4533,'(A)') "mypath = '.'"
+  Write(4533,'(A)') "files = [f for f in listdir(mypath) if isfile(join(mypath, f))]"
+  Write(4533,'(A)') "for name in files:"
+  Write(4533,'(A)') "    for item in vars:"
+  Write(4533,'(A)') "        if item.lower() in name.lower():"
+  Write(4533,'(A)') "            f2 = np.loadtxt(name)"
+  Write(4533,'(A)') "            new_name = name"
+  Write(4533,'(A)') "            f[item].update({new_name:f2})"
+  Write(4533,'(A)') "for name in files:"
+  Write(4533,'(A)') "    for item in vars:"
+  Write(4533,'(A)') "        if item.lower() in name.lower():"
+  Write(4533,'(A)') "            os.system('rm -f '+ name )"
+  Write(4533,'(A)') "print('Successfully collect all data to field.h5')"
+  close(4533)
+  call system("cd " // trim(RESULT_FOLDER) // " && python easyhdf5.py")
+End If
+Call mpi_barrier(MPI_COMM_WORLD, ier)
+End Subroutine Easy_HDF5
 
 #endif
 
