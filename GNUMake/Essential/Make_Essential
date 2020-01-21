@@ -54,6 +54,16 @@ else
       else ifeq ($(PARALLEL),$(filter $(PARALLEL), false))
          FC = pgfortran
       endif
+   # onyx hpc
+   else ifeq ($(COMPILER),$(filter $(COMPILER), onyx))
+      USE_MOD = -module $(MOD_DIR)
+      FC      = ftn
+
+      # Removing -lmpi flag if defined in CLIB
+      ifneq (, $(findstring -lmpi, $(CLIB)))
+         $(warning WARNING: lmpi flag detected in CLIB, Onyx doesrequire linking MPI flag. Removing -lmpi from CLIB. )
+         CLIB := $(filter-out -lmpi, $(CLIB))
+      endif
    # invalid option
    else
       $(error Fatal ERROR: COMPILER=$(COMPILER) and DEF_FC is empty, Please correct the COMPILER or customize the DEF_FC.)
@@ -110,7 +120,7 @@ ifeq ($(PARALLEL),$(filter $(PARALLEL), true))
    FLAG_PARALLEL = -DPARALLEL
 endif
 
-ifeq ($(COMPILER),$(filter $(COMPILER), intel))
+ifeq ($(COMPILER),$(filter $(COMPILER), intel onyx ))
    FLAG_INTEL = -DINTEL
 endif
 
