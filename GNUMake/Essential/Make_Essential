@@ -38,27 +38,24 @@ else
       else ifeq ($(PARALLEL),$(filter $(PARALLEL), false))
          FC = ifort
       endif
-   endif
    # gnu
-   ifeq ($(COMPILER),$(filter $(COMPILER), gnu))
+   else ifeq ($(COMPILER),$(filter $(COMPILER), gnu))
       USE_MOD = -J $(MOD_DIR)
       ifeq ($(PARALLEL),$(filter $(PARALLEL), true))
          FC = mpif90
       else ifeq ($(PARALLEL),$(filter $(PARALLEL), false))
          FC = gfortran
       endif
-   endif
    # pgi
-   ifeq ($(COMPILER),$(filter $(COMPILER), pgi))
+   else ifeq ($(COMPILER),$(filter $(COMPILER), pgi))
       USE_MOD = -module $(MOD_DIR)
       ifeq ($(PARALLEL),$(filter $(PARALLEL), true))
          FC = mpif90
       else ifeq ($(PARALLEL),$(filter $(PARALLEL), false))
          FC = pgfortran
       endif
-   endif
-
-   ifneq ($(COMPILER),$(filter $(COMPILER), intel pgi gnu))
+   # invalid option
+   else
       $(error Fatal ERROR: COMPILER=$(COMPILER) and DEF_FC is empty, Please correct the COMPILER or customize the DEF_FC.)
    endif
 endif
