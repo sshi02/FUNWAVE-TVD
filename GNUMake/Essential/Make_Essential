@@ -141,6 +141,9 @@ CPPARGS = $(CPPFLAGS) $(DEF_FLAGS) $(FLAG_ARGS) \
 			$(FLAG_PARALLEL) $(FLAG_INTEL) $(FLAG_DEBUG) \
 			$(FLAG_PRECISION) $(FLAG_CARTESIAN)
 
+# remove extra whitespace between flags
+CPPARGS := $(shell echo $(CPPARGS) | sed 's~ \+~ ~g')
+
 #--------------------EXEC name------------------------
 ifeq ($(EXEC),$(filter $(EXEC), funwave))
    FLAG_LIST = $(patsubst -D%,%,$(strip $(FLAG_ARGS)))
@@ -183,6 +186,9 @@ ifneq ($(DEF_FC),$(filter $(DEF_FC), ''))
 else
    FCFLAGS := $(DEBFLGS) $(OPT) $(INCS)
 endif
+
+# remove extra whitespace between flags
+FCFLAGS := $(shell echo $(FCFLAGS) | sed 's~ \+~ ~g')
 
 #----------------FUNWAVE souce code-------------------
 MODS  = mod_param.F mod_global.F mod_input.F mod_vessel.F mod_bathy_correction.F \
