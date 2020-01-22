@@ -58,7 +58,6 @@ else
    else ifeq ($(COMPILER),$(filter $(COMPILER), onyx))
       USE_MOD = -module $(MOD_DIR)
       FC      = ftn
-
       # Removing -lmpi flag if defined in CLIB
       ifneq (, $(findstring -lmpi, $(CLIB)))
          $(warning WARNING: lmpi flag detected in CLIB, Onyx doesrequire linking MPI flag. Removing -lmpi from CLIB. )
@@ -78,7 +77,7 @@ endif
 #----------Debug and optimization flags---------------
 # DEBUG=true
 ifeq ($(DEBUG),$(filter $(DEBUG), true))
-   ifeq ($(COMPILER),$(filter $(COMPILER), intel))
+   ifeq ($(COMPILER),$(filter $(COMPILER), intel onyx gaffney koehr))
       DEBFLGS  = -g -check -warn -fPIC
       OPT      = -O0
    else ifeq ($(COMPILER),$(filter $(COMPILER), gnu))
@@ -91,7 +90,7 @@ ifeq ($(DEBUG),$(filter $(DEBUG), true))
 endif
 # DEBUG=false
 ifeq ($(DEBUG),$(filter $(DEBUG), false))
-   ifeq ($(COMPILER),$(filter $(COMPILER), intel))
+   ifeq ($(COMPILER),$(filter $(COMPILER), intel onyx gaffney koehr))
       DEBFLGS  = -fPIC
       OPT      = -O2
    else ifeq ($(COMPILER),$(filter $(COMPILER), gnu))
