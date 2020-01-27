@@ -702,6 +702,24 @@ SUBROUTINE READ_INPUT
         INI_UVZ = .FALSE.
       ENDIF
     IF(INI_UVZ)THEN
+
+        CALL READ_LOGICAL(BED_DEFORMATION,FILE_NAME,'BED_DEFORMATION',ierr)
+        IF(ierr==1)THEN
+           BED_DEFORMATION = .FALSE.
+        ENDIF 
+
+        IF(BED_DEFORMATION)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A50)')'Bathymetry is adjusted based on Bed deformation.'
+         WRITE(3,'(A50)')'Bathymetry is adjusted based on Bed deformation.'
+      endif
+# else
+         WRITE(*,'(A50)')'Bathymetry is adjusted based on Bed deformation.'
+         WRITE(3,'(A50)')'Bathymetry is adjusted based on Bed deformation.'
+# endif
+        ENDIF ! end bed deformation
+
         CALL READ_STRING(ETA_FILE,FILE_NAME,'ETA_FILE',ierr)
 
       IF(ierr==1)THEN
