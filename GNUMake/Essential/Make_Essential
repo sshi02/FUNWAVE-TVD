@@ -60,9 +60,16 @@ else
       FC      = ftn
       # Removing -lmpi flag if defined in CLIB
       ifneq (, $(findstring -lmpi, $(CLIB)))
-         $(warning WARNING: lmpi flag detected in CLIB, Onyx doesrequire linking MPI flag. Removing -lmpi from CLIB. )
+         $(warning WARNING: lmpi flag detected in CLIB, Onyx does not require explicit linking of MPI libary. Removing -lmpi from CLIB. )
          CLIB := $(filter-out -lmpi, $(CLIB))
       endif
+      # Removing -Bdynamic flat if defined in CLIB
+      ifneq (, $(findstring -Bdynamic, $(CLIB)))
+         $(warning WARNING: Bdynamic flag detected in CLIB, Onyx executables do not work correctly with dynamic linking of shared libaries. Removing -Bdynamic from CLIB. )
+         CLIB := $(filter-out -Bdynamic, $(CLIB))
+      endif
+
+
    # koehr and gaffney
    else ifeq ($(COMPILER),$(filter $(COMPILER), koehr gaffney))
       USE_MOD = -module $(MOD_DIR)
