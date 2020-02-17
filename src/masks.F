@@ -71,11 +71,13 @@ SUBROUTINE UPDATE_MASK
 !     ETAtmp=ETA
      Dmass = ZERO
 
-     DO J=1,Nloc
-     DO I=1,Mloc
-      IF(MASK(I,J)==1)EtaScreen(I,J)=ETA(I,J)
-     ENDDO
-     ENDDO
+     EtaScreen=ETA(I,J)
+
+!     DO J=1,Nloc
+!     DO I=1,Mloc
+!      IF(MASK(I,J)==1)EtaScreen(I,J)=ETA(I,J)
+!     ENDDO
+!     ENDDO
 
      ETAtmp=EtaScreen
 
@@ -139,7 +141,7 @@ SUBROUTINE UPDATE_MASK
      ENDDO
 
      MASK=MASKtmp
-     EtaScreen = ETAtmp
+!     EtaScreen = ETAtmp
 
      DO J=Jbeg-1,Jend+1
      DO I=Ibeg-1,Iend+1
