@@ -3309,6 +3309,7 @@ SUBROUTINE READ_INPUT
       CALL READ_LOGICAL(OUT_U,FILE_NAME,'U',ierr)
       CALL READ_LOGICAL(OUT_V,FILE_NAME,'V',ierr)
       CALL READ_LOGICAL(OUT_ETA,FILE_NAME,'ETA',ierr)
+      CALL READ_LOGICAL(OUT_EtaScreen,FILE_NAME,'ETAscreen',ierr)
       CALL READ_LOGICAL(OUT_Hmax,FILE_NAME,'Hmax',ierr)
       CALL READ_LOGICAL(OUT_Hmin,FILE_NAME,'Hmin',ierr)
       CALL READ_LOGICAL(OUT_Umax,FILE_NAME,'Umax',ierr)
@@ -3362,6 +3363,7 @@ SUBROUTINE READ_INPUT
       WRITE(3,'(A15,L2)')'OUT_U',OUT_U
       WRITE(3,'(A15,L2)')'OUT_V',OUT_V
       WRITE(3,'(A15,L2)')'OUT_ETA',OUT_ETA
+      WRITE(3,'(A15,L2)')'OUT_ETAscreen',OUT_EtaScreen
       WRITE(3,'(A15,L2)')'OUT_Hmax',OUT_Hmax
       WRITE(3,'(A15,L2)')'OUT_Hmin',OUT_Hmin
       WRITE(3,'(A15,L2)')'OUT_Umax',OUT_Umax
@@ -3906,6 +3908,11 @@ SUBROUTINE PREVIEW
      IF(OUT_ETA)THEN
         TMP_NAME = TRIM(FDIR)//'eta_'//TRIM(FILE_NAME)
         call PutFile(TMP_NAME,Eta)
+     ENDIF
+
+     IF(OUT_ETAscreen)THEN
+        TMP_NAME = TRIM(FDIR)//'etasrn_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,EtaScreen)
      ENDIF
 
      IF(OUT_Hmax)THEN

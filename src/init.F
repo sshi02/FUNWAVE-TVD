@@ -143,6 +143,8 @@ SUBROUTINE ALLOCATE_VARIABLES
       ALLOCATE(Eta(Mloc,Nloc),Eta0(Mloc,Nloc), &
                Ubar0(Mloc,Nloc),Vbar0(Mloc,Nloc),&
                Ubar(Mloc,Nloc),Vbar(Mloc,Nloc))
+! wetting and drying
+      ALLOCATE(EtaScreen(Mloc,Nloc))
 ! dispersion updating variables
 # if defined (CARTESIAN)
       ALLOCATE(U4(Mloc,Nloc),V4(Mloc,Nloc),U1p(Mloc,Nloc), & 
@@ -884,6 +886,21 @@ SUBROUTINE INITIALIZATION
      ENDIF
 
 ! get Eta and H
+
+    IF(NO_MASK_FILE)THEN
+     DO J=1,Nloc
+     DO I=1,Mloc
+      IF(Eta(I,J)<-DEPTH(I,J))THEN
+       MASK(I,J)=0
+       Eta(I,J)=MinDepth-Depth(I,J)
+       EtaScreen(I,J)=Eta(I,J)
+      ELSE
+       MASK(I,J)=1
+      ENDIF
+     ENDDO
+     ENDDO
+    ENDIF    
+
      H=MAX(Eta*Gamma3+Depth,MinDepthFrc)
      HU=H*U
      HV=H*V
@@ -895,18 +912,6 @@ SUBROUTINE INITIALIZATION
      Ubar=HU+gamma1*U1p*H
      Vbar=HV+gamma1*V1p*H
 
-    IF(NO_MASK_FILE)THEN
-     DO J=1,Nloc
-     DO I=1,Mloc
-      IF(Eta(I,J)<-DEPTH(I,J))THEN
-       MASK(I,J)=0
-       Eta(I,J)=MinDepth-Depth(I,J)
-      ELSE
-       MASK(I,J)=1
-      ENDIF
-     ENDDO
-     ENDDO
-    ENDIF    
   
 ! read obstacle structures 
      IF(OBSTACLE)THEN
