@@ -9,11 +9,11 @@ clf
     
 fnum=sprintf('%.5d',nfile(num));
 eta=load([fdir 'eta_' fnum]);
-etasrn=load([fdir 'etasrn_' fnum]);
+%etasrn=load([fdir 'etasrn_' fnum]);
 mask=load([fdir 'mask_' fnum]);
 
 subplot(121)
-pcolor(etasrn-eta),shading flat
+%pcolor(etasrn-eta),shading flat
 caxis([-0.2 0.2])
 axis([200 250 1 500])
 

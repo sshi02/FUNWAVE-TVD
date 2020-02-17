@@ -71,15 +71,10 @@ SUBROUTINE UPDATE_MASK
 !     ETAtmp=ETA
      Dmass = ZERO
 
+# if defined(UseEtaScreen)
      EtaScreen=ETA(I,J)
-
-!     DO J=1,Nloc
-!     DO I=1,Mloc
-!      IF(MASK(I,J)==1)EtaScreen(I,J)=ETA(I,J)
-!     ENDDO
-!     ENDDO
-
      ETAtmp=EtaScreen
+# endif
 
      DO J=Jbeg-2,Jend+2
      DO I=Ibeg-2,Iend+2
@@ -87,6 +82,7 @@ SUBROUTINE UPDATE_MASK
      IF(MASK_STRUC(I,J)==1)THEN
        IF(MASK(I,J)<1)THEN
          ! left
+# if defined(UseEtaScreen)
          IF(MASK(I-1,J)==1.AND.Eta(I-1,J)>EtaScreen(I,J))THEN
            MASKtmp(I,J)=1
          ENDIF
@@ -102,11 +98,30 @@ SUBROUTINE UPDATE_MASK
          IF(MASK(I,J+1)==1.AND.Eta(I,J+1)>EtaScreen(I,j))THEN
            MASKtmp(I,J)=1
          ENDIF
+# else
+         IF(MASK(I-1,J)==1.AND.Eta(I-1,J)>Eta(I,J))THEN
+           MASKtmp(I,J)=1
+         ENDIF
+         ! right
+         IF(MASK(I+1,J)==1.AND.Eta(I+1,J)>Eta(I,J))THEN
+           MASKtmp(I,J)=1
+         ENDIF
+         ! bottom
+         IF(MASK(I,J-1)==1.AND.Eta(I,J-1)>Eta(I,j))THEN
+           MASKtmp(I,J)=1
+         ENDIF
+         ! top
+         IF(MASK(I,J+1)==1.AND.Eta(I,J+1)>Eta(I,j))THEN
+           MASKtmp(I,J)=1
+         ENDIF
+# endif
 ! drying
        ELSE
          IF(Eta(I,J)<-Depth(I,J))THEN
           MASKtmp(I,J)=0
+# if defined(UseEtaScreen)
           ETAtmp(I,J)=MinDepth-Depth(I,J)
+# endif
 
           IF(I.GE.Ibeg.AND.I.LE.Iend.AND.J.GE.Jbeg.AND.J.LE.Jend)THEN
 # if defined (CARTESIAN)
@@ -140,8 +155,12 @@ SUBROUTINE UPDATE_MASK
      ENDDO
      ENDDO
 
+
      MASK=MASKtmp
-!     EtaScreen = ETAtmp
+
+# if defined(UseEtaScreen)
+     EtaScreen = ETAtmp
+# endif
 
      DO J=Jbeg-1,Jend+1
      DO I=Ibeg-1,Iend+1

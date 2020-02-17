@@ -177,15 +177,22 @@ SUBROUTINE DelxyFun
      USE GLOBAL
 
 ! compute DelxFun
-
+# if defined(UseEtaScreen)
       CALL DelxFun(DX,Mloc,Nloc,EtaScreen,DelxEtar)
+# else
+      CALL DelxFun(DX,Mloc,Nloc,Eta,DelxEtar)
+# endif
       CALL DelxFun(DX,Mloc,Nloc,U,DelxU)
       CALL DelxFun(DX,Mloc,Nloc,V,DelxV)
       CALL DelxFun(DX,Mloc,Nloc,HU,DelxHU)
       CALL DelxFun(DX,Mloc,Nloc,HV,DelxHV)
 
 ! compute DelyFun
+# if defined(UseEtaScreen)
       CALL DelyFun(DY,Mloc,Nloc,EtaScreen,DelyEtar)
+# else
+      CALL DelyFun(DY,Mloc,Nloc,Eta,DelyEtar)
+# endif
       CALL DelyFun(DY,Mloc,Nloc,U,DelyU)
       CALL DelyFun(DY,Mloc,Nloc,V,DelyV)
       CALL DelyFun(DY,Mloc,Nloc,HV,DelyHV)
@@ -439,7 +446,11 @@ SUBROUTINE CONSTRUCTION
      CALL CONSTRUCT_X(Mloc,Mloc1,Nloc,DX,V,DelxV,VxL,VxR,Kappa)
      CALL CONSTRUCT_X(Mloc,Mloc1,Nloc,DX,HU,DelxHU,HUxL,HUxR,Kappa)
      CALL CONSTRUCT_X(Mloc,Mloc1,Nloc,DX,HV,DelxHV,HVxL,HVxR,Kappa)
+# if defined(UseEtaScreen)
      CALL CONSTRUCT_X(Mloc,Mloc1,Nloc,DX,EtaScreen,DelxEtar,EtaRxL,EtaRxR,Kappa)
+# else
+     CALL CONSTRUCT_X(Mloc,Mloc1,Nloc,DX,Eta,DelxEtar,EtaRxL,EtaRxR,Kappa)
+# endif
      HxL=EtaRxL+Depthx
      HxR=EtaRxR+Depthx
 # if defined (CARTESIAN)
@@ -545,7 +556,11 @@ SUBROUTINE CONSTRUCTION
      CALL CONSTRUCT_Y(Mloc,Nloc,Nloc1,DY,V,DelyV,VyL,VyR,Kappa)
      CALL CONSTRUCT_Y(Mloc,Nloc,Nloc1,DY,HV,DelyHV,HVyL,HVyR,Kappa)
      CALL CONSTRUCT_Y(Mloc,Nloc,Nloc1,DY,HU,DelyHU,HUyL,HUyR,Kappa)
+# if defined(UseEtaScreen)
      CALL CONSTRUCT_Y(Mloc,Nloc,Nloc1,DY,EtaScreen,DelyEtar,EtaRyL,EtaRyR,Kappa)
+# else
+     CALL CONSTRUCT_Y(Mloc,Nloc,Nloc1,DY,Eta,DelyEtar,EtaRyL,EtaRyR,Kappa)
+# endif
      HyL=EtaRyL+Depthy
      HyR=EtaRyR+Depthy
 
@@ -794,7 +809,11 @@ SUBROUTINE CONSTRUCTION_HO_minmod
      CALL CONSTRUCT_HO_X(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,V,VxL,VxR)
      CALL CONSTRUCT_HO_X(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,HU,HUxL,HUxR)
      CALL CONSTRUCT_HO_X(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,HV,HVxL,HVxR)
+# if defined(UseEtaScreen)
      CALL CONSTRUCT_HO_X(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,EtaScreen,EtaRxL,EtaRxR)
+# else
+     CALL CONSTRUCT_HO_X(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,Eta,EtaRxL,EtaRxR)
+# endif
 
 ! dispersion
      HxL=EtaRxL+Depthx
@@ -888,7 +907,11 @@ SUBROUTINE CONSTRUCTION_HO_minmod
      CALL CONSTRUCT_HO_Y(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,V,VyL,VyR)
      CALL CONSTRUCT_HO_Y(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,HV,HVyL,HVyR)
      CALL CONSTRUCT_HO_Y(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,HU,HUyL,HUyR)
+# if defined (UseEtaScreen)
      CALL CONSTRUCT_HO_Y(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,EtaScreen,EtaRyL,EtaRyR)
+# else
+     CALL CONSTRUCT_HO_Y(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,Eta,EtaRyL,EtaRyR)
+# endif
 
 ! dispersion
      HyL=EtaRyL+Depthy
@@ -1288,7 +1311,11 @@ SUBROUTINE CONSTRUCTION_HO
      CALL CONSTRUCT_HO_X(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,V,VxL,VxR)
      CALL CONSTRUCT_HO_X(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,HU,HUxL,HUxR)
      CALL CONSTRUCT_HO_X(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,HV,HVxL,HVxR)
+# if defined (UseEtaScreen)
      CALL CONSTRUCT_HO_X(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,EtaScreen,EtaRxL,EtaRxR)
+# else
+     CALL CONSTRUCT_HO_X(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,Eta,EtaRxL,EtaRxR)
+# endif
 
      HxL=EtaRxL+Depthx
      HxR=EtaRxR+Depthx
@@ -1376,7 +1403,11 @@ SUBROUTINE CONSTRUCTION_HO
      CALL CONSTRUCT_HO_Y(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,V,VyL,VyR)
      CALL CONSTRUCT_HO_Y(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,HV,HVyL,HVyR)
      CALL CONSTRUCT_HO_Y(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,HU,HUyL,HUyR)
+# if defined (UseEtaScreen)
      CALL CONSTRUCT_HO_Y(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,EtaScreen,EtaRyL,EtaRyR)
+# else
+     CALL CONSTRUCT_HO_Y(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,Eta,EtaRyL,EtaRyR)
+# endif
 
      HyL=EtaRyL+Depthy
      HyR=EtaRyR+Depthy

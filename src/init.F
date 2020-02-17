@@ -143,8 +143,10 @@ SUBROUTINE ALLOCATE_VARIABLES
       ALLOCATE(Eta(Mloc,Nloc),Eta0(Mloc,Nloc), &
                Ubar0(Mloc,Nloc),Vbar0(Mloc,Nloc),&
                Ubar(Mloc,Nloc),Vbar(Mloc,Nloc))
+# if defined(UseEtaScreen)
 ! wetting and drying
       ALLOCATE(EtaScreen(Mloc,Nloc))
+# endif
 ! dispersion updating variables
 # if defined (CARTESIAN)
       ALLOCATE(U4(Mloc,Nloc),V4(Mloc,Nloc),U1p(Mloc,Nloc), & 
@@ -893,7 +895,9 @@ SUBROUTINE INITIALIZATION
       IF(Eta(I,J)<-DEPTH(I,J))THEN
        MASK(I,J)=0
        Eta(I,J)=MinDepth-Depth(I,J)
+# if defined(UseEtaScreen)
        EtaScreen(I,J)=Eta(I,J)
+# endif
       ELSE
        MASK(I,J)=1
       ENDIF
