@@ -270,8 +270,8 @@ Program FUNWAVE_TVD
      CHH0=CHH
 # endif
 
+! previous update_mask
    
-     CALL UPDATE_MASK
 
 # if defined (DEBUG)
 #    if defined (PARALLEL)
@@ -354,6 +354,9 @@ Program FUNWAVE_TVD
 # endif
 
        CALL ESTIMATE_HUV(ISTAGE) 
+
+! etascreen was added, update_mask was moved here from outside RK 
+       CALL UPDATE_MASK
 
        IF(TIDAL_BC)THEN
          CALL TIDE_BC

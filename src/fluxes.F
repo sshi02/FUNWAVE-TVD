@@ -178,14 +178,14 @@ SUBROUTINE DelxyFun
 
 ! compute DelxFun
 
-      CALL DelxFun(DX,Mloc,Nloc,Eta,DelxEtar)
+      CALL DelxFun(DX,Mloc,Nloc,EtaScreen,DelxEtar)
       CALL DelxFun(DX,Mloc,Nloc,U,DelxU)
       CALL DelxFun(DX,Mloc,Nloc,V,DelxV)
       CALL DelxFun(DX,Mloc,Nloc,HU,DelxHU)
       CALL DelxFun(DX,Mloc,Nloc,HV,DelxHV)
 
 ! compute DelyFun
-      CALL DelyFun(DY,Mloc,Nloc,Eta,DelyEtar)
+      CALL DelyFun(DY,Mloc,Nloc,EtaScreen,DelyEtar)
       CALL DelyFun(DY,Mloc,Nloc,U,DelyU)
       CALL DelyFun(DY,Mloc,Nloc,V,DelyV)
       CALL DelyFun(DY,Mloc,Nloc,HV,DelyHV)
@@ -439,7 +439,7 @@ SUBROUTINE CONSTRUCTION
      CALL CONSTRUCT_X(Mloc,Mloc1,Nloc,DX,V,DelxV,VxL,VxR,Kappa)
      CALL CONSTRUCT_X(Mloc,Mloc1,Nloc,DX,HU,DelxHU,HUxL,HUxR,Kappa)
      CALL CONSTRUCT_X(Mloc,Mloc1,Nloc,DX,HV,DelxHV,HVxL,HVxR,Kappa)
-     CALL CONSTRUCT_X(Mloc,Mloc1,Nloc,DX,Eta,DelxEtar,EtaRxL,EtaRxR,Kappa)
+     CALL CONSTRUCT_X(Mloc,Mloc1,Nloc,DX,EtaScreen,DelxEtar,EtaRxL,EtaRxR,Kappa)
      HxL=EtaRxL+Depthx
      HxR=EtaRxR+Depthx
 # if defined (CARTESIAN)
@@ -545,7 +545,7 @@ SUBROUTINE CONSTRUCTION
      CALL CONSTRUCT_Y(Mloc,Nloc,Nloc1,DY,V,DelyV,VyL,VyR,Kappa)
      CALL CONSTRUCT_Y(Mloc,Nloc,Nloc1,DY,HV,DelyHV,HVyL,HVyR,Kappa)
      CALL CONSTRUCT_Y(Mloc,Nloc,Nloc1,DY,HU,DelyHU,HUyL,HUyR,Kappa)
-     CALL CONSTRUCT_Y(Mloc,Nloc,Nloc1,DY,Eta,DelyEtar,EtaRyL,EtaRyR,Kappa)
+     CALL CONSTRUCT_Y(Mloc,Nloc,Nloc1,DY,EtaScreen,DelyEtar,EtaRyL,EtaRyR,Kappa)
      HyL=EtaRyL+Depthy
      HyR=EtaRyR+Depthy
 
@@ -794,7 +794,7 @@ SUBROUTINE CONSTRUCTION_HO_minmod
      CALL CONSTRUCT_HO_X(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,V,VxL,VxR)
      CALL CONSTRUCT_HO_X(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,HU,HUxL,HUxR)
      CALL CONSTRUCT_HO_X(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,HV,HVxL,HVxR)
-     CALL CONSTRUCT_HO_X(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,Eta,EtaRxL,EtaRxR)
+     CALL CONSTRUCT_HO_X(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,EtaScreen,EtaRxL,EtaRxR)
 
 ! dispersion
      HxL=EtaRxL+Depthx
@@ -888,7 +888,7 @@ SUBROUTINE CONSTRUCTION_HO_minmod
      CALL CONSTRUCT_HO_Y(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,V,VyL,VyR)
      CALL CONSTRUCT_HO_Y(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,HV,HVyL,HVyR)
      CALL CONSTRUCT_HO_Y(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,HU,HUyL,HUyR)
-     CALL CONSTRUCT_HO_Y(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,Eta,EtaRyL,EtaRyR)
+     CALL CONSTRUCT_HO_Y(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,EtaScreen,EtaRyL,EtaRyR)
 
 ! dispersion
      HyL=EtaRyL+Depthy
@@ -1288,7 +1288,7 @@ SUBROUTINE CONSTRUCTION_HO
      CALL CONSTRUCT_HO_X(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,V,VxL,VxR)
      CALL CONSTRUCT_HO_X(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,HU,HUxL,HUxR)
      CALL CONSTRUCT_HO_X(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,HV,HVxL,HVxR)
-     CALL CONSTRUCT_HO_X(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,Eta,EtaRxL,EtaRxR)
+     CALL CONSTRUCT_HO_X(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,EtaScreen,EtaRxL,EtaRxR)
 
      HxL=EtaRxL+Depthx
      HxR=EtaRxR+Depthx
@@ -1376,7 +1376,7 @@ SUBROUTINE CONSTRUCTION_HO
      CALL CONSTRUCT_HO_Y(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,V,VyL,VyR)
      CALL CONSTRUCT_HO_Y(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,HV,HVyL,HVyR)
      CALL CONSTRUCT_HO_Y(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,HU,HUyL,HUyR)
-     CALL CONSTRUCT_HO_Y(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,Eta,EtaRyL,EtaRyR)
+     CALL CONSTRUCT_HO_Y(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,EtaScreen,EtaRyL,EtaRyR)
 
      HyL=EtaRyL+Depthy
      HyR=EtaRyR+Depthy

@@ -232,6 +232,7 @@ MODULE GLOBAL
 ! wetting and drying
         INTEGER,DIMENSION(:,:),ALLOCATABLE :: MASK,MASK_STRUC,MASK9
         REAL(SP) :: Dmass,WetArea,DwetEta
+        REAL(SP),DIMENSION(:,:),ALLOCATABLE :: EtaScreen
 ! wave maker
         LOGICAL :: EqualEnergy = .FALSE.
         LOGICAL :: WaveMakerCurrentBalance = .FALSE.
@@ -333,6 +334,7 @@ MODULE GLOBAL
 ! output logical parameters
        INTEGER :: OUTPUT_RES = 1
        LOGICAL :: OUT_U=.FALSE., OUT_V=.FALSE.,OUT_ETA=.FALSE., &
+                  OUT_ETASCREEN=.FALSE., &
                   OUT_MASK=.FALSE.,OUT_SXL=.FALSE.,OUT_SXR=.FALSE.,&
                   OUT_SYL=.FALSE., OUT_SYR=.FALSE.,&
                   OUT_SourceX=.FALSE., OUT_SourceY=.FALSE., &
