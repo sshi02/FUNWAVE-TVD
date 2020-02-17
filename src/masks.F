@@ -77,6 +77,8 @@ SUBROUTINE UPDATE_MASK
      ENDDO
      ENDDO
 
+     ETAtmp=EtaScreen
+
      DO J=Jbeg-2,Jend+2
      DO I=Ibeg-2,Iend+2
 ! flood
@@ -102,7 +104,7 @@ SUBROUTINE UPDATE_MASK
        ELSE
          IF(Eta(I,J)<-Depth(I,J))THEN
           MASKtmp(I,J)=0
-          ETAscreen(I,J)=MinDepth-Depth(I,J)
+          ETAtmp(I,J)=MinDepth-Depth(I,J)
 
           IF(I.GE.Ibeg.AND.I.LE.Iend.AND.J.GE.Jbeg.AND.J.LE.Jend)THEN
 # if defined (CARTESIAN)
@@ -137,6 +139,7 @@ SUBROUTINE UPDATE_MASK
      ENDDO
 
      MASK=MASKtmp
+     EtaScreen = ETAtmp
 
      DO J=Jbeg-1,Jend+1
      DO I=Ibeg-1,Iend+1
