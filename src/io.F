@@ -4051,7 +4051,7 @@ SUBROUTINE PREVIEW
 ! sediment
 # if defined (SEDIMENT)
         TMP_NAME = TRIM(FDIR)//'C_'//TRIM(FILE_NAME)
-        call PutFile(TMP_NAME,CH *Sdensity*1000.0_SP)
+        call PutFile(TMP_NAME,CH *Sdensity*RHO_WATER)
         TMP_NAME = TRIM(FDIR)//'Pick_'//TRIM(FILE_NAME)
         call PutFile(TMP_NAME,Pickup)
         TMP_NAME = TRIM(FDIR)//'Depo_'//TRIM(FILE_NAME)

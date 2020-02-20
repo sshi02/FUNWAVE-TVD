@@ -82,6 +82,11 @@ MODULE SEDIMENT_MODULE
 
     REAL(SP) :: D50,Sdensity,n_porosity,DT1,Counter,WS,Kappa1,Kappa2, &
                 MinDepthPickup
+! cohesive
+    REAL(SP) :: a_coh,b_coh,n_coh,m_coh,alpha_coh,E_coh,k_coh,Tau_crd_coh,&
+                Tau_cr_coh
+    LOGICAL :: SoftBed = .TRUE.
+    LOGICAL :: CohesiveSediment = .FALSE.
     
     REAL(SP),DIMENSION(:,:),ALLOCATABLE::Zb,P_ave,D_ave,Mask_s,D,Pickup,Delta_c
     REAL(SP),DIMENSION(:,:),ALLOCATABLE::CH,CHX,CHY,CHH,CHHxR,CHHxL,CHXxL,CHXxR
@@ -90,10 +95,12 @@ MODULE SEDIMENT_MODULE
     REAL(SP),DIMENSION(:,:),ALLOCATABLE::BedFluxX,BedFluxY
     REAL(SP),DIMENSION(:,:),ALLOCATABLE::Hpo,CHH0,TotalSuspendLoad,TotalBedLoad
     REAL(SP),DIMENSION(:,:),ALLOCATABLE::Depth_ini
+    REAL(SP),DIMENSION(:,:),ALLOCATABLE::Tau_xy
+
 
     REAL(SP) :: Shields_cr,A_sed,Tau_cr,D_sed,htt,k_s,u_c,ustar_c,ec_max
     REAL(SP) :: Shields_cr_bedload,Tau_cr_bedload
-    REAL(SP) :: beta_d,reduction,tau_xy,c_a,c_b,ec_max_w,ec_max_c
+    REAL(SP) :: beta_d,reduction,c_a,c_b,ec_max_w,ec_max_c
     REAL(SP) :: u_c1,u_c2,u_c3,u_c4,ustar_c1,ustar_c2,ustar_c3,ustar_c4
     REAL(SP) :: k1,k2,k3,k4,F1,F2,F3,F4,tan_phi,Dstar,viscosity
     REAL(SP) :: Satuation
@@ -139,9 +146,199 @@ SUBROUTINE SEDIMENT_INITIAL
 # endif
       ENDIF
 
+      CALL READ_LOGICAL(CohesiveSediment,FILE_NAME,'CohesiveSediment',ierr)
+
+      IF(ierr == 1)THEN
+       CohesiveSediment = .FALSE. 
+# if defined (PARALLEL) 
+      if (myid.eq.0)then
+       WRITE(3,'(A40)')'CohesiveSediment not defined, Default: False'
+       WRITE(*,'(A40)')'CohesiveSediment not defined, Default: False'
+      endif
+# else
+      WRITE(3,'(A40)')'CohesiveSediment not defined, Default: False'
+      WRITE(*,'(A40)')'CohesiveSediment not defined, Default: False'
+# endif 
+      ENDIF
+
+!   for cohesive sediment: a_coh,b_coh,n_coh,m_coh,alpha_coh,E_coh     
+
+    IF(CohesiveSediment)THEN
+
+! SoftBed
+      CALL READ_LOGICAL(SoftBed,FILE_NAME,'SoftBed',ierr)
+
+      IF(ierr == 1)THEN
+       SoftBed = .TRUE. 
+# if defined (PARALLEL) 
+      if (myid.eq.0)then
+       WRITE(3,'(A40)')'SoftBed not defined, Default: True'
+       WRITE(*,'(A40)')'SoftBed not defined, Default: True'
+      endif
+# else
+      WRITE(3,'(A40)')'SoftBed not defined, Default: True'
+      WRITE(*,'(A40)')'SoftBed not defined, Default: True'
+# endif 
+      ENDIF
+
+! tau_crd_coh, default 0.001
+
+      CALL READ_Float(Tau_crd_coh,FILE_NAME,'Tau_crd_coh',ierr)
+
+      IF(ierr==1)THEN
+        Tau_crd_coh = 0.001_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'You dont specify Tau_crd_coh, use default: 0.001'
+         WRITE(3,'(A40)')'You dont specify Tau_crd_coh, use default: 0.001'
+      endif
+# else
+         WRITE(*,'(A40)')'You dont specify Tau_crd_coh, use default: 0.001'
+         WRITE(3,'(A40)')'You dont specify Tau_crd_coh, use default: 0.001'
+# endif
+      ENDIF 
+
+! tau_cr_coh, default 0.001
+
+      CALL READ_Float(Tau_cr_coh,FILE_NAME,'Tau_cr_coh',ierr)
+
+      IF(ierr==1)THEN
+        Tau_cr_coh = 0.001_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'You dont specify Tau_cr_coh, use default: 0.001'
+         WRITE(3,'(A40)')'You dont specify Tau_cr_coh, use default: 0.001'
+      endif
+# else
+         WRITE(*,'(A40)')'You dont specify Tau_cr_coh, use default: 0.001'
+         WRITE(3,'(A40)')'You dont specify Tau_cr_coh, use default: 0.001'
+# endif
+      ENDIF 
+
+! k_coh, default: 0.000001
+      CALL READ_Float(k_coh,FILE_NAME,'k_coh',ierr)
+
+      IF(ierr==1)THEN
+        k_coh = 0.000001_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'You dont specify k_coh, use default: 10E-6'
+         WRITE(3,'(A40)')'You dont specify k_coh, use default: 10E-6'
+      endif
+# else
+         WRITE(*,'(A40)')'You dont specify k_coh, use default: 10E-6'
+         WRITE(3,'(A40)')'You dont specify k_coh, use default: 10E-6'
+# endif
+      ENDIF 
+
+! a_coh
+      CALL READ_Float(a_coh,FILE_NAME,'a_coh',ierr)
+
+      IF(ierr==1)THEN
+        a_coh = 0.1_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'You dont specify a_coh, use default: 0.1'
+         WRITE(3,'(A40)')'You dont specify a_coh, use default: 0.1'
+      endif
+# else
+         WRITE(*,'(A40)')'You dont specify a_coh, use default: 0.1'
+         WRITE(3,'(A40)')'You dont specify a_coh, use default: 0.1'
+# endif
+      ENDIF 
+
+      CALL READ_Float(b_coh,FILE_NAME,'b_coh',ierr)
+
+      IF(ierr==1)THEN
+        b_coh = 2.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'You dont specify b_coh, use default: 2'
+         WRITE(3,'(A40)')'You dont specify b_coh, use default: 2'
+      endif
+# else
+         WRITE(*,'(A40)')'You dont specify b_coh, use default: 2'
+         WRITE(3,'(A40)')'You dont specify b_coh, use default: 2'
+# endif
+      ENDIF 
+
+      CALL READ_Float(n_coh,FILE_NAME,'n_coh',ierr)
+
+      IF(ierr==1)THEN
+        n_coh = 0.5_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'You dont specify n_coh, use default: 0.5'
+         WRITE(3,'(A40)')'You dont specify n_coh, use default: 0.5'
+      endif
+# else
+         WRITE(*,'(A40)')'You dont specify n_coh, use default: 0.5'
+         WRITE(3,'(A40)')'You dont specify n_coh, use default: 0.5'
+# endif
+      ENDIF 
+
+      CALL READ_Float(m_coh,FILE_NAME,'m_coh',ierr)
+
+      IF(ierr==1)THEN
+        m_coh = 1.5_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'You dont specify m_coh, use default: 1.5'
+         WRITE(3,'(A40)')'You dont specify m_coh, use default: 1.5'
+      endif
+# else
+         WRITE(*,'(A40)')'You dont specify m_coh, use default: 1.5'
+         WRITE(3,'(A40)')'You dont specify m_coh, use default: 1.5'
+# endif
+      ENDIF
+
+      CALL READ_Float(E_coh,FILE_NAME,'E_coh',ierr)
+
+      IF(ierr==1)THEN
+        E_coh = 0.0001_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'You dont specify E_coh, use default: 0.0001'
+         WRITE(3,'(A40)')'You dont specify E_coh, use default: 0.0001'
+      endif
+# else
+         WRITE(*,'(A40)')'You dont specify E_coh, use default: 0.0001'
+         WRITE(3,'(A40)')'You dont specify E_coh, use default: 0.0001'
+# endif
+      ENDIF
+
+      CALL READ_Float(alpha_coh,FILE_NAME,'alpha_coh',ierr)
+
+      IF(ierr==1)THEN
+        alpha_coh = 1.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'You dont specify alpha_coh, use default: 1.0'
+         WRITE(3,'(A40)')'You dont specify alpha_coh, use default: 1.0'
+      endif
+# else
+         WRITE(*,'(A40)')'You dont specify alpha_coh, use default: 1.0'
+         WRITE(3,'(A40)')'You dont specify alpha_coh, use default: 1.0'
+# endif
+      ENDIF
+
+    ENDIF ! end cohesive
+
       CALL READ_Float(D50,FILE_NAME,'D50',ierr)
 
       IF(ierr==1)THEN
+       IF(CohesiveSediment)THEN
+        D50 = 0.000005_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'You dont specify D50, use default: 5nm'
+         WRITE(3,'(A40)')'You dont specify D50, use default: 5nm'
+      endif
+# else
+         WRITE(*,'(A40)')'You dont specify D50, use default: 5nm'
+         WRITE(3,'(A40)')'You dont specify D50, use default: 5nm'
+# endif
+       ELSE
         D50 = 0.0005_SP
 # if defined (PARALLEL)
       if (myid.eq.0) THEN
@@ -152,7 +349,8 @@ SUBROUTINE SEDIMENT_INITIAL
          WRITE(*,'(A40)')'You dont specify D50, use default: 0.5mm'
          WRITE(3,'(A40)')'You dont specify D50, use default: 0.5mm'
 # endif
-      ENDIF 
+      ENDIF ! cohesive
+     ENDIF ! ierr
 
       CALL READ_Float(Sdensity,FILE_NAME,'Sdensity',ierr)
 
@@ -184,6 +382,20 @@ SUBROUTINE SEDIMENT_INITIAL
 # endif 
       ENDIF
 
+      IF(CohesiveSediment)THEN
+       BedLoad = .FALSE. 
+# if defined (PARALLEL) 
+      if (myid.eq.0)then
+       WRITE(3,'(A40)')'BedLoad turned off for Cohesive sed'
+       WRITE(*,'(A40)')'BedLoad turned off for Cohesive sed'
+      endif
+# else
+      WRITE(3,'(A40)')'BedLoad turned off for Cohesive sed'
+      WRITE(*,'(A40)')'BedLoad turned off for Cohesive sed'
+# endif 
+
+      ELSE ! non-cohesive
+
       CALL READ_LOGICAL(BedLoad,FILE_NAME,'BedLoad',ierr)
 
       IF(ierr == 1)THEN
@@ -198,6 +410,8 @@ SUBROUTINE SEDIMENT_INITIAL
       WRITE(*,'(A40)')'BedLoad not defined, Default: False'
 # endif 
       ENDIF
+
+     ENDIF ! end cohesive
 
       CALL READ_Float(MinDepthPickup,FILE_NAME,'MinDepthPickup',ierr)
 
@@ -232,6 +446,17 @@ SUBROUTINE SEDIMENT_INITIAL
       CALL READ_Float(WS,FILE_NAME,'WS',ierr)
 
       IF(ierr==1)THEN
+        IF(CohesiveSediment)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'You dont specify WS, use formula for cohesive sed'
+         WRITE(3,'(A60)')'You dont specify WS, use formula for cohesive sed'
+      endif
+# else
+         WRITE(*,'(A60)')'You dont specify WS, use formula for cohesive sed'
+         WRITE(3,'(A60)')'You dont specify WS, use formula for cohesive sed'
+# endif
+        ELSE ! non-cohesive
         WS = 0.0125_SP
 # if defined (PARALLEL)
       if (myid.eq.0) THEN
@@ -242,12 +467,14 @@ SUBROUTINE SEDIMENT_INITIAL
          WRITE(*,'(A60)')'You dont specify WS, use default: 0.0125m/s'
          WRITE(3,'(A60)')'You dont specify WS, use default: 0.0125m/s'
 # endif
+        ENDIF ! end if or not cohesive
       ENDIF
 
       CALL READ_Float(Shields_cr,FILE_NAME,'Shields_cr',ierr)
 
       IF(ierr==1)THEN
         Shields_cr = 0.055_SP
+       IF(.NOT.CohesiveSediment)THEN
 # if defined (PARALLEL)
       if (myid.eq.0) THEN
          WRITE(*,'(A60)')'You dont specify Shields_cr, use default: 0.055'
@@ -257,12 +484,14 @@ SUBROUTINE SEDIMENT_INITIAL
          WRITE(*,'(A60)')'You dont specify Shields_cr, use default: 0.055'
          WRITE(3,'(A60)')'You dont specify Shields_cr, use default: 0.055'
 # endif
+       ENDIF ! cohesive
       ENDIF
 
       CALL READ_Float(Shields_cr_bedload,FILE_NAME,'Shields_cr_bedload',ierr)
 
       IF(ierr==1)THEN
         Shields_cr_bedload = Shields_cr
+       IF(.NOT.CohesiveSediment)THEN
 # if defined (PARALLEL)
       if (myid.eq.0) THEN
          WRITE(*,'(A80)')'You dont specify Shields_cr_bedload, use Shields_cr'
@@ -272,6 +501,7 @@ SUBROUTINE SEDIMENT_INITIAL
          WRITE(*,'(A80)')'You dont specify Shields_cr_bedload, use Shields_cr'
          WRITE(3,'(A80)')'You dont specify Shields_cr_bedload, use Shields_cr'
 # endif
+       ENDIF
       ENDIF
 
       CALL READ_INTEGER(Morph_step,FILE_NAME,'Morph_step',ierr)
@@ -409,6 +639,113 @@ SUBROUTINE SEDIMENT_INITIAL
        PLOT_INTV_SEDIMENT = SMALL
      ENDIF
 
+! summary of sediment parameters
+
+# if defined (PARALLEL)
+   IF(MYID==0)THEN
+   WRITE(3,*) '----- Sediment Parameters'
+    IF(CohesiveSediment)THEN
+      WRITE(3,*) 'Cohesive Sediment'
+      WRITE(3,*) 'SoftBed', SoftBed
+      WRITE(3,*) 'Critical deposition stress: Tau_crd_coh ', Tau_crd_coh
+      WRITE(3,*) 'Critical pickup stress: Tau_cr_coh ', Tau_cr_coh
+      WRITE(3,*) 'Diffusion coefficient: k_coh ', k_coh
+      WRITE(3,*) 'flocs settling parameter: a_coh ', a_coh
+      WRITE(3,*) 'flocs settling parameter: b_coh ', b_coh
+      WRITE(3,*) 'flocs settling parameter: m_coh ', m_coh
+      WRITE(3,*) 'flocs settling parameter: n_coh ', n_coh
+      WRITE(3,*) 'Erosion rate: E_coh ', E_coh
+      WRITE(3,*) 'alpha for softbed: alpha_coh ', alpha_coh
+
+      WRITE(3,*) 'D50:  ', D50
+      WRITE(3,*) 'specific gravity of sediment, Sdensity ', Sdensity
+      WRITE(3,*) 'Bed_Change:  ', BED_CHANGE
+      WRITE(3,*) 'Minimum Depth  for Pickup: MinDepthPickup  ', MinDepthPickup
+      WRITE(3,*) 'BedLoad:  ', BedLoad
+      WRITE(3,*) 'Porosity:  ', n_porosity
+      WRITE(3,*) 'Settling velocity: calculated based on formula '
+      WRITE(3,*) 'Morph_step:  ', Morph_step
+      WRITE(3,*) 'Morph_factor:  ', Morph_factor
+      WRITE(3,*) 'Avalanche:  ', Avalanche
+      WRITE(3,*) 'Tan_phi for Avalanche:  ', Tan_phi
+      WRITE(3,*) 'Hard_bottom:  ', IN_Mask_s
+      WRITE(3,*) '----- end sedment parameters  '
+ 
+    ELSE
+
+      WRITE(3,*) 'Non-cohesive Sediment'
+      WRITE(3,*) 'D50:  ', D50
+      WRITE(3,*) 'specific gravity of sediment, Sdensity ', Sdensity
+      WRITE(3,*) 'Bed_Change:  ', BED_CHANGE
+      WRITE(3,*) 'Minimum Depth  for Pickup: MinDepthPickup  ', MinDepthPickup
+      WRITE(3,*) 'BedLoad:  ', BedLoad
+      WRITE(3,*) 'Porosity:  ', n_porosity
+      WRITE(3,*) 'Settling velocity Ws: ', WS
+      WRITE(3,*) 'Critical Shields number:  ', Shields_cr
+      WRITE(3,*) 'Critical Shields number for bedload:  ', Shields_cr_bedload
+      WRITE(3,*) 'Morph_step:  ', Morph_step
+      WRITE(3,*) 'Morph_factor:  ', Morph_factor
+      WRITE(3,*) 'Avalanche:  ', Avalanche
+      WRITE(3,*) 'Tan_phi for Avalanche:  ', Tan_phi
+      WRITE(3,*) 'Hard_bottom:  ', IN_Mask_s
+      WRITE(3,*) '----- end sedment parameters  '
+ 
+    ENDIF ! end cohesive 
+
+   ENDIF ! end myid
+# else
+ 
+   WRITE(3,*) '----- Sediment Parameters'
+    IF(CohesiveSediment)THEN
+      WRITE(3,*) 'Cohesive Sediment'
+      WRITE(3,*) 'SoftBed', SoftBed
+      WRITE(3,*) 'Critical deposition stress: Tau_crd_coh ', Tau_crd_coh
+      WRITE(3,*) 'Critical pickup stress: Tau_cr_coh ', Tau_cr_coh
+      WRITE(3,*) 'Diffusion coefficient: k_coh ', k_coh
+      WRITE(3,*) 'flocs settling parameter: a_coh ', a_coh
+      WRITE(3,*) 'flocs settling parameter: b_coh ', b_coh
+      WRITE(3,*) 'flocs settling parameter: m_coh ', m_coh
+      WRITE(3,*) 'flocs settling parameter: n_coh ', n_coh
+      WRITE(3,*) 'Erosion rate: E_coh ', E_coh
+      WRITE(3,*) 'alpha for softbed: alpha_coh ', alpha_coh
+
+      WRITE(3,*) 'D50:  ', D50
+      WRITE(3,*) 'specific gravity of sediment, Sdensity ', Sdensity
+      WRITE(3,*) 'Bed_Change:  ', BED_CHANGE
+      WRITE(3,*) 'Minimum Depth  for Pickup: MinDepthPickup  ', MinDepthPickup
+      WRITE(3,*) 'BedLoad:  ', BedLoad
+      WRITE(3,*) 'Porosity:  ', n_porosity
+      WRITE(3,*) 'Settling velocity: calculated based on formula '
+      WRITE(3,*) 'Morph_step:  ', Morph_step
+      WRITE(3,*) 'Morph_factor:  ', Morph_factor
+      WRITE(3,*) 'Avalanche:  ', Avalanche
+      WRITE(3,*) 'Tan_phi for Avalanche:  ', Tan_phi
+      WRITE(3,*) 'Hard_bottom:  ', IN_Mask_s
+      WRITE(3,*) '----- end sedment parameters  '
+ 
+    ELSE
+
+      WRITE(3,*) 'Non-cohesive Sediment'
+      WRITE(3,*) 'D50:  ', D50
+      WRITE(3,*) 'specific gravity of sediment, Sdensity ', Sdensity
+      WRITE(3,*) 'Bed_Change:  ', BED_CHANGE
+      WRITE(3,*) 'Minimum Depth  for Pickup: MinDepthPickup  ', MinDepthPickup
+      WRITE(3,*) 'BedLoad:  ', BedLoad
+      WRITE(3,*) 'Porosity:  ', n_porosity
+      WRITE(3,*) 'Settling velocity Ws: ', WS
+      WRITE(3,*) 'Critical Shields number:  ', Shields_cr
+      WRITE(3,*) 'Critical Shields number for bedload:  ', Shields_cr_bedload
+      WRITE(3,*) 'Morph_step:  ', Morph_step
+      WRITE(3,*) 'Morph_factor:  ', Morph_factor
+      WRITE(3,*) 'Avalanche:  ', Avalanche
+      WRITE(3,*) 'Tan_phi for Avalanche:  ', Tan_phi
+      WRITE(3,*) 'Hard_bottom:  ', Hard_bottom
+      WRITE(3,*) '----- end sedment parameters  '
+ 
+    ENDIF ! end cohesive 
+
+# endif
+
 ! ALLOCATION
 
         ALLOCATE(Zb(Mloc,Nloc))
@@ -428,6 +765,7 @@ SUBROUTINE SEDIMENT_INITIAL
                  Zs(Mloc,Nloc),ava(Mloc,Nloc),Hpo(Mloc,Nloc), &
                  TotalSuspendLoad(Mloc,Nloc),TotalBedLoad(Mloc,Nloc))
         ALLOCATE(BedFluxX(Mloc,Nloc),BedFluxY(Mloc,Nloc),Depth_ini(Mloc,Nloc))
+        ALLOCATE(Tau_xy(Mloc,Nloc))
 
         Depth_ini = Depth
         ava=ZERO
@@ -468,15 +806,19 @@ SUBROUTINE SEDIMENT_INITIAL
         BedFluxX = ZERO
         BedFluxY = ZERO
 
-
 ! sediment parameters 
+     IF (CohesiveSediment) THEN
+      viscosity=k_coh
+     ELSE
       viscosity=0.000001_SP
+     ENDIF  ! end cohesive
+
+! the following parameters are for non-cohesive
       Dstar = D50*((Sdensity-1.0_SP)*grav/viscosity**2.0_SP)**(1.0_SP/3.0_SP)
       Tau_cr=(Sdensity-1.0_SP)*grav*D50*Shields_cr
       Tau_cr_bedload=(Sdensity-1.0_SP)*grav*D50*Shields_cr_bedload
       k_s = 2.5_SP*D50 
       Satuation = 0.001
-
 
      IF(IN_Mask_s)THEN
 ! check existing
@@ -508,12 +850,6 @@ SUBROUTINE SEDIMENT_INITIAL
 
      ENDIF ! end IN_Mask_s
 
-! test  $$$
-!     CH(100:110,25:35)=1.0
-!     CHH=CH*H
-!     CHH0=CHH
-!      CHH=2.0*3.0 
-!      CH=2.0
 
 
 END SUBROUTINE SEDIMENT_INITIAL
@@ -530,7 +866,7 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
   REAL(SP),DIMENSION(:,:),ALLOCATABLE :: Scalx,Scaly
   REAL(SP),DIMENSION(Ibeg:Iend,Jbeg:Jend)::R1,R2,R3
   REAL(SP) :: Weight0 = 0.9_SP, Weight1=0.1_SP
-  REAL(SP) :: Angle_cur,bedf,fr
+  REAL(SP) :: Angle_cur,bedf,fr,Pd,Cb
 
     ALLOCATE(Scalx(Mloc1,Nloc),Scaly(Mloc,Nloc1))
 
@@ -716,9 +1052,9 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
       BedFluxX=ZERO
       BedFluxY=ZERO
     	
-      DO J=Jbeg,Jend
-      DO I=Ibeg,Iend
-        IF(MASK(I,J).GT.0.AND.H(I,J)>MinDepthPickup)THEN
+    DO J=Jbeg,Jend
+    DO I=Ibeg,Iend
+    IF(MASK(I,J).GT.0.AND.H(I,J)>MinDepthPickup)THEN
           u_c=SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J))
 
 ! avoid sheet flow condition
@@ -727,11 +1063,25 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
 
     ! note rho_w is removed, also removed in tau_cr, 
 
-          tau_xy= 0.16_SP/(1.0+log(k_s/(30.0_SP*Hpo(I+1,J))))**2*(u_c**2.)	
+          Tau_xy(I,J)= 0.16_SP/(1.0+log(k_s/(30.0_SP*Hpo(I+1,J))))**2*(u_c**2.)	
+
+       IF (CohesiveSediment)THEN
+
+          IF (Tau_xy(I,J).GT.Tau_cr_coh) THEN
+            IF(SoftBed)THEN
+              Pickup(I,J)=E_coh*EXP(alpha_coh*SQRT(ABS(Tau_xy(I,J)-tau_cr_coh)))
+            ELSE                           
+              Pickup(I,J)=E_coh*(Tau_xy(I,J)/Max(Tau_cr_coh,SMALL)-1.0_SP)
+            ENDIF
+          ELSE 
+            Pickup(I,J)=0.0_SP
+          ENDIF ! end tau_cr
+
+       ELSE ! non-cohesive
 
 !  suspended load
-          IF (tau_xy.GT.Tau_cr) THEN
-            c_b=0.015_SP*(((tau_xy-Tau_cr)/Tau_cr)**1.5_SP)*Dstar**(-0.3_SP)
+          IF (Tau_xy(I,J).GT.Tau_cr) THEN
+            c_b=0.015_SP*(((Tau_xy(I,J)-Tau_cr)/Tau_cr)**1.5_SP)*Dstar**(-0.3_SP)
             reduction=MIN(1.0_SP,0.65_SP/c_b)
             c_a=reduction*c_b*D50/(MAX(0.01_SP*Hpo(I,J),0.01_SP))
             Pickup(I,J)=MAX(0.0_SP,c_a*WS)
@@ -746,9 +1096,9 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
          IF(BedLoad)THEN
 !  bedload
 
-          IF (tau_xy.GT.Tau_cr_bedload) THEN
+          IF (Tau_xy(I,J).GT.Tau_cr_bedload) THEN
              Angle_cur = ATAN2(V(I,J),U(I,J))
-             bedf = 8.0_SP*(tau_xy-tau_cr_bedload)**1.5/grav/(Sdensity-1.0_SP)
+             bedf = 8.0_SP*(Tau_xy(I,J)-tau_cr_bedload)**1.5/grav/(Sdensity-1.0_SP)
              BedFluxX(I,J) = bedf*COS(Angle_cur)
              BedFluxY(I,J) = bedf*SIN(Angle_cur)
           ELSE
@@ -757,17 +1107,18 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
           ENDIF
          ENDIF ! end bedload
 
+       ENDIF ! end cohesive
 
-        ELSE ! dry point
+    ELSE ! dry point
           Pickup(I,J)=0.0_SP	
-        ENDIF
+    ENDIF ! end dry point
 
         IF(IN_Mask_s) THEN
           IF(Zb(I,J).GE.(Zs(I,J)-0.001_SP)) Pickup(I,J)=0.0_SP
         ENDIF
 
-      ENDDO
-      ENDDO
+    ENDDO
+    ENDDO
 
 # if defined (PARALLEL)
     CALL PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,BedFluxX,1,PERIODIC)
@@ -778,16 +1129,26 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
       DO J=Jbeg,Jend+1
       DO I=Ibeg,Iend+1
         IF(MASK(I,J).GT.0)THEN
+
+         IF(CohesiveSediment)THEN
+           Cb=CH(I,J)*Sdensity*RHO_WATER
+           WS = a_coh*Cb**n_coh/MAX(SMALL, (Cb**2+b_coh**2)**m_coh)
+           Pd = 1.0_SP - Tau_xy(I,J)/MAX(SMALL,Tau_crd_coh)
+           D(I,J) = WS*CH(I,J)*Pd
+
+         ELSE ! non-cohesive
 !  Cao(2004)
           gamma_cao = MIN(2.0_SP,(1.0_SP-n_porosity)/MAX(SMALL,CH(I,J)))
-!$$$$$$
+!
 !         D(I,J) = ZERO      
           D(I,J)=gamma_cao*CH(I,J)*WS* &
                  (1-gamma_cao*CH(I,J))**2.0_SP
 
+         ENDIF ! end non-cohesive
+
         ELSE
           D(I,J)=0.0_SP
-        ENDIF
+        ENDIF ! mask
       ENDDO
       ENDDO
 
