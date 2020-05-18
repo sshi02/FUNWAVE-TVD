@@ -739,7 +739,7 @@ SUBROUTINE SEDIMENT_INITIAL
       WRITE(3,*) 'Morph_factor:  ', Morph_factor
       WRITE(3,*) 'Avalanche:  ', Avalanche
       WRITE(3,*) 'Tan_phi for Avalanche:  ', Tan_phi
-      WRITE(3,*) 'Hard_bottom:  ', Hard_bottom
+      WRITE(3,*) 'Hard_bottom:  ', IN_Mask_s
       WRITE(3,*) '----- end sedment parameters  '
  
     ENDIF ! end cohesive 

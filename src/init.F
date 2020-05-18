@@ -683,7 +683,11 @@ SUBROUTINE INITIALIZATION
 ! it is important for complex bathy/topo at bc
 
     VTYPE=1
+# if defined (CARTESIAN)
+    CALL PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,Depth,VTYPE,PERIODIC)
+# else
     CALL PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,Depth,VTYPE)
+# endif
 
 ! correction bathymetry
     IF (BATHY_CORRECTION)THEN
