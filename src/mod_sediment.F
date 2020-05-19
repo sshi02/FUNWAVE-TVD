@@ -1114,7 +1114,14 @@ SUBROUTINE SEDIMENT_ADVECTION_DIFFUSION(ISTEP)
     ENDIF ! end dry point
 
         IF(IN_Mask_s) THEN
-          IF(Zb(I,J).GE.(Zs(I,J)-0.001_SP)) Pickup(I,J)=0.0_SP
+          IF(Zb(I,J).GE.(Zs(I,J)-0.001_SP)) THEN
+             Pickup(I,J)=0.0_SP
+             IF(BedLoad)THEN
+               BedFluxX(I,J) = ZERO
+               BedFluxY(I,J) = ZERO
+             ENDIF
+          ENDIF
+
         ENDIF
 
     ENDDO
