@@ -429,7 +429,7 @@ Program FUNWAVE_TVD
 
 !  find maximum eta velocity 
 
-      IF (OUT_Hmax.OR.OUT_Hmin.OR.OUT_Umax.OR.OUT_MFmax.OR.OUT_VORmax)THEN
+      IF (OUT_Hmax.OR.OUT_Hmin.OR.OUT_Umax.OR.OUT_MFmax.OR.OUT_VORmax.OR.OUT_Time)THEN
         CALL MAX_MIN_PROPERTY
       ENDIF        
 

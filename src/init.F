@@ -210,7 +210,10 @@ SUBROUTINE ALLOCATE_VARIABLES
         ALLOCATE(MomentumFluxMax(Mloc,Nloc))
         MomentumFluxMax=ZERO
       ENDIF
-      
+      IF(OUT_Time)THEN
+        ALLOCATE(ARRTIME(Mloc,Nloc))
+        ARRTIME=ZERO
+      ENDIF      
 
 END SUBROUTINE ALLOCATE_VARIABLES
 

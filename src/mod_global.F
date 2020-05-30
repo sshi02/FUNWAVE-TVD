@@ -144,6 +144,7 @@ MODULE GLOBAL
        
        REAL(SP) :: MinDepth=0.001
        REAL(SP) :: MinDepthFrc=0.5
+       REAL(SP) :: ArrTimeMin=0.001
        REAL(SP) :: CFL=0.15_SP
        REAL(SP) :: FroudeCap=10.0_SP
        REAL(SP) :: SWE_ETA_DEP=0.7_SP
@@ -221,7 +222,7 @@ MODULE GLOBAL
           Fx,Fy,U,V,HU,HV,&
           Gx,Gy,P,Q,SourceX,SourceY,Int2Flo, &
           tmp4preview,HeightMax,HeightMin,VelocityMax,&
-          MomentumFluxMax,VorticityMax
+          MomentumFluxMax,VorticityMax,ARRTIME
 # if defined (ITERATION)
        REAL(SP),DIMENSION(:,:),ALLOCATABLE :: Ui,Vi,ETAi,&
                         UbarOld,VbarOld,EtaOld
@@ -351,7 +352,7 @@ MODULE GLOBAL
                   OUT_Hmin=.FALSE., &
                   OUT_Umax=.FALSE.
        LOGICAL :: OUT_MFmax=.FALSE., &
-                  OUT_VORmax=.FALSE., &
+                  OUT_VORmax=.FALSE.,OUT_Time, &
                   OUT_ROLLER = .FALSE., &
                   OUT_UNDERTOW = .FALSE.
 

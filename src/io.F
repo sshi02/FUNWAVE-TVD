@@ -2939,6 +2939,55 @@ SUBROUTINE READ_INPUT
       WRITE(3,'(A13,F12.2)')'MinDepthFrc=', MinDepthFrc
 # endif
 
+! Lauren - Arrival Time - Wave height threshold (in m) to pick up arrival time
+
+      CALL READ_LOGICAL(OUT_Time,FILE_NAME,'OUT_Time',ierr)
+      IF(ierr==1)THEN
+        OUT_Time = .FALSE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'Dont record wave arrival time'
+         WRITE(3,'(A60)')'Dont record wave arrival time'
+      endif
+# else
+         WRITE(*,'(A60)')'Dont record wave arrival time'
+         WRITE(3,'(A60)')'Dont record wave arrival time'
+# endif
+       ELSE
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A60)')'Record wave arrival time'
+         WRITE(3,'(A60)')'Record wave arrival time'
+      endif
+# else
+         WRITE(*,'(A60)')'Record wave arrival time'
+         WRITE(3,'(A60)')'Record wave arrival time'
+# endif
+       ENDIF
+
+     IF(OUT_Time)THEN
+      CALL READ_FLOAT(ArrTimeMin,FILE_NAME,'ArrTimeMinH',ierr)
+      IF(ierr==1)THEN
+        ArrTimeMin = 0.001 ! set equal to 0.1 cm if no threshold is given
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'ArrTimeMinH Default:  0.001 m'
+         WRITE(3,'(A40)')'ArrTimeMinH Default:  0.001 m'
+      endif
+# else
+         WRITE(*,'(A40)')'ArrTimeMinH Default:  0.001 m'
+         WRITE(3,'(A40)')'ArrTimeMinH Default:  0.001 m'
+# endif
+       ENDIF
+       
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A10,F12.6)')'ArrTimeMinH', ArrTimeMin
+# else
+      WRITE(3,'(A10,F12.6)')'ArrTimeMinH=', ArrTimeMin
+# endif
+     ENDIF
+ 
+! end Laurens modification
 
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,*)'                                         '
@@ -3339,7 +3388,7 @@ SUBROUTINE READ_INPUT
       CALL READ_LOGICAL(OUT_ROLLER,FILE_NAME,'ROLLER',ierr)
       CALL READ_LOGICAL(OUT_UNDERTOW,FILE_NAME,'UNDERTOW',ierr)
       CALL READ_LOGICAL(OUT_NU,FILE_NAME,'OUT_NU',ierr)
-      CALL READ_LOGICAL(OUT_TMP,FILE_NAME,'TMP',ierr)
+      CALL READ_LOGICAL(OUT_TMP,FILE_NAME,'TMP',ierr) 
 
 !ykchoi
 !	CALL READ_FLOAT(EtaBlowVal,FILE_NAME,'EtaBlowVal',ierr)
@@ -3396,6 +3445,7 @@ SUBROUTINE READ_INPUT
       WRITE(3,'(A15,L2)')'OUT_UNDERTOW',OUT_UNDERTOW
       WRITE(3,'(A15,L2)')'OUT_NU',OUT_NU
       WRITE(3,'(A15,L2)')'OUT_TMP',OUT_TMP
+      WRITE(3,'(A15,L2)')'OUT_TIME',OUT_Time
 # if defined (PARALLEL)
       endif
 # endif
@@ -4007,6 +4057,11 @@ SUBROUTINE PREVIEW
        ENDIF
 !        TMP_NAME = TRIM(FDIR)//'etat_'//TRIM(FILE_NAME)
 !         call PutFile(TMP_NAME,etat) 
+      ENDIF
+
+      IF(OUT_Time)THEN
+        TMP_NAME = TRIM(FDIR)//'time_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,ARRTIME)
       ENDIF
 
 # if defined (METEO)
