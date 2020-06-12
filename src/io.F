@@ -2663,12 +2663,12 @@ SUBROUTINE READ_INPUT
         VISCOSITY_BREAKING = .TRUE.
 # if defined (PARALLEL)
       if (myid.eq.0) THEN
-         WRITE(*,'(A60)')'VISCOSITY_BREAKING Default:  SWE Breaking'
-         WRITE(3,'(A60)')'VISCOSITY_BREAKING Default:  SWE Breaking'
+         WRITE(*,'(A60)')'VISCOSITY_BREAKING Default:  VIS Breaking'
+         WRITE(3,'(A60)')'VISCOSITY_BREAKING Default:  VIS Breaking'
       endif
 # else
-         WRITE(*,'(A60)')'VISCOSITY_BREAKING Default:  SWE Breaking'
-         WRITE(3,'(A60)')'VISCOSITY_BREAKING Default:  SWE Breaking'
+         WRITE(*,'(A60)')'VISCOSITY_BREAKING Default:  VIS Breaking'
+         WRITE(3,'(A60)')'VISCOSITY_BREAKING Default:  VIS Breaking'
 # endif
        ENDIF
 
