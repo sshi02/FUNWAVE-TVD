@@ -55,7 +55,8 @@
 MODULE VESSEL_MODULE
   USE PARAM
   USE GLOBAL,ONLY : Mloc,Nloc,Nghost,Ibeg,Iend,Jbeg,Jend,DX,DY, &
-                    H,ETA,ETA0,Xco,Yco,MASK9
+                    H,ETA,ETA0,Xco,Yco
+
   USE INPUT_READ
 #if defined (PARALLEL)
   USE GLOBAL,ONLY : myid,ier, npx,npy,PX,PY
@@ -64,7 +65,7 @@ MODULE VESSEL_MODULE
   IMPLICIT NONE
   SAVE
 
-    INTEGER :: NumVessel,Kves
+    INTEGER :: NumVessel,Kves,II,JJ
     INTEGER,DIMENSION(:),ALLOCATABLE :: VesselType
     CHARACTER(LEN=80),DIMENSION(:),ALLOCATABLE:: SourceType
     REAL(SP),DIMENSION(:),ALLOCATABLE :: Xvessel1,Yvessel1,Xvessel2,Yvessel2, &
@@ -84,9 +85,18 @@ MODULE VESSEL_MODULE
 
     REAL(SP) :: Xves,Yves,Lves,Wves,P_x,P_y,DetaX,DetaY
 
-#if defined (PARALLEL)
-    REAL(SP) :: myvar
-# endif    
+!   deep draft vessel
+
+# if defined (DEEP_DRAFT_VESSEL)
+    LOGICAL :: MaskMethod = .FALSE.
+    LOGICAL :: FrictionMethod = .TRUE.
+    LOGICAL :: ViscosityMethod = .FALSE.    
+    REAL(SP) :: CdDeepDraft
+    REAL(SP) :: VisDeepDraft
+    REAL(SP),DIMENSION(:,:),ALLOCATABLE :: CdVessel_2D,VisVessel_2D
+     INTEGER,DIMENSION(:,:),ALLOCATABLE :: MaskVessel
+# endif
+  
     LOGICAL :: MakeVesselDraft = .TRUE.
 
 
@@ -135,6 +145,95 @@ SUBROUTINE VESSEL_INITIAL
 
       CALL READ_LOGICAL(OUT_VESSEL,FILE_NAME,'OUT_VESSEL',ierr)
 
+! deep draft vessel
+
+
+# if defined (DEEP_DRAFT_VESSEL)
+  ! ---------
+      CALL READ_LOGICAL(MaskMethod,FILE_NAME,'MaskMethod',ierr)      
+      IF(ierr==1)THEN
+        MaskMethod = .FALSE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)') 'Deep draft, Mask method NOT used.'
+         WRITE(3,'(A80)') 'Deep draft, Mask method NOT used.'
+      endif
+# else
+         WRITE(*,'(A80)') 'Deep draft, Mask method NOT used.'
+         WRITE(3,'(A80)') 'Deep draft, Mask method NOT used.'
+# endif
+      ENDIF
+
+  ! frction ---
+      CALL READ_LOGICAL(FrictionMethod,FILE_NAME,'FrictionMethod',ierr)      
+      IF(ierr==1)THEN
+        FrictionMethod = .TRUE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)') 'Deep draft, Friction method used.'
+         WRITE(3,'(A80)') 'Deep draft, Friction method used.'
+      endif
+# else
+         WRITE(*,'(A80)') 'Deep draft, Friction method used.'
+         WRITE(3,'(A80)') 'Deep draft, Friction method used.'
+# endif
+      ENDIF
+
+      IF (FrictionMethod) THEN
+      CALL READ_FLOAT(CdDeepDraft,FILE_NAME,'CdDeepDraft',ierr) 
+      
+      IF(ierr==1)THEN
+        CdDeepDraft = 0.1_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'You dont specify CdDeepDraft, use 0.1'
+         WRITE(3,'(A40)')'You dont specify CdDeepDraft, use 0.1'
+      endif
+# else
+         WRITE(*,'(A40)')'You dont specify CdDeepDraft, use 0.1'
+         WRITE(3,'(A40)')'You dont specify CdDeepDraft, use 0.1'
+# endif
+      ENDIF      
+
+      ENDIF  ! end friction method
+
+  ! viscosity ---
+      CALL READ_LOGICAL(ViscosityMethod,FILE_NAME,'ViscosityMethod',ierr)      
+      IF(ierr==1)THEN
+        ViscosityMethod = .FALSE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)') 'Deep draft, Viscosity method NOT used.'
+         WRITE(3,'(A80)') 'Deep draft, Viscosity method NOT used.'
+      endif
+# else
+         WRITE(*,'(A80)') 'Deep draft, Viscosity method NOT used.'
+         WRITE(3,'(A80)') 'Deep draft, Viscosity method NOT used.'
+# endif
+      ENDIF
+
+      IF (ViscosityMethod) THEN
+      CALL READ_FLOAT(VisDeepDraft,FILE_NAME,'VisDeepDraft',ierr) 
+      
+      IF(ierr==1)THEN
+        VisDeepDraft = 0.1_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'You dont specify VisDeepDraft, use 0.1'
+         WRITE(3,'(A40)')'You dont specify VisDeepDraft, use 0.1'
+      endif
+# else
+         WRITE(*,'(A40)')'You dont specify VisDeepDraft, use 0.1'
+         WRITE(3,'(A40)')'You dont specify VisDeepDraft, use 0.1'
+# endif
+      ENDIF      
+
+      ENDIF  ! end viscosity method
+
+  ! -----------
+# endif
+! end deep draft vessel
+
       ALLOCATE (Xvessel1(NumVessel),Yvessel1(NumVessel),  &
                 Xvessel2(NumVessel),Yvessel2(NumVessel),  &
                 TimeVessel1(NumVessel),TimeVessel2(NumVessel), &
@@ -159,6 +258,10 @@ SUBROUTINE VESSEL_INITIAL
       ALLOCATE (VesselPressureTotal(Mloc,Nloc), VesselPressureEach(Mloc,Nloc),&
                 VesselPressureX(Mloc,Nloc), &
                  VesselPressureY(Mloc,Nloc) )
+
+# if defined (DEEP_DRAFT_VESSEL)
+     ALLOCATE (CdVessel_2D(Mloc,Nloc),VisVessel_2D(Mloc,Nloc),MaskVessel(Mloc,Nloc))
+# endif
 
 ! plot vessel intitial
      PLOT_COUNT_VESSEL = 0
@@ -380,6 +483,13 @@ SUBROUTINE VESSEL_FORCING
 
 
 !   IF(SourceType(Kves)(1:2)=='PR') THEN   
+
+# if defined (DEEP_DRAFT_VESSEL)
+    CdVessel_2D = ZERO
+    VisVessel_2D = ZERO
+    MaskVessel = 1
+# endif
+
     DO J=Jbeg,Jend
     DO I=Ibeg,Iend
 
@@ -391,9 +501,24 @@ SUBROUTINE VESSEL_FORCING
        VesselPressureY(I,J) = -Grav*H(I,J)*  &
                (VesselPressureTotal(I,J+1)-VesselPressureTotal(I,J-1))/2.0_SP  &
                /DY
-# if defined (SWE_VESSEL)
-! test for SWE 
-       IF(VesselPressureTotal(I,J).GT.ZERO) MASK9(I,J) = 0
+# if defined (DEEP_DRAFT_VESSEL)
+! use mask9 for SWE, in the vessel module mask9 uses 25 points rather than 9 points
+! for breakers 
+       IF(VesselPressureTotal(I,J).GT.ZERO) THEN
+         DO II=I-Nghost,I+Nghost
+         DO JJ=J-Nghost,J+Nghost
+          IF(MaskMethod) THEN
+            MaskVessel(II,JJ) = 0
+          ENDIF
+          IF(FrictionMethod) THEN
+            CdVessel_2D(II,JJ)=CdDeepDraft
+          ENDIF
+          IF(ViscosityMethod) THEN
+            VisVessel_2D(II,JJ) = VisDeepDraft
+          ENDIF
+         ENDDO
+         ENDDO
+       ENDIF
 # endif
 
     ENDDO
@@ -421,6 +546,9 @@ SUBROUTINE PRESSURE_SOURCE (Xves,Yves)
   IMPLICIT NONE
   INTEGER :: ierr,I,J
   REAL(SP) :: Xves,Yves,Lves,Wves
+#if defined (PARALLEL)
+    REAL(SP) :: myvar
+# endif  
 
 ! rectangular
     VesselPressureEach = ZERO

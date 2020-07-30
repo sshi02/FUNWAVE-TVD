@@ -159,6 +159,10 @@ SUBROUTINE SourceTerms
 
         nu_vis = nu_break
 
+# if defined (DEEP_DRAFT_VESSEL)
+       nu_vis = nu_vis + VisVessel_2D
+# endif
+
 !       DO J=Jbeg,Jend
 !       DO I=Ibeg,Iend
 !         nu_vis(I,J)=nu_break(I,J)
@@ -220,6 +224,11 @@ SUBROUTINE SourceTerms
                    *Depth(I,J)
        ENDIF
 
+# if defined (DEEP_DRAFT_VESSEL)
+          SourceX(I,J) = SourceX(I,J) &
+                   -CdVessel_2D(I,J)*U(I,J)*SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J))
+# endif
+
        IF(WaveMakerCurrentBalance)THEN
 # if defined (PARALLEL)
 	      xmk=(I-Ibeg)*DXg + (iista-1)*DXg
@@ -269,6 +278,11 @@ SUBROUTINE SourceTerms
                    -CD_4_SPONGE(I,J)*V(I,J)*SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J)) &
                     *Depth(I,J)             
        ENDIF
+
+# if defined (DEEP_DRAFT_VESSEL)
+          SourceY(I,J) = SourceY(I,J) &
+                   -CdVessel_2D(I,J)*V(I,J)*SQRT(U(I,J)*U(I,J)+V(I,J)*V(I,J))
+# endif
 
        IF(WaveMakerCurrentBalance)THEN
 # if defined (PARALLEL)

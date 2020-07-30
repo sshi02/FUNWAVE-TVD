@@ -347,7 +347,7 @@ SUBROUTINE MAX_MIN_PROPERTY
        !Lauren Schambach 3/2/2020 Matrix of Arrival Time
        IF(OUT_Time)THEN
          IF(MASK(I,J).GT.0)THEN !Check if wet
-           IF(ARRTIME(I,J).EQ.0)THEN !Only record time if a value doesn't already exist
+           IF(ARRTIME(I,J).EQ.0)THEN !Only record time if a value doesnt already exist
              IF(ABS(Eta(I,J)).GT.ArrTimeMin) ARRTIME(I,J) = TIME !If eta is greater than threshold, record arrival time
            ENDIF
          ENDIF

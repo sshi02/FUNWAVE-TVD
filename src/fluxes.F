@@ -67,7 +67,7 @@ SUBROUTINE FLUXES
 !-------------------------------------------------------------
 !-------------------------------------------------------------
 
-!  Choi's tests show this is unstable combination (4th + minmod), switched off 08/31/2016 
+!  Chois tests show this is unstable combination (4th + minmod), switched off 08/31/2016 
       ELSEIF(HIGH_ORDER(1:3)=='FMI') THEN   !ykchoi (08/28/2016)
        CALL CONSTRUCTION_HO_minmod
        CALL WAVE_SPEED(Mloc,Nloc,Mloc1,Nloc1,UxL,UxR,VyL,VyR,HxL,HxR,HyL,HyR, &
@@ -831,14 +831,14 @@ SUBROUTINE CONSTRUCTION_HO_minmod
 !ykchoi]
 
 ! construct in x-direction
-     CALL CONSTRUCT_HO_X_minmod(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,U,UxL,UxR)
-     CALL CONSTRUCT_HO_X_minmod(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,V,VxL,VxR)
-     CALL CONSTRUCT_HO_X_minmod(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,HU,HUxL,HUxR)
-     CALL CONSTRUCT_HO_X_minmod(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,HV,HVxL,HVxR)
+     CALL CONSTRUCT_HO_X_minmod(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,DX,MASK,U,UxL,UxR)
+     CALL CONSTRUCT_HO_X_minmod(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,DX,MASK,V,VxL,VxR)
+     CALL CONSTRUCT_HO_X_minmod(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,DX,MASK,HU,HUxL,HUxR)
+     CALL CONSTRUCT_HO_X_minmod(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,DX,MASK,HV,HVxL,HVxR)
 # if defined(UseEtaScreen)
-     CALL CONSTRUCT_HO_X_minmod(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,EtaScreen,EtaRxL,EtaRxR)
+     CALL CONSTRUCT_HO_X_minmod(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,DX,MASK,EtaScreen,EtaRxL,EtaRxR)
 # else
-     CALL CONSTRUCT_HO_X_minmod(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,Eta,EtaRxL,EtaRxR)
+     CALL CONSTRUCT_HO_X_minmod(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,DX,MASK,Eta,EtaRxL,EtaRxR)
 # endif
 
 ! dispersion
@@ -846,10 +846,10 @@ SUBROUTINE CONSTRUCTION_HO_minmod
      HxR=EtaRxR+Depthx
 # if defined (CARTESIAN)
      IF(DISPERSION)THEN
-      CALL CONSTRUCT_HO_X_minmod(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,U4,U4xL,U4xR)
+      CALL CONSTRUCT_HO_X_minmod(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,DX,MASK,U4,U4xL,U4xR)
 	  
 	!ykchoi :: Following V4xL, V4xR terms should be computed.
-	CALL CONSTRUCT_HO_X_minmod(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,V4,V4xL,V4xR)  
+	CALL CONSTRUCT_HO_X_minmod(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,DX,MASK,V4,V4xL,V4xR)  
      ENDIF
 
 !ykchoi (09.07.2015)
@@ -874,10 +874,10 @@ SUBROUTINE CONSTRUCTION_HO_minmod
 # else
 # if defined(ZALPHA)
      IF(DISPERSION)THEN
-      CALL CONSTRUCT_HO_X_minmod(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,U4,U4xL,U4xR)
+      CALL CONSTRUCT_HO_X_minmod(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,DX,MASK,U4,U4xL,U4xR)
 
 	!ykchoi :: Following V4xL, V4xR terms should be computed.
-	CALL CONSTRUCT_HO_X_minmod(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,MASK,V4,V4xL,V4xR)
+	CALL CONSTRUCT_HO_X_minmod(Mloc,Nloc,Mloc1,Ibeg,Iend,Jbeg,Jend,DX,MASK,V4,V4xL,V4xR)
      ENDIF
 
      PL(1:Mloc1,1:Nloc)=HUxL(1:Mloc1,1:Nloc) &
@@ -929,14 +929,14 @@ SUBROUTINE CONSTRUCTION_HO_minmod
 # endif
       
 ! construct in y-direction
-     CALL CONSTRUCT_HO_Y_minmod(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,U,UyL,UyR)
-     CALL CONSTRUCT_HO_Y_minmod(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,V,VyL,VyR)
-     CALL CONSTRUCT_HO_Y_minmod(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,HV,HVyL,HVyR)
-     CALL CONSTRUCT_HO_Y_minmod(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,HU,HUyL,HUyR)
+     CALL CONSTRUCT_HO_Y_minmod(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,DY,MASK,U,UyL,UyR)
+     CALL CONSTRUCT_HO_Y_minmod(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,DY,MASK,V,VyL,VyR)
+     CALL CONSTRUCT_HO_Y_minmod(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,DY,MASK,HV,HVyL,HVyR)
+     CALL CONSTRUCT_HO_Y_minmod(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,DY,MASK,HU,HUyL,HUyR)
 # if defined (UseEtaScreen)
-     CALL CONSTRUCT_HO_Y_minmod(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,EtaScreen,EtaRyL,EtaRyR)
+     CALL CONSTRUCT_HO_Y_minmod(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,DY,MASK,EtaScreen,EtaRyL,EtaRyR)
 # else
-     CALL CONSTRUCT_HO_Y_minmod(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,Eta,EtaRyL,EtaRyR)
+     CALL CONSTRUCT_HO_Y_minmod(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,DY,MASK,Eta,EtaRyL,EtaRyR)
 # endif
 
 ! dispersion
@@ -944,10 +944,10 @@ SUBROUTINE CONSTRUCTION_HO_minmod
      HyR=EtaRyR+Depthy
 # if defined (CARTESIAN)
      IF(DISPERSION)THEN
-       CALL CONSTRUCT_HO_Y_minmod(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,V4,V4yL,V4yR)
+       CALL CONSTRUCT_HO_Y_minmod(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,DY,MASK,V4,V4yL,V4yR)
 
 	 !ykchoi :: Following U4yL, U4yR terms should be computed.
-	 CALL CONSTRUCT_HO_Y_minmod(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,U4,U4yL,U4yR)
+	 CALL CONSTRUCT_HO_Y_minmod(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,DY,MASK,U4,U4yL,U4yR)
      ENDIF
 
      QL(1:Mloc,1:Nloc1)=HVyL(1:Mloc,1:Nloc1)   &
@@ -970,10 +970,10 @@ SUBROUTINE CONSTRUCTION_HO_minmod
 
 # if defined (ZALPHA)
      IF(DISPERSION)THEN
-       CALL CONSTRUCT_HO_Y_minmod(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,V4,V4yL,V4yR)
+       CALL CONSTRUCT_HO_Y_minmod(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,DY,MASK,V4,V4yL,V4yR)
 
 	 !ykchoi :: Following U4yL, U4yR terms should be computed.
-	 CALL CONSTRUCT_HO_Y_minmod(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,MASK,U4,U4yL,U4yR)
+	 CALL CONSTRUCT_HO_Y_minmod(Mloc,Nloc,Nloc1,Ibeg,Iend,Jbeg,Jend,DY,MASK,U4,U4yL,U4yR)
      ENDIF
 
      QL(1:Mloc,1:Nloc1)=HVyL(1:Mloc,1:Nloc1)   &
