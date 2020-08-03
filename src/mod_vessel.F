@@ -88,7 +88,7 @@ MODULE VESSEL_MODULE
 !   deep draft vessel
 
 # if defined (DEEP_DRAFT_VESSEL)
-    LOGICAL :: MaskMethod = .FALSE.
+    LOGICAL :: MaskMethod = .TRUE.
     LOGICAL :: FrictionMethod = .TRUE.
     LOGICAL :: ViscosityMethod = .FALSE.    
     REAL(SP) :: CdDeepDraft
@@ -152,15 +152,15 @@ SUBROUTINE VESSEL_INITIAL
   ! ---------
       CALL READ_LOGICAL(MaskMethod,FILE_NAME,'MaskMethod',ierr)      
       IF(ierr==1)THEN
-        MaskMethod = .FALSE.
+        MaskMethod = .TRUE.
 # if defined (PARALLEL)
       if (myid.eq.0) THEN
-         WRITE(*,'(A80)') 'Deep draft, Mask method NOT used.'
-         WRITE(3,'(A80)') 'Deep draft, Mask method NOT used.'
+         WRITE(*,'(A80)') 'Deep draft, Mask method is used.'
+         WRITE(3,'(A80)') 'Deep draft, Mask method is used.'
       endif
 # else
-         WRITE(*,'(A80)') 'Deep draft, Mask method NOT used.'
-         WRITE(3,'(A80)') 'Deep draft, Mask method NOT used.'
+         WRITE(*,'(A80)') 'Deep draft, Mask method is used.'
+         WRITE(3,'(A80)') 'Deep draft, Mask method is used.'
 # endif
       ENDIF
 
