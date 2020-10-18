@@ -11,13 +11,14 @@ PRECISION   = single
 # FLAG_1  = -DCOUPLING
 # FLAG_2  = -DZALPHA
 # FLAG_3  = -DMANNING
-# FLAG_4  = -DVESSEL
+  FLAG_4  = -DVESSEL
 # FLAG_5  = -DMETEO
 # FLAG_6  = -DWIND
-# FLAG_7  = -DSEDIMENT
+  FLAG_7  = -DSEDIMENT
 # FLAG_8  = -DCHECK_MASS_CONSERVATION
 # FLAG_9  = -DTMP
 # FLAG_10 = -DTRACKING
+# FLAG_11 = -DDEEP_DRAFT_VESSEL
 
 #----------------uncommon options---------------------
 DEF_FC      = 
