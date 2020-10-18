@@ -93,6 +93,7 @@ MODULE VESSEL_MODULE
     LOGICAL :: ViscosityMethod = .FALSE.    
     REAL(SP) :: CdDeepDraft
     REAL(SP) :: VisDeepDraft
+    REAL(SP) :: Clearance
     REAL(SP),DIMENSION(:,:),ALLOCATABLE :: CdVessel_2D,VisVessel_2D
      INTEGER,DIMENSION(:,:),ALLOCATABLE :: MaskVessel
 # endif
@@ -163,6 +164,22 @@ SUBROUTINE VESSEL_INITIAL
          WRITE(3,'(A80)') 'Deep draft, Mask method is used.'
 # endif
       ENDIF
+
+! clearance
+      CALL READ_FLOAT(CLEARANCE,FILE_NAME,'CLEARANCE',ierr) 
+      
+      IF(ierr==1)THEN
+        CLEARANCE = 1.0_SP
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'You dont specify CLEARANCE, use 1.0 m'
+         WRITE(3,'(A40)')'You dont specify CLEARANCE, use 1.0 m'
+      endif
+# else
+         WRITE(*,'(A40)')'You dont specify CLEARANCE, use 1.0 m'
+         WRITE(3,'(A40)')'You dont specify CLEARANCE, use 1.0 m'
+# endif
+      ENDIF     
 
   ! frction ---
       CALL READ_LOGICAL(FrictionMethod,FILE_NAME,'FrictionMethod',ierr)      
@@ -383,7 +400,7 @@ SUBROUTINE VESSEL_INITIAL
 End SUBROUTINE VESSEL_INITIAL
 
 SUBROUTINE VESSEL_FORCING
-  USE GLOBAL,ONLY : Mloc,Nloc,tmp1,tmp2,SMALL,TIME,ZERO,DT
+  USE GLOBAL,ONLY : Mloc,Nloc,tmp1,tmp2,SMALL,TIME,ZERO,DT,DEPTH
   USE INPUT_READ
   IMPLICIT NONE
   INTEGER :: Ifile,ierr,I,J
@@ -505,6 +522,7 @@ SUBROUTINE VESSEL_FORCING
 ! use mask9 for SWE, in the vessel module mask9 uses 25 points rather than 9 points
 ! for breakers 
        IF(VesselPressureTotal(I,J).GT.ZERO) THEN
+        IF(Depth(I,J)-VesselPressureTotal(I,J) < CLEARANCE) THEN
          DO II=I-Nghost,I+Nghost
          DO JJ=J-Nghost,J+Nghost
           IF(MaskMethod) THEN
@@ -518,6 +536,7 @@ SUBROUTINE VESSEL_FORCING
           ENDIF
          ENDDO
          ENDDO
+        ENDIF ! clearance
        ENDIF
 # endif
 
