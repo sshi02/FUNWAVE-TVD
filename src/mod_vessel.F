@@ -324,7 +324,7 @@ SUBROUTINE VESSEL_INITIAL
   ENDIF
 
 ! open file
-  Ifile=Kves+200
+  Ifile=Kves+2000
   OPEN(Ifile,FILE=TRIM(TMP_NAME))
 
 ! read file
@@ -418,7 +418,7 @@ SUBROUTINE VESSEL_FORCING
          Xvessel1(Kves) = Xvessel2(Kves)
          Yvessel1(Kves) = Yvessel2(Kves)
 
-    Ifile = 200 + Kves
+    Ifile = 2000 + Kves
 
 ! I add while to avoid dt is smaller than the time interval of vessel path 08/05/2019
     DO WHILE (TimeVessel2(Kves).LT.TIME+DT)
