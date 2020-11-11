@@ -1737,10 +1737,11 @@ SUBROUTINE READ_INPUT
 
          ENDIF ! 1D or not
 
-         IF(WaveMaker(1:6)=='TMA_1D'  &
-           .OR.WaveMaker(1:6)=='JON_1D')THEN
-          ThetaPeak = 0.0_SP
-         ELSE
+!         IF(WaveMaker(1:6)=='TMA_1D'  &
+!           .OR.WaveMaker(1:6)=='JON_1D')THEN
+!          ThetaPeak = 0.0_SP
+!         ELSE
+
           CALL READ_FLOAT(ThetaPeak,FILE_NAME,'ThetaPeak',ierr)
           IF(ierr==1)THEN
              ThetaPeak = 0.0_SP
@@ -1750,7 +1751,8 @@ SUBROUTINE READ_INPUT
       WRITE(3,'(A25,A50)')'ThetaPeak', 'NOT DEFINED, USE 0.0'
 # endif
           ENDIF ! end ierr
-         ENDIF ! 1D or not
+
+!         ENDIF ! 1D or not
 
          IF(WaveMaker(1:6)=='TMA_1D'  &
            .OR.WaveMaker(1:6)=='JON_1D')THEN
@@ -2161,10 +2163,11 @@ SUBROUTINE READ_INPUT
 
          ENDIF ! 1D or not
 
-         IF(WAVE_DATA_TYPE(1:6)=='TMA_1D'  &
-           .OR.WAVE_DATA_TYPE(1:6)=='JON_1D')THEN
-          ThetaPeak = 0.0_SP
-         ELSE
+!         IF(WAVE_DATA_TYPE(1:6)=='TMA_1D'  &
+!           .OR.WAVE_DATA_TYPE(1:6)=='JON_1D')THEN
+!          ThetaPeak = 0.0_SP
+!         ELSE
+
           CALL READ_FLOAT(ThetaPeak,FILE_NAME,'ThetaPeak',ierr)
           IF(ierr==1)THEN
              ThetaPeak = 0.0_SP
@@ -2174,7 +2177,8 @@ SUBROUTINE READ_INPUT
       WRITE(3,'(A25,A50)')'ThetaPeak', 'NOT DEFINED, USE 0.0'
 # endif
           ENDIF ! end ierr
-         ENDIF ! 1D or not
+
+!         ENDIF ! 1D or not
 
          IF(WAVE_DATA_TYPE(1:6)=='TMA_1D'  &
            .OR.WAVE_DATA_TYPE(1:6)=='JON_1D')THEN
