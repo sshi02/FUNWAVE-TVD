@@ -1197,7 +1197,7 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm &
 !        theta=-pi/3.0_SP+theta_input*pi/180.0_SP+2.0_SP/3.0_SP*pi/ktotal*ktheta
 
       IF (mtheta == 1) THEN
-        theta = 0.0_SP
+        theta = theta_input*pi/180.0_SP
       ELSE
         theta = -pi/3.0_SP + theta_input*pi/180.0_SP  & 
 	         + 2.0_SP/3.0_SP*pi/(real(ktotal)-1.0_SP)*(real(ktheta)-1.0_SP)   !ykchoi (11/07/2016)
@@ -1500,7 +1500,7 @@ SUBROUTINE CALCULATE_TMA_Cm_Sm_EQUAL_DFREQ &
 !        theta=-pi/3.0_SP+theta_input*pi/180.0_SP+2.0_SP/3.0_SP*pi/ktotal*ktheta
 
       IF (mtheta == 1) THEN
-        theta = 0.0_SP
+        theta = theta_input*pi/180.0_SP
       ELSE
         theta = -pi/3.0_SP + theta_input*pi/180.0_SP  & 
 	         + 2.0_SP/3.0_SP*pi/(real(ktotal)-1.0_SP)*(real(ktheta)-1.0_SP)   !ykchoi (11/07/2016)
@@ -1810,7 +1810,7 @@ SUBROUTINE WK_WAVEMAKER_IRREGULAR_WAVE &
 
 
       IF (mtheta == 1) THEN
-        theta = 0.0_SP
+        theta = theta_input*pi/180.0_SP
       ELSE
         theta = -pi/3.0_SP + theta_input*pi/180.0_SP &
 	         + 2.0_SP/3.0_SP*pi/(real(ktotal)-1.0_SP)*(real(ktheta)-1.0_SP)  
@@ -2056,7 +2056,7 @@ SUBROUTINE WK_EQUAL_DFREQ_IRREGULAR_WAVE &
          ap=Hmo_each(ktheta,kf)/SQRT(2.0_SP)/2.0_SP
         
       IF (mtheta == 1) THEN
-        theta = 0.0_SP
+        theta = theta_input*pi/180.0_SP
       ELSE
         theta = -pi/3.0_SP + theta_input*pi/180.0_SP &
 	         + 2.0_SP/3.0_SP*pi/(real(ktotal)-1.0_SP)*(real(ktheta)-1.0_SP)   
