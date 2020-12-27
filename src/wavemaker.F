@@ -2412,13 +2412,13 @@ SUBROUTINE IRREGULAR_LEFT_BC
      do i = 1,Nghost
       DO KK = 1, NumFreq
 
-       Ein2D(I,J) =Ein2D(I,J)+Cm_eta(I,J,KK)*COS(pi/2.0_SP+Segma_Ser(KK)*RTIME+Phase_Ser(KK)) &
-                             +Sm_eta(I,J,KK)*SIN(pi/2.0_SP+Segma_Ser(KK)*RTIME+Phase_Ser(KK))
+       Ein2D(I,J) =Ein2D(I,J)+Cm_eta(I,J,KK)*COS(Segma_Ser(KK)*RTIME+Phase_Ser(KK)) &
+                             +Sm_eta(I,J,KK)*SIN(Segma_Ser(KK)*RTIME+Phase_Ser(KK))
  
-       Uin2D(I,J) =Uin2D(I,J)+Cm_u(I,J,KK)*COS(pi/2.0_SP+Segma_Ser(KK)*RTIME+Phase_Ser(KK)) &
-                             +Sm_u(I,J,KK)*SIN(pi/2.0_SP+Segma_Ser(KK)*RTIME+Phase_Ser(KK))
-       Vin2D(I,J) =Vin2D(I,J)+Cm_v(I,J,KK)*COS(pi/2.0_SP+Segma_Ser(KK)*RTIME+Phase_Ser(KK)) &
-                             +Sm_v(I,J,KK)*SIN(pi/2.0_SP+Segma_Ser(KK)*RTIME+Phase_Ser(KK))
+       Uin2D(I,J) =Uin2D(I,J)+Cm_u(I,J,KK)*COS(Segma_Ser(KK)*RTIME+Phase_Ser(KK)) &
+                             +Sm_u(I,J,KK)*SIN(Segma_Ser(KK)*RTIME+Phase_Ser(KK))
+       Vin2D(I,J) =Vin2D(I,J)+Cm_v(I,J,KK)*COS(Segma_Ser(KK)*RTIME+Phase_Ser(KK)) &
+                             +Sm_v(I,J,KK)*SIN(Segma_Ser(KK)*RTIME+Phase_Ser(KK))
        ENDDO 
 
      enddo 

@@ -20,7 +20,7 @@ PRECISION   = single
 # FLAG_10 = -DTRACKING
 #  FLAG_11 = -DDEEP_DRAFT_VESSEL
 #----------------uncommon options---------------------
-DEF_FC      = mpif90
+DEF_FC      = 
 DEF_FC_FLAG = 
 SPHERICAL   = false
 MPI         = openmpi
