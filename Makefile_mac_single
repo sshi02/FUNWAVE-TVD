@@ -2,7 +2,7 @@
 FUNWAVE_DIR = .
 WORK_DIR    = funwave-work
 COMPILER    = gnu
-PARALLEL    = true
+PARALLEL    = false
 EXEC        = funwave
 PRECISION   = single
 
@@ -19,12 +19,13 @@ PRECISION   = single
 # FLAG_9  = -DTMP
 # FLAG_10 = -DTRACKING
 #  FLAG_11 = -DDEEP_DRAFT_VESSEL
+   FLAG_12 = -DDEBUG
 #----------------uncommon options---------------------
-DEF_FC      = 
+DEF_FC      = gfortran
 DEF_FC_FLAG = 
 SPHERICAL   = false
 MPI         = openmpi
-DEBUG       = false
+DEBUG       = true
 INCS        = $(IOINCS) $(GOTMINCS)
 LIBS        = $(PV3LIB) $(CLIB)  $(PARLIB) $(IOLIBS) $(MPILIB) $(GOTMLIB)
 CLIB        =

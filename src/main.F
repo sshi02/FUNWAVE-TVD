@@ -401,6 +401,15 @@ Program FUNWAVE_TVD
 
        IF(WaveMaker(1:3)=='ABS') THEN
          CALL ABSORBING_GENERATING_BC
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'ABS wavemaker'     
+#    else   
+       WRITE(*,*) 'ABS wavemaker'
+#    endif
+# endif
+
        ENDIF
 
        IF(WaveMaker(1:11)=='LEFT_BC_IRR') THEN
@@ -422,6 +431,14 @@ Program FUNWAVE_TVD
 
      CALL MIXING_STUFF
 
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'MIXING_STUFF'     
+#    else   
+       WRITE(*,*) 'MIXING_STUFF'
+#    endif
+# endif
+
 # if defined (TRACKING)
      CALL TRACK_XY
 # endif
@@ -434,6 +451,14 @@ Program FUNWAVE_TVD
       ENDIF        
 
       CALL CHECK_BLOWUP
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'CHECK_BLOWUP'     
+#    else   
+       WRITE(*,*) 'CHECK_BLOWUP'
+#    endif
+# endif
 
 # if defined (DEBUG)
 #    if defined (PARALLEL)

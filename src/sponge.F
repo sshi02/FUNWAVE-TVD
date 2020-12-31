@@ -79,7 +79,7 @@ SUBROUTINE ABSORBING_GENERATING_BC
      USE GLOBAL, ONLY : SP,PI,Grav,TIME,NumFreq,Phase_Ser,&
                        Ibeg,Iend,Jbeg,Jend,&
                        Segma_Ser,Stokes_Drift_Ser,Cm_eta,Sm_eta,&
-                       Cm_u,Sm_u,Cm_v,Sm_v,SPONGE
+                       Cm_u,Sm_u,Cm_v,Sm_v,SPONGE,tmp4preview
      IMPLICIT NONE
      INTEGER :: KK,K
      real(SP),DIMENSION(Mloc,Nloc) :: Ein2D,Din2D
@@ -95,25 +95,26 @@ SUBROUTINE ABSORBING_GENERATING_BC
      do i = 1,Mloc
       DO KK = 1, NumFreq
 
-       Ein2D(I,J) =Ein2D(I,J)+Cm_eta(I,J,KK)*COS(pi/2.0_SP+Segma_Ser(KK)*TIME+Phase_Ser(KK)) &
-                             +Sm_eta(I,J,KK)*SIN(pi/2.0_SP+Segma_Ser(KK)*TIME+Phase_Ser(KK))
+       Ein2D(I,J) =Ein2D(I,J)+Cm_eta(I,J,KK)*COS(PI/2.0_SP+Segma_Ser(KK)*TIME+Phase_Ser(KK)) &
+                             +Sm_eta(I,J,KK)*SIN(PI/2.0_SP+Segma_Ser(KK)*TIME+Phase_Ser(KK))
  
-       Uin2D(I,J) =Uin2D(I,J)+Cm_u(I,J,KK)*COS(pi/2.0_SP+Segma_Ser(KK)*TIME+Phase_Ser(KK)) &
-                             +Sm_u(I,J,KK)*SIN(pi/2.0_SP+Segma_Ser(KK)*TIME+Phase_Ser(KK))
-       Vin2D(I,J) =Vin2D(I,J)+Cm_v(I,J,KK)*COS(pi/2.0_SP+Segma_Ser(KK)*TIME+Phase_Ser(KK)) &
-                             +Sm_v(I,J,KK)*SIN(pi/2.0_SP+Segma_Ser(KK)*TIME+Phase_Ser(KK))
+       Uin2D(I,J) =Uin2D(I,J)+Cm_u(I,J,KK)*COS(PI/2.0_SP+Segma_Ser(KK)*TIME+Phase_Ser(KK)) &
+                             +Sm_u(I,J,KK)*SIN(PI/2.0_SP+Segma_Ser(KK)*TIME+Phase_Ser(KK))
+       Vin2D(I,J) =Vin2D(I,J)+Cm_v(I,J,KK)*COS(PI/2.0_SP+Segma_Ser(KK)*TIME+Phase_Ser(KK)) &
+                             +Sm_v(I,J,KK)*SIN(PI/2.0_SP+Segma_Ser(KK)*TIME+Phase_Ser(KK))
        ENDDO 
 
      enddo 
      enddo   
 
-       DO J=1,Nloc
-       DO I=1,Mloc
-         Ein2D(I,J)=Ein2D(I,J)/SPONGE(I,J)**4
-         Uin2D(I,J)=Uin2D(I,J)/SPONGE(I,J)**4
-         Vin2D(I,J)=Vin2D(I,J)/SPONGE(I,J)**4
-       ENDDO
-       ENDDO
+! I removed variable sponge()  12/31/2020
+!       DO J=1,Nloc
+!       DO I=1,Mloc
+!         Ein2D(I,J)=Ein2D(I,J)/SPONGE(I,J)**4
+!         Uin2D(I,J)=Uin2D(I,J)/SPONGE(I,J)**4
+!         Vin2D(I,J)=Vin2D(I,J)/SPONGE(I,J)**4
+!       ENDDO
+!       ENDDO
 
 
        do j = 1,Nloc
