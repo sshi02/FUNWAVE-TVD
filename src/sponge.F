@@ -79,7 +79,9 @@ SUBROUTINE ABSORBING_GENERATING_BC
      USE GLOBAL, ONLY : SP,PI,Grav,TIME,NumFreq,Phase_Ser,&
                        Ibeg,Iend,Jbeg,Jend,&
                        Segma_Ser,Stokes_Drift_Ser,Cm_eta,Sm_eta,&
-                       Cm_u,Sm_u,Cm_v,Sm_v,SPONGE,tmp4preview
+                       Cm_u,Sm_u,Cm_v,Sm_v,SPONGE,tmp4preview, &
+                       HU, HV,Depth
+
      IMPLICIT NONE
      INTEGER :: KK,K
      real(SP),DIMENSION(Mloc,Nloc) :: Ein2D,Din2D
@@ -122,6 +124,8 @@ SUBROUTINE ABSORBING_GENERATING_BC
           Eta(i,j) = Ein2D(I,J)+ (Eta(i,j)-Ein2D(I,J))/SpongeMaker(i,j)
           U(i,j) = Uin2D(I,J)+(U(i,j)-Uin2D(I,J))/SpongeMaker(i,j)
           V(i,j) = Vin2D(I,J)+(V(i,j)-Vin2D(I,J))/SpongeMaker(i,j)
+          HU(I,J)=(Depth(I,J)+ETA(I,J))*U(I,J)
+          HV(I,J)=(Depth(I,J)+ETA(I,J))*V(I,J)
        enddo
        enddo
 
