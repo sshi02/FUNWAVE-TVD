@@ -122,12 +122,14 @@ SUBROUTINE ABSORBING_GENERATING_BC
        do j = 1,Nloc
        do i = 1,Mloc
           Eta(i,j) = Ein2D(I,J)+ (Eta(i,j)-Ein2D(I,J))/SpongeMaker(i,j)
-          U(i,j) = Uin2D(I,J)+(U(i,j)-Uin2D(I,J))/SpongeMaker(i,j)
-          V(i,j) = Vin2D(I,J)+(V(i,j)-Vin2D(I,J))/SpongeMaker(i,j)
+!          U(i,j) = Uin2D(I,J)+(U(i,j)-Uin2D(I,J))/SpongeMaker(i,j)
+!          V(i,j) = Vin2D(I,J)+(V(i,j)-Vin2D(I,J))/SpongeMaker(i,j)
           HU(I,J)=(Depth(I,J)+ETA(I,J))*U(I,J)
           HV(I,J)=(Depth(I,J)+ETA(I,J))*V(I,J)
        enddo
        enddo
+
+       tmp4preview = Uin2D
 
 END SUBROUTINE ABSORBING_GENERATING_BC
 

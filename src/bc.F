@@ -80,7 +80,7 @@ SUBROUTINE BOUNDARY_CONDITION
       ENDDO
    ENDIF
 # else
-   IF(WaveMaker(1:11)=='LEFT_BC_IRR')THEN
+   IF(WaveMaker(1:3)=='ABS'.OR.WaveMaker(1:11)=='LEFT_BC_IRR')THEN
      ! do nothing
    ELSE
      DO J=Jbeg,Jend
@@ -541,7 +541,7 @@ SUBROUTINE PHI_COLL_VARIABLE_LENGTH(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,PHI,VTY
     if ( n_west .eq. MPI_PROC_NULL ) then
 # endif
 
-    IF(WaveMaker(1:11)=='LEFT_BC_IRR')THEN
+    IF(WaveMaker(1:3)=='ABS'.OR.WaveMaker(1:11)=='LEFT_BC_IRR')THEN
       ! do nothing
     ELSE
       DO J=Jbeg,Jend  
@@ -746,7 +746,7 @@ SUBROUTINE PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,PHI,VTYPE)
     IF(.NOT.IN_DOMAIN_WEST)THEN
 # endif
 
-    IF(WaveMaker(1:11)=='LEFT_BC_IRR')THEN
+    IF(WaveMaker(1:3)=='ABS'.OR.WaveMaker(1:11)=='LEFT_BC_IRR')THEN
       ! do nothing
     ELSE
       DO J=Jbeg,Jend  
@@ -839,7 +839,7 @@ SUBROUTINE PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,PHI,VTYPE)
     IF(.NOT.IN_DOMAIN_WEST)THEN
 # endif
 
-    IF(WaveMaker(1:11)=='LEFT_BC_IRR')THEN
+    IF(WaveMaker(1:3)=='ABS'.OR.WaveMaker(1:11)=='LEFT_BC_IRR')THEN
       ! do nothing
     ELSE
       DO J=Jbeg,Jend
@@ -932,7 +932,7 @@ SUBROUTINE PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,PHI,VTYPE)
     IF(.NOT.IN_DOMAIN_WEST)THEN
 # endif
 
-    IF(WaveMaker(1:11)=='LEFT_BC_IRR')THEN
+    IF(WaveMaker(1:3)=='ABS'.OR.WaveMaker(1:11)=='LEFT_BC_IRR')THEN
       ! do nothing
     ELSE
       DO J=Jbeg,Jend
