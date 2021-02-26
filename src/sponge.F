@@ -806,8 +806,9 @@ SUBROUTINE CALCULATE_CD_BREAKWATER
       IF(BreakWaterWidth(I,J).GT.ZERO)THEN
         Iwidth=INT(BreakWaterWidth(I,J)/DXg)
         Jwidth=INT(BreakWaterWidth(I,J)/DYg)
-        DO Jb=MAX(1,J-Jwidth),Min(Nglob,J+Jwidth)
-        DO Ib=MAX(1,I-Iwidth),Min(Mglob,I+Iwidth)
+    ! fixed bug from gangfeng 02/26/2021, should add 2*Nghost
+        DO Jb=MAX(1,J-Jwidth),Min(Nglob+2*Nghost,J+Jwidth)
+        DO Ib=MAX(1,I-Iwidth),Min(Mglob+2*Nghost,I+Iwidth)
           ri=SQRT(((Ib-I)*DXg)**2+((Jb-J)*DYg)**2)
           IF(ri.LE.BreakWaterWidth(I,J))THEN
            tmp_2d=BreakWaterAbsorbCoef* &

@@ -75,12 +75,14 @@ SUBROUTINE FLUXES
 
 !-------------------------------------------------------------
 !-------------------------------------------------------------
+# if defined (CARTESIAN)
+  ! I removed option for spherical
 
       ELSEIF(HIGH_ORDER(1:3)=='WEN') THEN    !ykchoi
 	 CALL CONSTRUCTION_WENO
        CALL WAVE_SPEED(Mloc,Nloc,Mloc1,Nloc1,UxL,UxR,VyL,VyR,HxL,HxR,HyL,HyR, &
             SxL,SxR,SyL,SyR)
-
+# endif
 !-------------------------------------------------------------
 !-------------------------------------------------------------
 
@@ -2112,6 +2114,10 @@ END SUBROUTINE CONSTRUCT_HO_Y_MLP
 !        WENO_CONSTRUCT_X
 !        WENO_CONSTRUCT_Y
 ! --------------------------------------------------
+
+# if defined(CARTESIAN)
+  ! I remove the option for spherical because there is conflict with U4xL
+
 SUBROUTINE CONSTRUCTION_WENO
      USE GLOBAL
      IMPLICIT NONE
@@ -2279,6 +2285,9 @@ SUBROUTINE CONSTRUCTION_WENO
 	deallocate( MASK9u, MASK9v )
 
 ENDSUBROUTINE CONSTRUCTION_WENO
+  ! I remove the option for spherical
+# endif
+
 
 !================================================================================================
 ! ------------------------------------------------------------------
