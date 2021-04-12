@@ -640,8 +640,8 @@ SUBROUTINE PRESSURE_SOURCE (Xves,Yves)
     DO J=Jbeg,Jend
     DO I=Ibeg,Iend
 
-         DetaX = (ETA(I+1,J)-ETA(I-1,J))/2.0_SP
-         DetaY = (ETA(I,J+1)-ETA(I,J-1))/2.0_SP
+         DetaX = (ETA(I+1,J)-ETA(I-1,J))/2.0_SP/DX
+         DetaY = (ETA(I,J+1)-ETA(I,J-1))/2.0_SP/DY
 
          IF(DetaX>=0)THEN
            ResPosX(Kves) = ResPosX(Kves) &
