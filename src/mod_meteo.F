@@ -536,7 +536,7 @@ SUBROUTINE Contant_Wind_Field_Setup
 END SUBROUTINE Contant_Wind_Field_Setup
 
 SUBROUTINE Holland_Model_Forcing
-  USE GLOBAL,ONLY : Mloc,Nloc,tmp1,tmp2,SMALL,TIME,ZERO
+  USE GLOBAL,ONLY : Mloc,Nloc,tmp1,tmp2,SMALL,TIME,ZERO,ETAmean
   USE INPUT_READ
   IMPLICIT NONE
   INTEGER :: Ifile,ierr,I,J
@@ -647,7 +647,7 @@ SUBROUTINE Holland_Model_Forcing
       IF(WindCrestPercent==LARGE)THEN
         ! keep mask_wind = 1
       ELSE
-        IF(ETA(I,J)<HeightMax(I,J)*(1-WindCrestPercent))MASK_WIND(I,J)=0
+        IF(ETA(I,J)<HeightMax(I,J)*(1-WindCrestPercent)+ETAmean(I,J)) MASK_WIND(I,J)=0
       ENDIF
      ENDDO
      ENDDO
@@ -670,7 +670,7 @@ SUBROUTINE Holland_Model_Forcing
 END SUBROUTINE Holland_Model_Forcing
 
 SUBROUTINE Constant_Wind_Forcing
-  USE GLOBAL,ONLY : Mloc,Nloc,tmp1,tmp2,SMALL,TIME,ZERO
+  USE GLOBAL,ONLY : Mloc,Nloc,tmp1,tmp2,SMALL,TIME,ZERO,ETAmean
   USE INPUT_READ
   IMPLICIT NONE
   INTEGER :: Ifile,ierr,I,J
@@ -719,7 +719,7 @@ SUBROUTINE Constant_Wind_Forcing
       IF(WindCrestPercent==LARGE)THEN
         ! keep mask_wind = 1
       ELSE
-        IF(ETA(I,J)<HeightMax(I,J)*(1-WindCrestPercent))MASK_WIND(I,J)=0
+        IF(ETA(I,J)<HeightMax(I,J)*(1-WindCrestPercent)+ETAmean(I,J))MASK_WIND(I,J)=0
       ENDIF
      ENDDO
      ENDDO
