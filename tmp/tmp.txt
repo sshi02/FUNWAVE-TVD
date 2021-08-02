@@ -1,0 +1,244 @@
+8c8
+< !
+---
+> ! 
+39c39
+< !
+---
+> !  
+43c43
+< !
+---
+> !  
+49c49
+< !    05/01/2010 Fengyan Shi
+---
+> !    05/01/2010 Fengyan Shi 
+113,116c113,115
+< 	      !Salatin, Chen July 11, 2021
+< 	            ETA2sum(Mloc,Nloc), ETA2(Mloc,Nloc), &
+< 	            SigWaveHeight(Mloc,Nloc),  &
+<               ETAvariance(Mloc,Nloc), &
+---
+> 	        !ykchoi
+> 	        ETA2sum(Mloc,Nloc), ETA2mean(Mloc,Nloc), &
+> 			SigWaveHeight(Mloc,Nloc),  &
+121,122c120,121
+< 			V4xL(Mloc1,Nloc),V4xR(Mloc1,Nloc),&
+< 			U4yL(Mloc,Nloc1),U4yR(Mloc,Nloc1) &
+---
+> 			V4xL(Mloc1,Nloc),V4xR(Mloc1,Nloc),&  
+> 			U4yL(Mloc,Nloc1),U4yR(Mloc,Nloc1) & 
+128,129c127,128
+< 	      V4xL(Mloc1,Nloc),V4xR(Mloc1,Nloc),&
+< 	      U4yL(Mloc,Nloc1),U4yR(Mloc,Nloc1), &
+---
+> 	      V4xL(Mloc1,Nloc),V4xR(Mloc1,Nloc),&  
+> 	      U4yL(Mloc,Nloc1),U4yR(Mloc,Nloc1), &  
+146a146,149
+> # if defined(UseEtaScreen)
+> ! wetting and drying
+>       ALLOCATE(EtaScreen(Mloc,Nloc))
+> # endif
+149c152
+<       ALLOCATE(U4(Mloc,Nloc),V4(Mloc,Nloc),U1p(Mloc,Nloc), &
+---
+>       ALLOCATE(U4(Mloc,Nloc),V4(Mloc,Nloc),U1p(Mloc,Nloc), & 
+154c157
+<       ALLOCATE(U4(Mloc,Nloc),V4(Mloc,Nloc) &
+---
+>       ALLOCATE(U4(Mloc,Nloc),V4(Mloc,Nloc) & 
+157c160
+<       ALLOCATE(U1p(Mloc,Nloc), &
+---
+>       ALLOCATE(U1p(Mloc,Nloc), & 
+181c184
+< 
+---
+> 	
+210c213,216
+< 
+---
+>       IF(OUT_Time)THEN
+>         ALLOCATE(ARRTIME(Mloc,Nloc))
+>         ARRTIME=ZERO
+>       ENDIF      
+292c298
+<      ENDDO
+---
+>      ENDDO  
+338c344
+<      WaveHeightAve =ZERO
+---
+>      WaveHeightAve =ZERO 
+386c392
+<      DVyy=ZERO
+---
+>      DVyy=ZERO 
+402c408
+<      DVty=ZERO
+---
+>      DVty=ZERO    
+471c477
+< # endif
+---
+> # endif 
+520c526
+< 
+---
+>           
+533c539
+< 
+---
+>    
+570c576
+< ! redefine a1 a2 and b1 and b2 used in trid just for connivence
+---
+> ! redefine a1 a2 and b1 and b2 used in trid just for connivence 
+682a689,691
+> # if defined (CARTESIAN)
+>     CALL PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,Depth,VTYPE,PERIODIC)
+> # else
+683a693
+> # endif
+687c697
+<       CALL CORRECTION
+---
+>       CALL CORRECTION 
+724c734
+< !   errors if trying to make artifial high walls for dry points
+---
+> !   errors if trying to make artifial high walls for dry points 
+740,741c750,751
+< # endif
+< 
+---
+> # endif     
+>  
+769c779
+<      ENDDO
+---
+>      ENDDO  
+786c796,803
+<      ENDIF
+---
+>        IF(BED_DEFORMATION)THEN
+>          DO J=1,Nloc
+>          DO I=1,Mloc
+>            Depth(I,J)=Depth(I,J)-ETA(I,J)
+>          ENDDO
+>          ENDDO         
+>        ENDIF
+>      ENDIF 
+790c807
+<        CALL INITIAL_SOLITARY_WAVE(Mloc,Nloc, DX,Xwavemaker,&
+---
+>        CALL INITIAL_SOLITARY_WAVE(Mloc,Nloc, DX,Xwavemaker,& 
+798c815
+<        CALL INITIAL_N_WAVE(Mloc,Nloc, DX,x1_Nwave,&
+---
+>        CALL INITIAL_N_WAVE(Mloc,Nloc, DX,x1_Nwave,& 
+846,847c863,864
+< 
+< 
+---
+>    
+>    
+881,890d897
+<      H=MAX(Eta*Gamma3+Depth,MinDepthFrc)
+<      HU=H*U
+<      HV=H*V
+< 
+<      IF(DISPERSION)THEN
+<        CALL CAL_DISPERSION
+<      ENDIF
+< 
+<      Ubar=HU+gamma1*U1p*H
+<      Vbar=HV+gamma1*V1p*H
+897a905,907
+> # if defined(UseEtaScreen)
+>        EtaScreen(I,J)=Eta(I,J)
+> # endif
+903c913,924
+<     ENDIF
+---
+>     ENDIF    
+> 
+>      H=MAX(Eta*Gamma3+Depth,MinDepthFrc)
+>      HU=H*U
+>      HV=H*V
+>     
+>      IF(DISPERSION)THEN
+>        CALL CAL_DISPERSION
+>      ENDIF
+>     
+>      Ubar=HU+gamma1*U1p*H
+>      Vbar=HV+gamma1*V1p*H
+905c926,927
+< ! read obstacle structures
+---
+>   
+> ! read obstacle structures 
+920c942
+< 
+---
+>      
+922,924c944,946
+<      IF(.NOT.ALLOCATED(VarGlob)) ALLOCATE (VarGlob(Mloc,Nloc)) ! use local here
+< 
+<      call GetFile ( OBSTACLE_FILE, VarGlob )
+---
+>      IF(.NOT.ALLOCATED(VarGlob)) ALLOCATE (VarGlob(Mloc,Nloc)) ! use local here 
+>      
+>      call GetFile ( OBSTACLE_FILE, VarGlob )    
+937c959
+< ! read breakwater
+---
+> ! read breakwater 
+953c975
+< ! we have to use global for width
+---
+> ! we have to use global for width 
+955c977
+<      BreakWaterWidth = 0.0_SP
+---
+>      BreakWaterWidth = 0.0_SP     
+1010c1032
+<      ENDDO
+---
+>      ENDDO  
+1034c1056
+<                 *MASK(I+1,J-1)*MASK(I,J-1)*MASK(I-1,J-1)
+---
+>                 *MASK(I+1,J-1)*MASK(I,J-1)*MASK(I-1,J-1) 
+1050c1072
+< 
+---
+>  
+1055c1077
+<     ! ocean basin domain and a huge slope at coastline.
+---
+>     ! ocean basin domain and a huge slope at coastline. 
+1076c1098
+< ! at edges of mask point, depth at cell interface can cause unreasonable large
+---
+> ! at edges of mask point, depth at cell interface can cause unreasonable large 
+1079,1082c1101,1104
+< ! 01/21/2012
+< ! HOWEVER, this truncation can affect the model accuracy as pointed by
+< ! Choi (private communication, in Thacker bowl test case, 07/03/2016).
+< ! In the following, I keep an option to use more accurate solution.
+---
+> ! 01/21/2012  
+> ! HOWEVER, this truncation can affect the model accuracy as pointed by 
+> ! Choi (private communication, in Thacker bowl test case, 07/03/2016). 
+> ! In the following, I keep an option to use more accurate solution. 
+1109c1131
+< !    INITIAL_UVZ is subroutine of given initial u v and eta
+---
+> !    INITIAL_UVZ is subroutine of given initial u v and eta 
+1218a1241,1244
+> 
+> 
+> 
+> 

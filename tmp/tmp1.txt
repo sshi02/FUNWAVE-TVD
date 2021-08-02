@@ -1,0 +1,39 @@
+77a78
+>        INTEGER :: StationOutputBuffer
+87a89,91
+> 
+>        ! [mayhl] Added global input file name for modules
+>        CHARACTER(LEN=80) INPUT_FILE_NAME
+134c138
+<                    DT_fixed
+---
+>                    DT_fixed,PLOT_START_TIME
+142a147
+>        REAL(SP) :: ArrTimeMin=0.001
+220c225
+<           MomentumFluxMax,VorticityMax
+---
+>           MomentumFluxMax,VorticityMax,ARRTIME
+230a236,238
+> # if defined(UseEtaScreen)
+>         REAL(SP),DIMENSION(:,:),ALLOCATABLE :: EtaScreen
+> # endif
+286,289c294,296
+<       INTEGER :: NumDT1=0  ! for Hsig; Chen, Salatin July 11, 2021
+<       !Chen, Salatin July 11, 2021
+<       REAL(SP),DIMENSION(:,:),ALLOCATABLE :: ETA2sum,ETA2
+<       REAL(SP),DIMENSION(:,:),ALLOCATABLE :: SigWaveHeight,ETAvariance
+---
+> 
+>       !ykchoi
+> 	REAL(SP),DIMENSION(:,:),ALLOCATABLE :: ETA2sum,ETA2mean,SigWaveHeight
+332a340,342
+> # if defined(UseEtaScreen)
+>                   OUT_ETASCREEN=.FALSE., &
+> # endif
+345c355
+<                   OUT_VORmax=.FALSE., &
+---
+>                   OUT_VORmax=.FALSE.,OUT_Time, &
+391a402
+>         LOGICAL :: BED_DEFORMATION = .FALSE.
