@@ -89,6 +89,7 @@ MODULE SEDIMENT_MODULE
     LOGICAL :: CohesiveSediment = .FALSE.
     
     REAL(SP),DIMENSION(:,:),ALLOCATABLE::Zb,P_ave,D_ave,Mask_s,D,Pickup,Delta_c
+    REAL(SP),DIMENSION(:,:),ALLOCATABLE::Zb_avalanching
     REAL(SP),DIMENSION(:,:),ALLOCATABLE::CH,CHX,CHY,CHH,CHHxR,CHHxL,CHXxL,CHXxR
     REAL(SP),DIMENSION(:,:),ALLOCATABLE::CHHyR,CHHyL,CHYyL,CHYyR,ZbOld,dZb
     REAL(SP),DIMENSION(:,:),ALLOCATABLE::FsL,FsR,GsL,GsR,Fs,Gs,CH0,Zs,ava
@@ -748,7 +749,7 @@ SUBROUTINE SEDIMENT_INITIAL
 
 ! ALLOCATION
 
-        ALLOCATE(Zb(Mloc,Nloc))
+        ALLOCATE(Zb(Mloc,Nloc),Zb_avalanching(Mloc,Nloc))
         ALLOCATE(CHH(Mloc,Nloc),CHH0(Mloc,Nloc))
         ALLOCATE(CHHxR(Mloc1,Nloc),CHHxL(Mloc1,Nloc),  &
                  CHHyR(Mloc,Nloc1),CHHyL(Mloc,Nloc1))
@@ -801,6 +802,7 @@ SUBROUTINE SEDIMENT_INITIAL
         Delta_c=ZERO
         Mask_s=ZERO
         Zb=ZERO	
+        Zb_avalanching = ZERO
         TotalSuspendLoad = ZERO
         TotalBedLoad = ZERO	
         BedFluxX = ZERO
@@ -1262,7 +1264,9 @@ SUBROUTINE MORPHOLOGICAL_CHANGE
 # endif
                     
   IMPLICIT NONE
-  INTEGER :: VTYPE
+  INTEGER :: VTYPE,i4,i4_record
+  REAL(SP) :: slope_max,dh
+  REAL(SP),DIMENSION(4) :: slope4
 
     DO J=Jbeg,Jend
     DO I=Ibeg,Iend
@@ -1279,14 +1283,74 @@ SUBROUTINE MORPHOLOGICAL_CHANGE
 
            ! zb: positive for erosion
       Zb(I,J) = -(TotalSuspendLoad(I,J) + TotalBedLoad(I,J))/(1.0_SP-n_porosity)
+
       IF(Zb(I,J)>Zs(I,J)) Zb(I,J)=Zs(I,J)
  
     ENDDO
     ENDDO
 
+! avalanching
+    IF(Avalanche)THEN
+    DO J=Jbeg,Jend
+    DO I=Ibeg,Iend
+# if defined(CARTESIAN)
+        slope4(1)=(Depth(I,J)-Depth(I-1,J))/DX
+        slope4(2)=(Depth(I,J)-Depth(I+1,J))/DX
+        slope4(3)=(Depth(I,J)-Depth(I,J-1))/DY
+        slope4(4)=(Depth(I,J)-Depth(I,J+1))/DY
+# else
+        slope4(1)=(Depth(I,J)-Depth(I-1,J))/DX(I,J)
+        slope4(2)=(Depth(I,J)-Depth(I+1,J))/DX(I,J)
+        slope4(3)=(Depth(I,J)-Depth(I,J-1))/DY(I,J)
+        slope4(4)=(Depth(I,J)-Depth(I,J+1))/DY(I,J)
+# endif
+        slope_max=0.0_SP
+        dh=0.0_SP
+        DO i4=1,4
+          IF(slope4(i4)>slope_max)THEN
+           slope_max=slope4(i4)
+           i4_record = i4
+          ENDIF
+        ENDDO
+        
+        IF(slope_max>Tan_phi)THEN 
+          IF(i4_record.EQ.1) THEN
+            IF(Zb(I-1,J)<Zs(I-1,J))THEN
+              dh=0.5_SP*(Depth(I,J)-Depth(I-1,J))
+              Zb_avalanching(I,J)=Zb_avalanching(I,J)+dh
+              Zb_avalanching(I-1,J)=Zb_avalanching(I-1,J)-dh
+            ENDIF
+          ENDIF
+          IF(i4_record.EQ.2) THEN
+            IF(Zb(I+1,J)<Zs(I+1,J))THEN
+              dh=0.5_SP*(Depth(I,J)-Depth(I+1,J))
+              Zb_avalanching(I,J)=Zb_avalanching(I,J)+dh
+              Zb_avalanching(I+1,J)=Zb_avalanching(I+1,J)-dh
+            ENDIF
+          ENDIF
+          IF(i4_record.EQ.3) THEN
+            IF(Zb(I,J-1)<Zs(I,J-1))THEN
+              dh=0.5_SP*(Depth(I,J)-Depth(I,J-1))
+              Zb_avalanching(I,J)=Zb_avalanching(I,J)+dh
+              Zb_avalanching(I,J)=Zb_avalanching(I,J-1)-dh
+            ENDIF
+          ENDIF
+          IF(i4_record.EQ.4) THEN
+            IF(Zb(I,J+1)<Zs(I,J+1))THEN
+              dh=0.5_SP*(Depth(I,J)-Depth(I,J+1))
+              Zb_avalanching(I,J)=Zb_avalanching(I,J)+dh
+              Zb_avalanching(I,J)=Zb_avalanching(I,J+1)-dh
+            ENDIF
+          ENDIF 
+        ENDIF ! > tan_phi
+    ENDDO
+    ENDDO
+    ENDIF
+! end avalanche
+
 ! update depth
 
-    Depth = Depth_ini + Zb*Morph_factor
+    Depth = Depth_ini + (Zb+Zb_avalanching)*Morph_factor
 
     VTYPE=1
     CALL PHI_COLL(Mloc,Nloc,Ibeg,Iend,Jbeg,Jend,Nghost,Depth,VTYPE,PERIODIC)

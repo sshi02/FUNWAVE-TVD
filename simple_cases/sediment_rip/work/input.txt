@@ -137,6 +137,7 @@ ROLLER = T
   ! ------  Sediment
 Bed_Change = T
 BedLoad = T
+Avalanche = T
 D50 = 0.0005
 Sdensity = 2.68
 n_porosity = 0.47
