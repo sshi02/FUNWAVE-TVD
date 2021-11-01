@@ -67,7 +67,14 @@ SUBROUTINE SourceTerms
      LOGICAL :: PQ_scheme = .FALSE.
      REAL(SP) :: xmk,ymk,Dxg,Dyg,WK_Source
      INTEGER :: kd,kf
-
+     
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!START!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    REAL(SP) :: AA                                       ! Salatin et al. 2021
+    REAL(SP), DIMENSION(Nfreq) :: BB,CC                  ! Salatin et al. 2021
+    REAL(SP), DIMENSION(NumWaveComp,1) :: BB1            ! Salatin et al. 2021
+    REAL(SP), DIMENSION(NumFreq) :: BB2,CC2              ! Salatin et al. 2021
+    INTEGER :: kf_index                                  ! Salatin et al. 2021
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!END!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 # if defined (CARTESIAN)
      DXg=DX
@@ -79,75 +86,101 @@ SUBROUTINE SourceTerms
 # endif
 
 
-! wavemaker fyshi 02/08/2016
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!START!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-          DO J=1,Nloc
-          DO I=1,Mloc
+!Oct, 2021
+!Salatin, R., Chen, Q., Bak, A. S., Shi, F., & Brandt, S. R. (2021). Effects of
+!wave coherence on longshore variability of nearshore wave processes. Journal
+!of Geophysical Research: Oceans,126, e2021JC017641.
+!https://doi.org/10.1029/2021JC017641
 
-# if defined (PARALLEL)
-![---ykchoi Jan/23/2018
-!            xmk=(I-Ibeg)*DXg+npx*(Mloc-2*Nghost)*DXg
-!            ymk=(J-Jbeg)*DYg+npy*(Nloc-2*Nghost)*DYg
-	      xmk=(I-Ibeg)*DXg + (iista-1)*DXg
-	      ymk=(J-Jbeg)*DYg + (jjsta-1)*DYg
-!---ykchoi Jan/23/2018]
-# else
-            xmk=(I-Ibeg)*DXg
-            ymk=(J-Jbeg)*DYg
-# endif
-         IF(ABS(xmk-Xc_WK)<Width_WK.AND. &
-            ABS(ymk-Yc_WK)<Ywidth_WK/2.0_SP)THEN
+! Eliminate redundant and expensive calculations with replacing them by
+! constant values
 
-       IF(WAVEMAKER(1:6)=='WK_REG')THEN          
-          WaveMaker_Mass(I,J)=TANH(PI/(Time_ramp*Tperiod)*TIME)*D_gen &
-                 *EXP(-Beta_gen*(xmk-Xc_WK)**2)&
-                 *SIN(rlamda*(ymk-ZERO)-2.0_SP*PI/Tperiod*TIME)    
-       ENDIF
+! Only WK_NEW_IRR and WK_NEW_DATA2D are from the above reference
+! other wavemakers are only optimized!
 
-!  added TMA_1D and JON_1D 02/24/2017
+IF(WAVEMAKER(1:6)=='WK_REG')THEN
+    AA = TANH(PI/(Time_ramp*Tperiod)*TIME)*D_gen
+    DO J=jlo,jhi
+        DO I=ilo,ihi
+            WaveMaker_Mass(I,J)= AA*EXP(-Beta_gen*(xmk_wk(I)-Xc_WK)**2) &
+                *SIN(rlamda*(ymk_wk(J)-ZERO)-2.0_SP*PI/Tperiod*TIME)
+        ENDDO
+    ENDDO
+ELSEIF(WaveMaker(1:6)=='WK_IRR'.OR.WaveMaker(1:6)=='TMA_1D' &
+    .OR.WaveMaker(1:6)=='JON_1D'.OR.WaveMaker(1:6)=='JON_2D' &
+    .OR.WaveMaker(1:10)=='WK_NEW_IRR')THEN
+    AA = TANH(PI/(Time_ramp/FreqPeak)*TIME)
+    DO kf=1,Nfreq
+        BB(kf) = COS(OMGN_IR(KF)*TIME)
+        CC(kf) = SIN(OMGN_IR(KF)*TIME)
+    ENDDO
+    DO J=jlo,jhi
+        DO I=ilo,ihi
+            WK_Source=ZERO
+            DO kf=1,Nfreq
+                WK_Source=WK_Source+AA*(Cm(I,J,kf)*BB(kf) &
+                    +Sm(I,J,kf)*CC(kf))
+            ENDDO
+            WaveMaker_Mass(I,J)=WK_Source
+        ENDDO
+    ENDDO
+ELSEIF(WAVEMAKER(1:7)=='WK_TIME')THEN !!!!! Not tested
+    AA = TANH(PI/(Time_ramp*PeakPeriod)*TIME)
+    DO kf=1,NumWaveComp
+        BB1(kf,1) = COS(2.0_SP*PI/WAVE_COMP(kf,1)*TIME-WAVE_COMP(kf,3))
+    ENDDO
+    DO J=jlo,jhi
+        DO I=ilo,ihi
+            WK_Source=ZERO
+            DO kf=1,NumWaveComp
+                WK_Source=WK_Source+AA*D_genS(kf) &
+                    *EXP(-Beta_genS(kf)*(xmk_wk(I)-Xc_WK)**2)*BB1(kf,1)
+            ENDDO
+            WaveMaker_Mass(I,J)=WK_Source
+        ENDDO
+    ENDDO
+ELSEIF(WAVEMAKER(1:9)=='WK_DATA2D')THEN
+    AA = TANH(PI/(Time_ramp/FreqPeak)*TIME)
+    DO KF=1,NumFreq
+        BB2(KF) = COS(OMGN2D(KF)*TIME)
+        CC2(KF) = SIN(OMGN2D(KF)*TIME)
+    ENDDO
+    DO J=jlo,jhi
+        DO I=ilo,ihi
+            WK_Source=ZERO
+            DO kf=1,NumFreq
+                WK_Source=WK_Source+AA*(Cm(I,J,kf)*BB2(kf)+ &
+                    Sm(I,J,kf)*CC2(kf))
+            ENDDO
+            WaveMaker_Mass(I,J)=WK_Source
+        ENDDO
+    ENDDO
+ELSEIF(WAVEMAKER(1:13)=='WK_NEW_DATA2D')THEN
+    AA = TANH(PI/(Time_ramp/FreqPeak)*TIME)
+    DO kf_index=1,size(loop_index)
+        KF = loop_index(kf_index)
+        BB2(KF) = COS(OMGN2D(KF)*TIME)
+        CC2(KF) = SIN(OMGN2D(KF)*TIME)
+    ENDDO
+    DO J=jlo,jhi
+        DO I=ilo,ihi
+            WK_Source=ZERO
+            DO kf_index = 1,size(loop_index)
+                kf = loop_index(kf_index)
+                WK_Source=WK_Source+AA*(Cm(I,J,kf)*BB2(kf)+ &
+                    Sm(I,J,kf)*CC2(kf))
+            ENDDO
+            WaveMaker_Mass(I,J)=WK_Source
+        ENDDO
+    ENDDO
+ENDIF
 
-        IF(WaveMaker(1:6)=='WK_IRR'.OR.WaveMaker(1:6)=='TMA_1D'  &
-           .OR.WaveMaker(1:6)=='JON_1D'.OR.WaveMaker(1:6)=='JON_2D')THEN
-          WK_Source=ZERO
-          DO kf=1,Nfreq
-           WK_Source=WK_Source+TANH(PI/(Time_ramp/FreqPeak)*TIME)*(Cm(I,J,kf) &
-                       *COS(OMGN_IR(KF)*TIME) &
-                       +Sm(I,J,kf)*SIN(OMGN_IR(KF)*TIME))
-          ENDDO
-          WaveMaker_Mass(I,J)=WK_Source
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!END!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-       ENDIF
-
-       IF(WAVEMAKER(1:7)=='WK_TIME')THEN
-           WK_Source=ZERO
-           DO kf=1,NumWaveComp
-             WK_Source=WK_Source &
-               +TANH(PI/(Time_ramp*PeakPeriod)*TIME)*D_genS(kf) &
-                 *EXP(-Beta_genS(kf)*(xmk-Xc_WK)**2)&
-                 *COS(2.0_SP*PI/WAVE_COMP(kf,1)*TIME-WAVE_COMP(kf,3)) 
-           ENDDO
-          WaveMaker_Mass(I,J)=WK_Source
-       ENDIF
-
-       IF(WAVEMAKER(1:9)=='WK_DATA2D')THEN
-
-        ! make the efficient scheme using Cm and Sm 06/07/2016 fyshi
-          WK_Source=ZERO
-
-          DO kf=1,NumFreq
-           WK_Source=WK_Source+TANH(PI/(Time_ramp/FreqPeak)*TIME)*(Cm(I,J,kf) &
-                       *COS(OMGN2D(KF)*TIME) &
-                       +Sm(I,J,kf)*SIN(OMGN2D(KF)*TIME))
-          ENDDO
-          WaveMaker_Mass(I,J)=WK_Source
-       ENDIF
-
-      ENDIF ! end maker domain
-
-         ENDDO
-         ENDDO
-
-! ----
 
      nu_vis=ZERO	
 	! ykchoi(08.18.2015)
