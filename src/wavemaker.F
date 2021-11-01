@@ -60,7 +60,7 @@ SUBROUTINE WAVEMAKER_INITIALIZATION
      IMPLICIT NONE
      INTEGER :: FreqCount,DireCount
      REAL(SP),DIMENSION(:),ALLOCATABLE :: DireTmp,FreqTmp
-     REAL(SP),DIMENSION(:,:),ALLOCATABLE :: WaveCompTmp
+     REAL(SP),DIMENSION(:,:),ALLOCATABLE :: WaveCompTmp,Phase2DTmp
      LOGICAL :: INPUT_WAVE_PHASE = .FALSE.
 ! internal wavemaker of wei and kirby
 
