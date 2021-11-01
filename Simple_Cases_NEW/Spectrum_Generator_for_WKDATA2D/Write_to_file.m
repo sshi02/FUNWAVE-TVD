@@ -21,7 +21,7 @@ fname=['wave2d_' num2str(Coherent_Hmo_Percentage) 'p.txt'];
 precision = 5;
 % write data
 fid=fopen(fname,'w');
-fprintf(fid,'%5i %5i   - NumFreq NumDir \n',mfreq,mtheta);
+fprintf(fid,'%5i   - NumFreq \n',mfreq);
 fprintf(fid,['%10.' num2str(precision) 'f   - PeakPeriod  \n'],1/fp);
 fprintf(fid,['%10.' num2str(precision) 'f   - Freq \n'],freq);
 fprintf(fid,['%10.' num2str(precision) 'f   - Dire \n'],theta_deg);
