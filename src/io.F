@@ -1825,8 +1825,20 @@ SUBROUTINE READ_INPUT
           CALL READ_FLOAT(CrestLimit,FILE_NAME,'CrestLimit',ierr)
           CALL READ_FLOAT(TroughLimit,FILE_NAME,'TroughLimit',ierr)
        ENDIF
+       
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!START!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-        IF(WaveMaker(1:9)=='WK_DATA2D')THEN
+!Oct, 2021
+!Salatin, R., Chen, Q., Bak, A. S., Shi, F., & Brandt, S. R. (2021). Effects of
+!wave coherence on longshore variability of nearshore wave processes. Journal
+!of Geophysical Research: Oceans,126, e2021JC017641.
+!https://doi.org/10.1029/2021JC017641
+
+    IF(WaveMaker(1:13)=='WK_NEW_DATA2D'.OR.WaveMaker(1:9)=='WK_DATA2D')THEN
+    
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!END!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
           CALL READ_FLOAT(Xc_WK,FILE_NAME,'Xc_WK',ierr)
       IF(ierr==1)THEN
 # if defined (PARALLEL)
@@ -3464,6 +3476,282 @@ SUBROUTINE READ_INPUT
       WRITE(3,*)' --------------input end --------------' 
       WRITE(3,*)'                                         '
 # endif
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!START!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!Oct, 2021
+!Salatin, R., Chen, Q., Bak, A. S., Shi, F., & Brandt, S. R. (2021). Effects of
+!wave coherence on longshore variability of nearshore wave processes. Journal
+!of Geophysical Research: Oceans,126, e2021JC017641.
+!https://doi.org/10.1029/2021JC017641
+
+    IF(WaveMaker(1:10)=='WK_NEW_IRR')THEN
+        CALL READ_FLOAT(Xc_WK,FILE_NAME,'Xc_WK',ierr)
+        IF(ierr==1)THEN
+# if defined (PARALLEL)
+            if (myid.eq.0) THEN
+                WRITE(*,'(A60)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
+                WRITE(3,'(A60)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
+            endif
+            call MPI_FINALIZE ( ier )
+# else
+            WRITE(*,'(A60)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
+            WRITE(3,'(A60)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
+# endif
+            STOP
+        ENDIF
+
+        CALL READ_FLOAT(Yc_WK,FILE_NAME,'Yc_WK',ierr)
+
+        IF(ierr==1)THEN
+            Yc_WK = ZERO
+# if defined (PARALLEL)
+            if (myid.eq.0) THEN
+                WRITE(*,'(A40)')'Yc_WK defalt: 0.0'
+                WRITE(3,'(A40)')'Yc_WK defalt: 0.0'
+            endif
+# else
+            WRITE(*,'(A40)')'Yc_WK defalt: 0.0'
+            WRITE(3,'(A40)')'Yc_WK defalt: 0.0'
+# endif
+        ENDIF
+
+        CALL READ_FLOAT(DEP_WK,FILE_NAME,'DEP_WK',ierr)
+
+        IF(ierr==1)THEN
+# if defined (PARALLEL)
+            if (myid.eq.0) THEN
+                WRITE(*,'(A60)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
+                WRITE(3,'(A60)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
+            endif
+            call MPI_FINALIZE ( ier )
+# else
+            WRITE(*,'(A60)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
+            WRITE(3,'(A60)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
+# endif
+            STOP
+        ENDIF
+
+        CALL READ_FLOAT(Time_ramp,FILE_NAME,'Time_ramp',ierr)
+
+        IF(ierr==1)THEN
+            Time_ramp = 0.0_SP
+# if defined (PARALLEL)
+            if (myid.eq.0) THEN
+                WRITE(*,'(A40)')'Time_ramp Default:  0.0'
+                WRITE(3,'(A40)')'Time_ramp Default:  0.0'
+            endif
+# else
+            WRITE(*,'(A40)')'Time_ramp Default:  0.0'
+            WRITE(3,'(A40)')'Time_ramp Default:  0.0'
+# endif
+        ENDIF
+
+        CALL READ_FLOAT(Delta_WK,FILE_NAME,'Delta_WK',ierr)
+
+        IF(ierr==1)THEN
+            Delta_WK = 0.5_SP
+# if defined (PARALLEL)
+            if (myid.eq.0) THEN
+                WRITE(*,'(A40)')'Delta_WK Default:  0.5'
+                WRITE(3,'(A40)')'Delta_WK Default:  0.5'
+            endif
+# else
+            WRITE(*,'(A40)')'Delta_WK Default:  0.5'
+            WRITE(3,'(A40)')'Delta_WK Default:  0.5'
+# endif
+        ENDIF
+
+        CALL READ_FLOAT(FreqPeak,FILE_NAME,'FreqPeak',ierr)
+
+        IF(ierr==1)THEN
+# if defined (PARALLEL)
+            if (myid.eq.0) THEN
+                WRITE(*,'(A80)')'FreqPeak NOT FOUND, specify FreqPeak in input.txt'
+                WRITE(3,'(A80)')'FreqPeak NOT FOUND, specify FreqPeak in input.txt'
+            endif
+            call MPI_FINALIZE ( ier )
+# else
+            WRITE(*,'(A80)')'FreqPeak NOT FOUND, specify FreqPeak in input.txt'
+            WRITE(3,'(A80)')'FreqPeak NOT FOUND, specify FreqPeak in input.txt'
+# endif
+            STOP
+        ENDIF
+
+        CALL READ_FLOAT(FreqMin,FILE_NAME,'FreqMin',ierr)
+
+        IF(ierr==1)THEN
+# if defined (PARALLEL)
+            if (myid.eq.0) THEN
+                WRITE(*,'(A80)')'FreqMin NOT FOUND, specify FreqMin in input.txt'
+                WRITE(3,'(A80)')'FreqMin NOT FOUND, specify FreqMin in input.txt'
+            endif
+            call MPI_FINALIZE ( ier )
+# else
+            WRITE(*,'(A80)')'FreqMin NOT FOUND, specify FreqMin in input.txt'
+            WRITE(3,'(A80)')'FreqMin NOT FOUND, specify FreqMin in input.txt'
+# endif
+            STOP
+        ENDIF
+
+        CALL READ_FLOAT(FreqMax,FILE_NAME,'FreqMax',ierr)
+
+        IF(ierr==1)THEN
+# if defined (PARALLEL)
+            if (myid.eq.0) THEN
+                WRITE(*,'(A80)')'FreqMax NOT FOUND, specify FreqMax in input.txt'
+                WRITE(3,'(A80)')'FreqMax NOT FOUND, specify FreqMax in input.txt'
+            endif
+            call MPI_FINALIZE ( ier )
+# else
+            WRITE(*,'(A80)')'FreqMax NOT FOUND, specify FreqMax in input.txt'
+            WRITE(3,'(A80)')'FreqMax NOT FOUND, specify FreqMax in input.txt'
+# endif
+            STOP
+        ENDIF
+
+        CALL READ_FLOAT(Hmo,FILE_NAME,'Hmo',ierr)
+
+        IF(ierr==1)THEN
+# if defined (PARALLEL)
+            if (myid.eq.0) THEN
+                WRITE(*,'(A50)')'Hmo NOT FOUND, specify Hmo in input.txt'
+                WRITE(3,'(A50)')'Hmo NOT FOUND, specify Hmo in input.txt'
+            endif
+            call MPI_FINALIZE ( ier )
+# else
+            WRITE(*,'(A50)')'Hmo NOT FOUND, specify Hmo in input.txt'
+            WRITE(3,'(A50)')'Hmo NOT FOUND, specify Hmo in input.txt'
+# endif
+            STOP
+        ENDIF
+
+        CALL READ_FLOAT(GammaTMA,FILE_NAME,'GammaTMA',ierr)
+
+        IF(ierr==1)THEN
+            GammaTMA = 3.3
+# if defined (PARALLEL)
+            if (myid.eq.0) WRITE(3,'(A14,A50)')'GammaTMA', 'NOT DEFINED, USE 3.3'
+# else
+            WRITE(3,'(A14,A50)')'GammaTMA', 'NOT DEFINED, USE 3.3'
+# endif
+        ENDIF
+
+        CALL READ_INTEGER(Nfreq,FILE_NAME,'Nfreq',ierr)
+
+        IF(ierr==1)THEN
+            Nfreq = 1080
+# if defined (PARALLEL)
+            if (myid.eq.0) WRITE(3,'(A25,A50)')'Nfreq for TMA or JON', 'NOT DEFINED, USE 24*45=1080'
+# else
+            WRITE(3,'(A25,A50)')'Nfreq for TMA or JON', 'NOT DEFINED, USE 24*45=1080'
+# endif
+        ENDIF
+
+        CALL READ_INTEGER(Ntheta,FILE_NAME,'Ntheta',ierr)
+
+        IF(ierr==1)THEN
+            Ntheta = 24
+# if defined (PARALLEL)
+            if (myid.eq.0) WRITE(3,'(A25,A50)')'Ntheta for TMA or JON', 'NOT DEFINED, USE 24'
+# else
+            WRITE(3,'(A25,A50)')'Ntheta for TMA or JON', 'NOT DEFINED, USE 24'
+# endif
+        ENDIF
+
+        CALL READ_FLOAT(ThetaPeak,FILE_NAME,'ThetaPeak',ierr)
+
+        IF(ierr==1)THEN
+            ThetaPeak = 0.0_SP
+# if defined (PARALLEL)
+            if (myid.eq.0) WRITE(3,'(A25,A50)')'ThetaPeak', 'NOT DEFINED, USE 0.0'
+# else
+            WRITE(3,'(A25,A50)')'ThetaPeak', 'NOT DEFINED, USE 0.0'
+# endif
+        ENDIF ! end ierr
+
+        CALL READ_FLOAT(Sigma_Theta,FILE_NAME,'Sigma_Theta',ierr)
+
+        IF(ierr==1)THEN
+            Sigma_Theta = 10.0_SP
+# if defined (PARALLEL)
+            if (myid.eq.0) WRITE(3,'(A25,A50)')'Sigma_Theta', 'NOT DEFINED, USE 10.0'
+# else
+            WRITE(3,'(A25,A50)')'Sigma_Theta', 'NOT DEFINED, USE 10.0'
+# endif
+        ENDIF ! end ierr
+
+        CALL READ_FLOAT(Ywidth_WK,FILE_NAME,'Ywidth_WK',ierr)
+
+        IF(ierr==1)THEN
+            Ywidth_WK = LARGE
+# if defined (PARALLEL)
+            if (myid.eq.0) THEN
+                WRITE(*,'(A50)')'Ywidth_WK Default:  LARGE'
+                WRITE(3,'(A50)')'Ywidth_WK Default:  LARGE'
+            endif
+# else
+            WRITE(*,'(A50)')'Ywidth_WK Default:  LARGE'
+            WRITE(3,'(A50)')'Ywidth_WK Default:  LARGE'
+# endif
+        ENDIF
+
+        CALL READ_FLOAT(alpha_c,FILE_NAME,'alpha_c',ierr)
+
+        IF(ierr==1)THEN
+            alpha_c = 0.0_SP
+# if defined (PARALLEL)
+            if (myid.eq.0) THEN
+                WRITE(*,'(A50)')'Wave Coherence Percentage:  0.0%'
+                WRITE(3,'(A50)')'Wave Coherence Percentage:  0.0%'
+            endif
+# else
+            WRITE(*,'(A50)')'Wave Coherence Percentage:  0.0%'
+            WRITE(3,'(A50)')'Wave Coherence Percentage:  0.0%'
+# endif
+        ENDIF
+
+# if defined (PARALLEL)
+        if (myid.eq.0) WRITE(3,'(A12,F12.2)')'Xc_WK   =  ', Xc_WK
+        if (myid.eq.0) WRITE(3,'(A10,F12.2)')'Yc_WK   =', Yc_WK
+        if (myid.eq.0) WRITE(3,'(A11,F12.2)')'Ywidth_WK=', Ywidth_WK
+        if (myid.eq.0) WRITE(3,'(A12,F12.2)')'DEP_WK  =  ', DEP_WK
+        if (myid.eq.0) WRITE(3,'(A12,F12.2)')'Time_ramp= ', Time_ramp
+        if (myid.eq.0) WRITE(3,'(A12,F12.2)')'Delta_WK=  ', Delta_WK
+        if (myid.eq.0) WRITE(3,'(A12,I12)')'Nfreq=  ', Nfreq
+        if (myid.eq.0) WRITE(3,'(A12,I12)')'Ntheta=  ', Ntheta
+        if (myid.eq.0) WRITE(3,'(A12,F12.2)')'FreqPeak=  ', FreqPeak
+        if (myid.eq.0) WRITE(3,'(A12,F12.2)')'FreqMin =  ', FreqMin
+        if (myid.eq.0) WRITE(3,'(A12,F12.2)')'FreqMax =  ', FreqMax
+        if (myid.eq.0) WRITE(3,'(A12,F12.2)')'Hmo     =  ', Hmo
+        if (myid.eq.0) WRITE(3,'(A12,F12.2)')'GammaTMA=  ', GammaTMA
+        if (myid.eq.0) WRITE(3,'(A12,F12.2)')'ThetaPeak= ', ThetaPeak
+        if (myid.eq.0) WRITE(3,'(A13,F12.2)')'Sigma_Theta=', Sigma_Theta
+        if (myid.eq.0) WRITE(3,'(A13,F12.2)')'alpha_c=', alpha_c
+# else
+        WRITE(3,'(A12,F12.2)')'Xc_WK   =  ', Xc_WK
+        WRITE(3,'(A10,F12.2)')'Yc_WK   =', Yc_WK
+        WRITE(3,'(A11,F12.2)')'Ywidth_WK=', Ywidth_WK
+        WRITE(3,'(A12,F12.2)')'DEP_WK  =  ', DEP_WK
+        WRITE(3,'(A12,F12.2)')'Time_ramp= ', Time_ramp
+        WRITE(3,'(A12,F12.2)')'Delta_WK=  ', Delta_WK
+        WRITE(3,'(A12,I12)')'Nfreq=  ', Nfreq
+        WRITE(3,'(A12,I12)')'Ntheta=  ', Ntheta
+        WRITE(3,'(A12,F12.2)')'FreqPeak=  ', FreqPeak
+        WRITE(3,'(A12,F12.2)')'FreqMin =  ', FreqMin
+        WRITE(3,'(A12,F12.2)')'FreqMax =  ', FreqMax
+        WRITE(3,'(A12,F12.2)')'Hmo     =  ', Hmo
+        WRITE(3,'(A12,F12.2)')'GammaTMA=  ', GammaTMA
+        WRITE(3,'(A12,F12.2)')'ThetaPeak= ', ThetaPeak
+        WRITE(3,'(A13,F12.2)')'Sigma_Theta=', Sigma_Theta
+        WRITE(3,'(A13,F12.2)')'alpha_c=', alpha_c
+# endif
+
+    ENDIF ! IF(WaveMaker(1:10)=='WK_NEW_IRR')THEN
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!END!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 END SUBROUTINE READ_INPUT
 

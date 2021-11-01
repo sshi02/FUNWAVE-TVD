@@ -1,0 +1,3614 @@
+ -------------- LOG FILE -----------------
+ Case_Case_NEWIRR_000P_Coherence                                                
+  
+  --------------input start --------------
+                                          
+ -------------- PARALLEL -----------------
+ PX   =  4 PY   =  5
+                                          
+ -------------- GRID INFO -----------------
+ Mglob=     250 Nglob=     500
+ DX=        2.00 DY=        2.00
+ DEPTH_TYPE:SLOPE                                             
+DEPTH_FLAT        8.00
+ SLP=        0.05
+ Xslp=      300.00
+                                          
+ -------------- TIME INFO -----------------
+         PLOT_START_TIME Default:  0.0 s
+                             StationOutputBuffer not specified, use default:1000
+ TOTAL_TIME=    10002.00
+ PLOT_INTV=      1200.00
+ SCREEN_INTV=     1200.00
+                                          
+ -------------- HOT START -----------------
+                                          
+ -------------- STILL WATER INFO -----------------
+       WaterLevel =      0.00000
+                                          
+ -------------- WAVEMAKER -----------------
+ WAVEMAKER:WK_NEW_IRR                                        
+          EqualEnergy NOT USED in frequency domain
+                                          
+ -------------- PERIODIC BC -----------------
+  PERIODIC: T
+                                          
+ -------------- SPONGE -----------------
+                   DIRECT_SPONGE IS USED
+                 FRICTION_SPONGE IS USED
+ FRICTION_SPONGE CDsponge=        1.00
+                 R_sponge Default:  0.85
+                  A_sponge Default:  5.0
+ Sponge_west_width =      100.00
+ Sponge_east_width =        0.00
+ Sponge_south_width=        0.00
+ Sponge_north_width=        0.00
+ R_sponge          =        0.85
+ A_sponge          =        5.00
+              No WavemakerCurrentBalance
+                                          
+ -------- OBSTACLE and BREAKWATER -----------------
+ OBSTACLE_FILE:   NO
+    BREAKWATER_FILE:   NO
+     BreakWaterAbsorbCoef Default:  10.0
+                                          
+ -------------- PHYSICS -----------------
+         DISPERSION Default:  DISPERSION
+        Gamma1 Default:  1.0: DISPERSION
+              Gamma2 Default:  1.0: Full nonlinear
+               Beta_ref Default:  -0.531
+                      Gamma3 Default:  1.0: NOT fully linear
+  Summary of Physics
+ Gamma1 =         1.00
+ Gamma2 =         1.00
+Beta_ref=        -0.53
+ Gamma3 =         1.00
+ VISCOSITY_BREAKING IS USED
+               SWE_ETA_DEP Default:  0.8
+             Friction_Matrix Default:  constant Cd
+  Cd_fixed (if you used fixed Cd) =        0.00
+                                          
+ -------------- NUMERICS -----------------
+       Time_Scheme Default:  Runge_Kutta
+ TIME_SCHEME:Runge_Kutta                                       
+  CONSTRUCTION                              NOT DEFINED, USE HLL
+ CONSTRUCTION:HLLC                                              
+  HIGH_ORDER                     NOT DEFINED, USE FOURTH-ORDER
+ HIGH_ORDER:FOURTH                                            
+ CFL=        0.50
+  FroudeCap=        1.00
+             MinDepthFrc Default:  0.1 m
+          USE MIN(MinDepthFrc, MinDepth)
+ MinDepth=    0.100000
+ MinDepthFrc=    0.100000
+                               Dont record wave arrival time
+                                          
+ --------- WAVE BREAKING -----------------
+                      ROLLER_EFFECT:  NO
+            SHOW_BREAKING Default:  TRUE
+ Cbrk1 =    0.650000
+ Cbrk2 =    0.350000
+            WAVEMAKER_Cbrk Default:  1.0
+  WAVEMAKER_Cbrk =         1.000000
+           WAVEMAKER_VIS Default:  FALSE
+                                          
+ -------- WAVE-AVERAGED PROPERTY -----------------
+                     C_smg Default:  0.0
+ T_INTV_mean = 8800.000000
+ STEADY_TIME = 1200.000000
+ C_smg =    0.000000
+                    nu_bkg Default:  0.0
+                                          
+ -------------- OUTPUT INFO -----------------
+ RESULT_FOLDER:output/                                           
+ FIELD_IO_TYPE = 
+ ASCII                                                                          
+  
+         OUTPUT_RES NOT FOUND, OUTPUT_RES=1: full resolution
+     OUTPUT_RES         1
+      OUT_DEPTH T
+          OUT_U T
+          OUT_V T
+        OUT_ETA T
+       OUT_Hmax F
+       OUT_Hmin F
+       OUT_Umax F
+      OUT_MFmax F
+     OUT_VORmax F
+       OUT_MASK T
+      OUT_MASK9 F
+      OUT_Umean T
+      OUT_Vmean T
+    OUT_ETAmean T
+ OUT_WaveHeight T
+        OUT_SXL F
+        OUT_SXR F
+        OUT_SYL F
+        OUT_SYR F
+    OUT_SourceX F
+    OUT_SourceY F
+          OUT_P F
+          OUT_Q F
+         OUT_Fx F
+         OUT_Fy F
+         OUT_Gx F
+         OUT_Gy F
+        OUT_AGE F
+     OUT_ROLLER F
+   OUT_UNDERTOW F
+         OUT_NU F
+        OUT_TMP F
+       OUT_TIME F
+                                          
+  --------------input end --------------
+                                          
+                 Time_ramp Default:  0.0
+                         Ywidth_WK Default:  LARGE
+                  Wave Coherence Percentage:  0.0%
+ Xc_WK   =        150.00
+ Yc_WK   =        0.00
+ Ywidth_WK=   999999.00
+ DEP_WK  =          8.00
+ Time_ramp=         0.00
+ Delta_WK=          0.50
+    Nfreq=          1125
+   Ntheta=            25
+ FreqPeak=          0.10
+ FreqMin =          0.04
+ FreqMax =          0.25
+ Hmo     =          1.00
+ GammaTMA=          5.00
+ ThetaPeak=         0.00
+ Sigma_Theta=       10.00
+     alpha_c=        0.00
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04000    82.50000    41.30180
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04019   -75.00000   -41.06424
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04037    75.00000    40.82939
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04056   -67.50000   -40.59768
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04075    67.50000    40.36903
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04093   -60.00000   -40.14293
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04112    60.00000    39.91978
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04131   -52.50000   -39.69930
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04149    52.50000    39.48163
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04168   -45.00000   -39.26631
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04187    45.00000    39.05370
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04206   -37.50000   -24.71674
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04224    37.50000    24.59788
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04243   -30.00001   -24.48013
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04262    30.00001    24.36361
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04280   -22.50001   -11.84969
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04299    22.50001    11.79640
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04318   -15.00000   -11.74352
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04336    15.00000    11.69119
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04355    -7.50000     0.00000
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04374     7.50000     0.00000
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04392    -0.00001     0.00000
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04411    90.00000    52.80022
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04430   -90.00000   -52.47619
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04448    82.50000    52.15744
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04467   -82.50000   -51.84323
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04486    75.00000    51.53401
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04504   -75.00000   -51.22934
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04523    67.50000    50.92910
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04542   -67.50000   -50.63317
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04560    60.00000    50.34170
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04579   -60.00000   -50.05430
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04598    52.50000    49.77062
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04617   -52.50000   -49.49105
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04635    45.00000    34.60230
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04654   -45.00000   -34.44005
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04673    37.50000    34.27938
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04691   -37.50000   -34.12026
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04710    30.00001    21.86588
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04729   -30.00001   -21.77291
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04747    22.50001    21.68064
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04766   -22.50001   -21.58914
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04785    15.00000    10.55844
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04803   -15.00000   -10.51587
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04822     7.50000     0.00000
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04841    -7.50000     0.00000
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04859     0.00001     0.00000
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04878   -90.00000   -45.93584
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04897    90.00000    45.70480
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04915   -82.50000   -45.47604
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04934    82.50000    45.25009
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04953   -75.00000   -45.02690
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04972    75.00000    44.80584
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.04990   -67.50000   -44.58744
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05009    67.50000    44.37144
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05028   -60.00000   -44.15782
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05046    60.00000    43.94653
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05065   -52.50000   -43.73751
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05084    52.50000    43.53074
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05102   -45.00000   -43.32615
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05121    45.00000    43.12373
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05140   -37.50000   -30.71470
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05158    37.50000    30.58796
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05177   -30.00001   -19.75389
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05196    30.00001    19.67777
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05214   -22.50001   -19.60217
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05233    22.50001    19.52719
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05252   -15.00000    -9.58523
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05270    15.00000     9.54988
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05289    -7.50000     0.00000
+     0.00005
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05308     7.50000     0.00000
+     0.00005
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05327    -0.00001     0.00000
+     0.00007
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05345    90.00000    54.84317
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05364   -90.00000   -54.55201
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05383    82.50000    54.26490
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05401   -82.50000   -53.98153
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05420    75.00000    53.70221
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05439   -75.00000   -53.42643
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05457    67.50000    53.15429
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05476   -67.50000   -52.88571
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05495    60.00000    52.62080
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05513   -60.00000   -52.35906
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05532    52.50000    52.10043
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05551   -52.50000   -51.84502
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05569    45.00000    38.82118
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05588   -45.00000   -38.66196
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05607    37.50000    27.83519
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05625   -37.50000   -27.73124
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05644    30.00001    27.62815
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05663   -30.00001   -27.52578
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05681    22.50001    17.88147
+     0.00010
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05700   -22.50001   -17.81879
+     0.00010
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05719    15.00000     8.77101
+     0.00023
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05738   -15.00000    -8.74119
+     0.00024
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05756     7.50000     0.00000
+     0.00040
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05775    -7.50000     0.00000
+     0.00043
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05794     0.00001     0.00000
+     0.00053
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05812   -90.00000   -48.56716
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05831    90.00000    48.35189
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05850   -82.50000   -48.13892
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05868    82.50000    47.92804
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05887   -75.00000   -47.71936
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05906    75.00000    47.51285
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05924   -67.50000   -47.30846
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05943    67.50000    47.10588
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05962   -60.00000   -46.90550
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05980    60.00000    46.70711
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.05999   -52.50000   -46.51058
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06018    52.50000    46.31599
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06036   -45.00000   -35.21634
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06055    45.00000    35.08672
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06074   -37.50000   -34.95794
+     0.00004
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06093    37.50000    34.83018
+     0.00004
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06111   -30.00001   -25.27715
+     0.00015
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06130    30.00001    25.19128
+     0.00016
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06149   -22.50001   -16.43118
+     0.00044
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06167    22.50001    16.37784
+     0.00046
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06186   -15.00000    -8.07919
+     0.00098
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06205    15.00000     8.05365
+     0.00103
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06223    -7.50000     0.00000
+     0.00164
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06242     7.50000     0.00000
+     0.00171
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06261    -0.00001     0.00000
+     0.00206
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06279    90.00000    56.11634
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06298   -90.00000   -55.85316
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06317    82.50000    55.59317
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06335   -82.50000   -55.33646
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06354    75.00000    55.08278
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06373   -75.00000   -54.83221
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06391    67.50000    54.58454
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06410   -67.50000   -54.33983
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06429    60.00000    54.09803
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06448   -60.00000   -53.85892
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06466    52.50000    42.13945
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06485   -52.50000   -41.98339
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06504    45.00000    41.82855
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06522   -45.00000   -41.67500
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06541    37.50000    32.02793
+     0.00011
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06560   -37.50000   -31.92110
+     0.00011
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06578    30.00001    23.28988
+     0.00042
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06597   -30.00001   -23.21669
+     0.00043
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06616    22.50001    15.19046
+     0.00120
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06634   -22.50001   -15.14453
+     0.00124
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06653    15.00000     7.48361
+     0.00258
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06672   -15.00000    -7.46150
+     0.00266
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06690     7.50000     7.43952
+     0.00419
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06709    -7.50000    -7.41764
+     0.00431
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06728     0.00001     0.00000
+     0.00512
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06746   -90.00000   -50.36303
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06765    90.00000    50.16282
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06784   -82.50000   -49.96436
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06802    82.50000    49.76797
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06821   -75.00000   -49.57326
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06840    75.00000    49.38044
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06859   -67.50000   -49.18946
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06877    67.50000    49.00008
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06896   -60.00000   -48.81250
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06915    60.00000    48.62657
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06933   -52.50000   -48.44226
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06952    52.50000    48.25966
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06971   -45.00000   -38.31986
+     0.00005
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.06989    45.00000    38.19246
+     0.00005
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07008   -37.50000   -29.55464
+     0.00023
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07027    37.50000    29.46360
+     0.00023
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07045   -30.00001   -29.37305
+     0.00084
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07064    30.00001    29.28314
+     0.00086
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07083   -22.50001   -21.45823
+     0.00236
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07101    22.50001    21.39564
+     0.00241
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07120   -15.00000   -14.03592
+     0.00497
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07139    15.00000    13.99633
+     0.00508
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07157    -7.50000    -6.92652
+     0.00791
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07176     7.50000     6.90736
+     0.00808
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07195    -0.00001     0.00000
+     0.00949
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07214    90.00000    56.84974
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07232   -90.00000   -56.61083
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07251    82.50000    56.37447
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07270   -82.50000   -56.14085
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07288    75.00000    55.90965
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07307   -75.00000   -55.68108
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07326    67.50000    55.45494
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07344   -67.50000   -55.23109
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07363    60.00000    55.00969
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07382   -60.00000   -54.79069
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07400    52.50000    44.30302
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07419   -52.50000   -44.15386
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07438    45.00000    44.00564
+     0.00008
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07456   -45.00000   -43.85867
+     0.00008
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07475    37.50000    35.16050
+     0.00037
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07494   -37.50000   -35.05361
+     0.00038
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07512    30.00001    27.27491
+     0.00136
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07531   -30.00001   -27.19699
+     0.00138
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07550    22.50001    19.99184
+     0.00375
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07569   -22.50001   -19.93712
+     0.00381
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07587    15.00000    13.10464
+     0.00782
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07606   -15.00000   -13.06978
+     0.00794
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07625     7.50000     6.47523
+     0.01228
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07643    -7.50000    -6.45831
+     0.01246
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07662     0.00001     0.00000
+     0.01455
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07681   -90.00000   -51.56180
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07699    90.00000    51.37542
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07718   -82.50000   -51.19068
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07737    82.50000    62.65559
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07755   -75.00000   -62.37217
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07774    75.00000    62.09272
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07793   -67.50000   -61.81698
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07811    67.50000    61.54514
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07830   -60.00000   -50.11487
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07849    60.00000    49.94078
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07867   -52.50000   -49.76812
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07886    52.50000    49.59682
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07905   -45.00000   -40.62200
+     0.00011
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07923    45.00000    40.49812
+     0.00011
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07942   -37.50000   -32.67157
+     0.00053
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07961    37.50000    32.57932
+     0.00053
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07980   -30.00001   -25.44807
+     0.00191
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.07998    30.00001    25.37982
+     0.00193
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08017   -22.50001   -18.70284
+     0.00524
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08036    22.50001    18.65449
+     0.00530
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08054   -15.00000   -12.28121
+     0.01083
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08073    15.00000    12.25025
+     0.01096
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08092    -7.50000    -6.07487
+     0.01690
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08110     7.50000     6.05979
+     0.01709
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08129    -0.00001     0.00000
+     0.01990
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08148    90.00000    57.17913
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08166   -90.00000   -56.96140
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08185    82.50000    56.74582
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08204   -82.50000   -56.53244
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08222    75.00000    56.32115
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08241   -75.00000   -56.11197
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08260    67.50000    55.90477
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08278   -67.50000   -55.69971
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08297    60.00000    55.49646
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08316   -60.00000   -55.29516
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08335    52.50000    45.85638
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08353   -52.50000   -45.71418
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08372    45.00000    37.74306
+     0.00015
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08391   -45.00000   -37.63657
+     0.00015
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08409    37.50000    30.50776
+     0.00070
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08428   -37.50000   -37.42540
+     0.00071
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08447    30.00001    23.84002
+     0.00254
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08465   -30.00001   -23.77966
+     0.00257
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08484    22.50001    17.55946
+     0.00696
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08503   -22.50001   -17.51638
+     0.00704
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08521    15.00000    11.54728
+     0.01440
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08540   -15.00000   -11.51958
+     0.01458
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08559     7.50000     5.71702
+     0.02250
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08577    -7.50000    -5.70349
+     0.02277
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08596     0.00001     0.00000
+     0.02654
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08615   -90.00000   -62.90105
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08633    90.00000    62.63957
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08652   -82.50000   -62.38141
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08671    82.50000    62.12659
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08690   -75.00000   -61.87489
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08708    75.00000    61.62626
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08727   -67.50000   -61.38059
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08746    67.50000    61.13780
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08764   -60.00000   -50.95682
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08783    60.00000    50.79374
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08802   -52.50000   -50.63189
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08820    52.50000    50.47129
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08839   -45.00000   -42.32536
+     0.00020
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08858    45.00000    42.20566
+     0.00020
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08876   -37.50000   -35.06486
+     0.00097
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08895    37.50000    34.97289
+     0.00098
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08914   -30.00001   -28.46137
+     0.00353
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08932    30.00001    28.39060
+     0.00359
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08951   -22.50001   -22.30382
+     0.00975
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08970    22.50001    22.25043
+     0.00991
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.08988   -15.00000   -10.88849
+     0.02033
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09007    15.00000    10.86354
+     0.02065
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09026    -7.50000    -5.39504
+     0.03200
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09044     7.50000     5.38283
+     0.03252
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09063    -0.00001     0.00000
+     0.03804
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09082    90.00000    57.19220
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09101   -90.00000   -56.99309
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09119    82.50000    56.79597
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09138   -82.50000   -56.60050
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09157    75.00000    56.40688
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09175   -75.00000   -56.21490
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09194    67.50000    56.02470
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09213   -67.50000   -55.83618
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09231    60.00000    55.64922
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09250   -60.00000   -55.46388
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09269    52.50000    46.93832
+     0.00005
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09287   -52.50000   -46.80308
+     0.00005
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09306    45.00000    39.52934
+     0.00030
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09325   -45.00000   -39.42531
+     0.00030
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09343    37.50000    32.89840
+     0.00145
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09362   -37.50000   -32.81709
+     0.00148
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09381    30.00001    26.78497
+     0.00532
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09399   -30.00001   -26.72170
+     0.00541
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09418    22.50001    21.03514
+     0.01471
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09437   -22.50001   -20.98710
+     0.01494
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09456    15.00000    10.29341
+     0.03066
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09474   -15.00000   -10.27079
+     0.03114
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09493     7.50000     5.10360
+     0.04821
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09512    -7.50000    -5.09251
+     0.04893
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09530     0.00001     0.00000
+     0.05715
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09549   -90.00000   -62.10533
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09568    90.00000    61.87280
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09586   -82.50000   -61.64282
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09605    82.50000    61.41550
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09624   -75.00000   -61.19052
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09642    75.00000    60.96806
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09661   -67.50000   -60.74793
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09680    67.50000    60.53020
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09698   -60.00000   -51.43321
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09717    60.00000    51.28042
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09736   -52.50000   -51.12866
+     0.00007
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09754    52.50000    50.97798
+     0.00007
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09773   -45.00000   -43.56025
+     0.00042
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09792    45.00000    43.44502
+     0.00043
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09810   -37.50000   -36.90062
+     0.00202
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09829    37.50000    36.80988
+     0.00203
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09848   -30.00001   -25.28179
+     0.00727
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09867    30.00001    25.22487
+     0.00731
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09885   -22.50001   -19.89035
+     0.01968
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09904    22.50001    19.84686
+     0.01979
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09923   -15.00000   -14.72009
+     0.04016
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09941    15.00000    14.68860
+     0.04033
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09960    -7.50000    -4.83837
+     0.06171
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09979     7.50000     4.82826
+     0.06188
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.09997    -0.00001     0.00000
+     0.07139
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10016    90.00000    56.94982
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10035   -90.00000   -56.76735
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10053    82.50000    56.58646
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10072   -82.50000   -66.38933
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10091    75.00000    66.11981
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10109   -75.00000   -65.85394
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10128    67.50000    65.59170
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10147   -67.50000   -65.33313
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10165    60.00000    55.53144
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10184   -60.00000   -55.36052
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10203    52.50000    47.64223
+     0.00007
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10222   -52.50000   -47.51372
+     0.00007
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10240    45.00000    40.85611
+     0.00045
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10259   -45.00000   -40.75500
+     0.00045
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10278    37.50000    34.75426
+     0.00209
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10296   -37.50000   -34.67338
+     0.00209
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10315    30.00001    29.11966
+     0.00737
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10334   -30.00001   -29.05487
+     0.00733
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10352    22.50001    18.85101
+     0.01954
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10371   -22.50001   -18.81141
+     0.01944
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10390    15.00000    13.96633
+     0.03906
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10408   -15.00000   -13.93756
+     0.03885
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10427     7.50000     4.59582
+     0.05889
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10446    -7.50000    -4.58655
+     0.05853
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10464     0.00001     0.00000
+     0.06694
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10483   -90.00000   -61.17336
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10502    90.00000    60.96528
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10520   -82.50000   -60.75919
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10539    82.50000    60.55517
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10558   -75.00000   -60.35311
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10577    75.00000    60.15291
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10595   -67.50000   -59.95461
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10614    67.50000    59.75814
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10633   -60.00000   -59.56343
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10651    60.00000    59.37049
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10670   -52.50000   -51.32511
+     0.00006
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10689    52.50000    51.18369
+     0.00006
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10707   -45.00000   -44.41558
+     0.00038
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10726    45.00000    44.30489
+     0.00038
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10745   -37.50000   -32.83274
+     0.00176
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10763    37.50000    32.75998
+     0.00175
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10782   -30.00001   -27.57479
+     0.00614
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10801    30.00001    27.51607
+     0.00608
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10819   -22.50001   -17.90226
+     0.01613
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10838    22.50001    17.86602
+     0.01597
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10857   -15.00000   -13.27612
+     0.03196
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10875    15.00000    13.24972
+     0.03166
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10894    -7.50000    -4.37301
+     0.04781
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10913     7.50000     4.36448
+     0.04735
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10931    -0.00001     0.00000
+     0.05397
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10950    90.00000    65.45857
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10969   -90.00000   -65.21613
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.10988    82.50000    64.97662
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11006   -82.50000   -64.73997
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11025    75.00000    64.50616
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11044   -75.00000   -64.27503
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11062    67.50000    64.04660
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11081   -67.50000   -63.82064
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11100    60.00000    55.19001
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11118   -60.00000   -55.03197
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11137    52.50000    48.03421
+     0.00005
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11156   -52.50000   -47.91216
+     0.00005
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11174    45.00000    41.80729
+     0.00030
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11193   -45.00000   -41.70935
+     0.00030
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11212    37.50000    36.17791
+     0.00139
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11230   -37.50000   -36.09797
+     0.00138
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11249    30.00001    26.16986
+     0.00485
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11268   -30.00001   -26.11628
+     0.00481
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11286    22.50001    21.47721
+     0.01276
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11305   -22.50001   -21.43441
+     0.01265
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11324    15.00000    12.64124
+     0.02534
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11343   -15.00000   -12.61690
+     0.02513
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11361     7.50000     4.16751
+     0.03801
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11380    -7.50000    -4.15961
+     0.03771
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11399     0.00001     0.00000
+     0.04306
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11417   -90.00000   -60.12809
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11436    90.00000    59.94071
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11455   -82.50000   -59.75502
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11473    82.50000    59.57084
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11492   -75.00000   -59.38825
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11511    75.00000    59.20719
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11529   -67.50000   -59.02763
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11548    67.50000    58.84955
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11567   -60.00000   -58.67292
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11585    60.00000    58.49768
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11604   -52.50000   -51.27070
+     0.00004
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11623    52.50000    51.13784
+     0.00004
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11641   -45.00000   -44.95523
+     0.00025
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11660    45.00000    44.84909
+     0.00025
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11679   -37.50000   -34.27366
+     0.00116
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11698    37.50000    34.20131
+     0.00115
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11716   -30.00001   -29.40167
+     0.00406
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11735    30.00001    29.34196
+     0.00403
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11754   -22.50001   -20.44869
+     0.01074
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11772    22.50001    20.40926
+     0.01068
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11791   -15.00000   -12.05488
+     0.02147
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11810    15.00000    12.03235
+     0.02137
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11828    -7.50000    -3.97724
+     0.03243
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11847     7.50000     3.96992
+     0.03228
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11866    -0.00001     0.00000
+     0.03699
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11884    90.00000    63.73107
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11903   -90.00000   -63.51928
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11922    82.50000    63.30968
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11940   -82.50000   -63.10213
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11959    75.00000    62.89670
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11978   -75.00000   -62.69326
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.11996    67.50000    62.49178
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12015   -67.50000   -62.29225
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12034    60.00000    54.66088
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12052   -60.00000   -54.51441
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12071    52.50000    48.16365
+     0.00004
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12090   -52.50000   -48.04780
+     0.00004
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12109    45.00000    42.44404
+     0.00022
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12127   -45.00000   -42.34937
+     0.00022
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12146    37.50000    37.24246
+     0.00104
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12165   -37.50000   -37.16391
+     0.00104
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12183    30.00001    27.96984
+     0.00367
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12202   -30.00001   -27.91506
+     0.00366
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12221    22.50001    19.49958
+     0.00978
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12239   -22.50001   -19.46313
+     0.00976
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12258    15.00000    11.51130
+     0.01966
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12277   -15.00000   -11.49038
+     0.01961
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12295     7.50000     3.80047
+     0.02984
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12314    -7.50000    -3.79366
+     0.02977
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12333     0.00001     0.00000
+     0.03419
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12351   -90.00000   -67.36602
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12370    90.00000    67.12213
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12389   -82.50000   -66.88123
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12407    82.50000    66.64342
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12426   -75.00000   -66.40854
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12445    75.00000    66.17644
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12464   -67.50000   -65.94716
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12482    67.50000    65.72044
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12501   -60.00000   -57.66545
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12520    60.00000    57.50558
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12538   -52.50000   -51.00372
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12557    52.50000    50.87883
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12576   -45.00000   -40.19345
+     0.00021
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12594    45.00000    40.10813
+     0.00021
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12613   -37.50000   -35.36534
+     0.00099
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12632    37.50000    35.29380
+     0.00099
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12650   -30.00001   -26.65300
+     0.00350
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12669    30.00001    26.60250
+     0.00349
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12688   -22.50001   -18.62026
+     0.00934
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12706    22.50001    22.48748
+     0.00933
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12725   -15.00000   -14.74640
+     0.01881
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12744    15.00000    14.72001
+     0.01879
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12762    -7.50000    -7.28620
+     0.02861
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12781     7.50000     7.27341
+     0.02858
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12800    -0.00001     0.00000
+     0.03285
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12819    90.00000    62.02366
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12837   -90.00000   -61.83638
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12856    82.50000    61.65069
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12875   -82.50000   -61.46664
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12893    75.00000    61.28419
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12912   -75.00000   -61.10321
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12931    67.50000    60.92375
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12949   -67.50000   -60.74576
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12968    60.00000    53.97296
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.12987   -60.00000   -53.83698
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13005    52.50000    48.06904
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13024   -52.50000   -47.95907
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13043    45.00000    42.81270
+     0.00020
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13061   -45.00000   -42.72133
+     0.00020
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13080    37.50000    33.65058
+     0.00096
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13099   -37.50000   -33.58501
+     0.00096
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13117    30.00001    29.39746
+     0.00340
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13136   -30.00001   -29.34206
+     0.00339
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13155    22.50001    21.52373
+     0.00907
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13173   -22.50001   -21.48502
+     0.00906
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13192    15.00000    14.10821
+     0.01828
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13211   -15.00000   -14.08358
+     0.01826
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13230     7.50000     6.97640
+     0.02781
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13248    -7.50000    -6.96443
+     0.02778
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13267     0.00001     0.00000
+     0.03195
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13286   -90.00000   -64.99895
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13304    90.00000    64.79046
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13323   -82.50000   -64.58413
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13342    82.50000    64.37994
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13360   -75.00000   -64.17771
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13379    75.00000    63.97743
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13398   -67.50000   -63.77916
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13416    67.50000    63.58271
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13435   -60.00000   -56.55938
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13454    60.00000    56.41293
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13472   -52.50000   -50.55505
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13491    52.50000    50.43759
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13510   -45.00000   -40.63408
+     0.00020
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13528    45.00000    40.55125
+     0.00020
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13547   -37.50000   -36.15912
+     0.00093
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13566    37.50000    36.08866
+     0.00093
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13585   -30.00001   -28.06265
+     0.00331
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13603    30.00001    28.01134
+     0.00330
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13622   -22.50001   -20.58786
+     0.00883
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13641    22.50001    20.55176
+     0.00882
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13659   -15.00000   -13.51166
+     0.01780
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13678    15.00000    13.48860
+     0.01778
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13697    -7.50000    -6.68616
+     0.02708
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13715     7.50000     6.67493
+     0.02705
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13734    -0.00001     0.00000
+     0.03110
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13753    90.00000    67.93912
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13771   -90.00000   -67.70447
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13790    82.50000    67.47269
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13809   -82.50000   -67.24370
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13827    75.00000    67.01746
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13846   -75.00000   -66.79382
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13865    67.50000    66.57278
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13883   -67.50000   -66.35416
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13902    60.00000    59.02200
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13921   -60.00000   -58.86412
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13940    52.50000    47.78160
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13958   -52.50000   -47.67720
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13977    45.00000    42.95004
+     0.00019
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.13996   -45.00000   -42.86195
+     0.00019
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14014    37.50000    34.46661
+     0.00091
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14033   -37.50000   -34.40174
+     0.00091
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14052    30.00001    26.82381
+     0.00322
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14070   -30.00001   -26.77608
+     0.00321
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14089    22.50001    19.71382
+     0.00859
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14108   -22.50001   -19.68005
+     0.00858
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14126    15.00000    12.95246
+     0.01731
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14145   -15.00000   -12.93082
+     0.01729
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14164     7.50000     6.41353
+     0.02633
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14182    -7.50000    -6.40296
+     0.02630
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14201     0.00001     0.00000
+     0.03023
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14220   -90.00000   -62.77806
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14238    90.00000    70.60866
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14257   -82.50000   -70.34418
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14276    82.50000    70.08369
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14294   -75.00000   -69.82708
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14313    75.00000    69.57407
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14332   -67.50000   -61.71012
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14351    67.50000    61.53712
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14369   -60.00000   -55.36997
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14388    60.00000    55.23521
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14407   -52.50000   -49.95030
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14425    52.50000    49.83967
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14444   -45.00000   -40.84398
+     0.00019
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14463    45.00000    40.76367
+     0.00019
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14481   -37.50000   -36.69523
+     0.00088
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14500    37.50000    36.62608
+     0.00088
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14519   -30.00001   -29.16517
+     0.00312
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14537    30.00001    29.11345
+     0.00312
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14556   -22.50001   -22.19801
+     0.00834
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14575    22.50001    22.16024
+     0.00833
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14593   -15.00000   -12.42690
+     0.01680
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14612    15.00000    12.40653
+     0.01678
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14631    -7.50000    -6.15682
+     0.02556
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14649     7.50000     6.14686
+     0.02552
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14668    -0.00001     0.00000
+     0.02934
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14687    90.00000    65.12525
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14706   -90.00000   -64.92728
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14724    82.50000    64.73119
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14743   -82.50000   -64.53699
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14762    75.00000    64.34454
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14780   -75.00000   -64.15392
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14799    67.50000    63.96503
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14818   -67.50000   -63.77783
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14836    60.00000    57.45469
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14855   -60.00000   -57.31138
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14874    52.50000    51.97628
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14892   -52.50000   -51.85940
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14911    45.00000    42.88610
+     0.00018
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14930   -45.00000   -42.80127
+     0.00018
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14948    37.50000    35.03026
+     0.00086
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14967   -37.50000   -34.96631
+     0.00086
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.14986    30.00001    27.91422
+     0.00303
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15004   -30.00001   -27.86592
+     0.00302
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15023    22.50001    21.28200
+     0.00808
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15042   -22.50001   -21.24654
+     0.00807
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15060    15.00000    14.97711
+     0.01629
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15079   -15.00000   -14.95278
+     0.01627
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15098     7.50000     5.91457
+     0.02478
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15117    -7.50000    -5.90516
+     0.02474
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15135     0.00001     0.00000
+     0.02844
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15154   -90.00000   -67.37007
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15173    90.00000    67.15357
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15191   -82.50000   -66.93954
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15210    82.50000    66.72775
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15229   -75.00000   -66.51829
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15247    75.00000    66.31104
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15266   -67.50000   -66.10592
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15285    67.50000    65.90285
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15303   -60.00000   -59.40455
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15322    60.00000    59.25233
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15341   -52.50000   -49.21140
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15359    52.50000    49.10711
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15378   -45.00000   -44.78352
+     0.00018
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15397    45.00000    44.69430
+     0.00018
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15415   -37.50000   -37.00631
+     0.00083
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15434    37.50000    36.93859
+     0.00083
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15453   -30.00001   -26.74449
+     0.00293
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15472    30.00001    29.94911
+     0.00293
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15490   -22.50001   -20.42091
+     0.00783
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15509    22.50001    20.38753
+     0.00782
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15528   -15.00000   -14.38552
+     0.01578
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15546    15.00000    14.36255
+     0.01576
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15565    -7.50000    -5.68549
+     0.02400
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15584     7.50000     5.67658
+     0.02397
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15602    -0.00001     0.00000
+     0.02755
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15621    90.00000    69.51183
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15640   -90.00000   -69.27416
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15658    82.50000    69.03956
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15677   -82.50000   -68.80792
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15696    75.00000    68.57919
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15714   -75.00000   -68.35320
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15733    67.50000    61.54448
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15752   -67.50000   -61.38068
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15770    60.00000    55.86999
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15789   -60.00000   -55.73905
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15808    52.50000    50.95571
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15827   -52.50000   -50.84639
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15845    45.00000    42.64647
+     0.00017
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15864   -45.00000   -42.56482
+     0.00017
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15883    37.50000    35.37284
+     0.00080
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15901   -37.50000   -35.30997
+     0.00080
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15920    30.00001    28.74562
+     0.00284
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15939   -30.00001   -28.69709
+     0.00284
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15957    22.50001    19.60941
+     0.00758
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15976   -22.50001   -19.57792
+     0.00757
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.15995    15.00000    13.82633
+     0.01527
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16013   -15.00000   -13.80459
+     0.01525
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16032     7.50000     5.46844
+     0.02323
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16051    -7.50000    -5.46000
+     0.02320
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16069     0.00001     0.00000
+     0.02667
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16088   -90.00000   -71.54666
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16107    90.00000    71.28449
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16125   -82.50000   -71.02634
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16144    82.50000    70.77205
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16163   -75.00000   -70.52146
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16181    75.00000    70.27447
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16200   -67.50000   -63.23778
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16219    67.50000    63.06417
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16238   -60.00000   -57.49013
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16256    60.00000    57.35276
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16275   -52.50000   -48.35756
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16294    52.50000    52.44779
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16312   -45.00000   -44.30346
+     0.00017
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16331    45.00000    44.21809
+     0.00017
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16350   -37.50000   -37.11974
+     0.00078
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16368    37.50000    37.05359
+     0.00078
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16387   -30.00001   -27.56805
+     0.00275
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16406    30.00001    27.52244
+     0.00275
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16424   -22.50001   -21.66095
+     0.00734
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16443    22.50001    21.62629
+     0.00733
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16462   -15.00000   -13.29670
+     0.01478
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16480    15.00000    13.27610
+     0.01476
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16499    -7.50000    -5.26244
+     0.02248
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16518     7.50000     5.25441
+     0.02245
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16536    -0.00001     0.00000
+     0.02581
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16555    90.00000    65.92367
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16574   -90.00000   -65.72974
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16593    82.50000    65.53761
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16611   -82.50000   -72.61055
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16630    75.00000    72.33534
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16649   -75.00000   -72.06469
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16667    67.50000    64.78658
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16686   -67.50000   -64.60300
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16705    60.00000    58.96932
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16723   -60.00000   -58.82555
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16742    52.50000    49.85144
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16761   -52.50000   -49.74892
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16779    45.00000    42.25355
+     0.00016
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16798   -45.00000   -42.17503
+     0.00016
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16817    37.50000    35.52091
+     0.00075
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16835   -37.50000   -35.45923
+     0.00075
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16854    30.00001    29.34938
+     0.00266
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16873   -30.00001   -29.30085
+     0.00266
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16891    22.50001    20.81721
+     0.00710
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16910   -22.50001   -20.78442
+     0.00709
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16929    15.00000    12.79416
+     0.01430
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16948   -15.00000   -12.77459
+     0.01428
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16966     7.50000     5.06659
+     0.02175
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.16985    -7.50000    -5.05895
+     0.02172
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17004     0.00001     0.00000
+     0.02497
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17022   -90.00000   -67.38639
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17041    90.00000    67.18085
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17060   -82.50000   -66.97742
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17078    82.50000    66.77609
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17097   -75.00000   -66.57676
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17116    75.00000    66.37939
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17134   -67.50000   -66.18397
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17153    67.50000    65.99040
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17172   -60.00000   -55.61311
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17190    60.00000    55.48811
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17209   -52.50000   -51.21231
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17228    52.50000    51.10589
+     0.00003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17246   -45.00000   -43.69313
+     0.00016
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17265    45.00000    43.61146
+     0.00016
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17284   -37.50000   -37.05943
+     0.00073
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17302    37.50000    36.99491
+     0.00073
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17321   -30.00001   -28.17030
+     0.00257
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17340    30.00001    28.12458
+     0.00257
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17359   -22.50001   -20.01819
+     0.00687
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17377    22.50001    19.98711
+     0.00686
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17396   -15.00000   -14.83136
+     0.01384
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17415    15.00000    14.80878
+     0.01382
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17433    -7.50000    -7.33132
+     0.02105
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17452     7.50000     7.32036
+     0.02102
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17471    -0.00001     0.00000
+     0.02416
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17489    90.00000    68.68833
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17508   -90.00000   -68.47128
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17527    82.50000    68.25673
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17545   -82.50000   -68.04452
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17564    75.00000    67.83466
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17583   -75.00000   -67.62705
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17601    67.50000    67.42168
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17620   -67.50000   -67.21839
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17639    60.00000    56.81726
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17657   -60.00000   -56.68779
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17676    52.50000    52.44146
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17695   -52.50000   -52.33139
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17714    45.00000    41.72760
+     0.00015
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17732   -45.00000   -44.92204
+     0.00015
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17751    37.50000    35.49776
+     0.00070
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17770   -37.50000   -35.43743
+     0.00070
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17788    30.00001    29.75216
+     0.00249
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17807   -30.00001   -29.70383
+     0.00249
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17826    22.50001    21.78282
+     0.00665
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17844   -22.50001   -21.74907
+     0.00664
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17863    15.00000    14.28019
+     0.01339
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17882   -15.00000   -14.25871
+     0.01337
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17900     7.50000     7.06348
+     0.02036
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17919    -7.50000    -7.05302
+     0.02033
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17938     0.00001     0.00000
+     0.02337
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17956   -90.00000   -69.81856
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17975    90.00000    69.59055
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.17994   -82.50000   -69.36530
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18012    82.50000    69.14287
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18031   -75.00000   -68.92303
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18050    75.00000    68.70575
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18069   -67.50000   -62.86185
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18087    67.50000    62.69826
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18106   -60.00000   -57.88342
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18125    60.00000    57.74981
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18143   -52.50000   -49.82333
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18162    52.50000    49.72401
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18181   -45.00000   -42.97113
+     0.00015
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18199    45.00000    42.89303
+     0.00015
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18218   -37.50000   -36.84686
+     0.00068
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18237    37.50000    36.78406
+     0.00068
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18255   -30.00001   -28.57703
+     0.00241
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18274    30.00001    28.53140
+     0.00240
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18293   -22.50001   -20.95942
+     0.00642
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18311    22.50001    20.92735
+     0.00642
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18330   -15.00000   -13.75524
+     0.01294
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18349    15.00000    13.73476
+     0.01292
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18367    -7.50000    -6.80788
+     0.01968
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18386     7.50000     6.79789
+     0.01965
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18405    -0.00001     0.00000
+     0.02259
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18423    90.00000    70.76575
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18442   -90.00000   -70.52777
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18461    82.50000    70.29301
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18480   -82.50000   -70.06129
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18498    75.00000    69.83252
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18517   -75.00000   -69.60664
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18536    67.50000    63.76133
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18554   -67.50000   -63.59270
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18573    60.00000    58.81145
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18592   -60.00000   -58.67412
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18610    52.50000    50.84482
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18629   -52.50000   -50.74269
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18648    45.00000    44.09647
+     0.00014
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18666   -45.00000   -44.01592
+     0.00014
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18685    37.50000    35.32461
+     0.00066
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18704   -37.50000   -35.26571
+     0.00066
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18722    30.00001    29.97756
+     0.00232
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18741   -30.00001   -29.92965
+     0.00232
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18760    22.50001    20.17671
+     0.00620
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18778   -22.50001   -20.14620
+     0.00620
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18797    15.00000    13.25461
+     0.01250
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18816   -15.00000   -13.23506
+     0.01248
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18835     7.50000     6.56369
+     0.01900
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18853    -7.50000    -6.55415
+     0.01898
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18872     0.00001     0.00000
+     0.02181
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18891   -90.00000   -71.52002
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18909    90.00000    71.27374
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18928   -82.50000   -71.03099
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18947    82.50000    70.79154
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18965   -75.00000   -70.55541
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.18984    75.00000    70.32238
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19003   -67.50000   -64.50637
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19021    67.50000    64.33352
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19040   -60.00000   -59.60174
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19059    60.00000    59.46118
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19077   -52.50000   -51.74443
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19096    52.50000    51.63982
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19115   -45.00000   -42.15501
+     0.00014
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19133    45.00000    42.08033
+     0.00014
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19152   -37.50000   -36.50196
+     0.00063
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19171    37.50000    36.44095
+     0.00063
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19190   -30.00001   -28.81125
+     0.00224
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19208    30.00001    28.76591
+     0.00224
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19227   -22.50001   -21.69380
+     0.00599
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19246    22.50001    21.66103
+     0.00598
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19264   -15.00000   -14.95195
+     0.01206
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19283    15.00000    14.92997
+     0.01204
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19302    -7.50000    -6.33017
+     0.01834
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19320     7.50000     6.32104
+     0.01831
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19339    -0.00001     0.00000
+     0.02105
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19358    90.00000    72.07442
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19376   -90.00000   -71.82200
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19395    82.50000    71.57334
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19414   -82.50000   -71.32832
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19432    75.00000    71.08672
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19451   -75.00000   -70.84850
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19470    67.50000    65.09673
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19488   -67.50000   -64.92054
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19507    60.00000    56.31196
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19526   -60.00000   -56.18911
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19544    52.50000    49.24805
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19563   -52.50000   -52.41796
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19582    45.00000    43.11276
+     0.00013
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19601   -45.00000   -43.03611
+     0.00013
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19619    37.50000    35.02130
+     0.00061
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19638   -37.50000   -34.96393
+     0.00061
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19657    30.00001    27.70678
+     0.00216
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19675   -30.00001   -29.99978
+     0.00216
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19694    22.50001    20.89341
+     0.00578
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19713   -22.50001   -20.86219
+     0.00577
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19731    15.00000    14.41416
+     0.01163
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19750   -15.00000   -14.39315
+     0.01162
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19769     7.50000     6.10667
+     0.01769
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19787    -7.50000    -6.09793
+     0.01766
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19806     0.00001     0.00000
+     0.02030
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19825   -90.00000   -72.42636
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19843    90.00000    72.17043
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19862   -82.50000   -71.91845
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19881    82.50000    71.67022
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19899   -75.00000   -71.42558
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19918    75.00000    71.18449
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19937   -67.50000   -65.53400
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19956    67.50000    65.35551
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19974   -60.00000   -56.90888
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.19993    60.00000    56.78408
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20012   -52.50000   -49.97863
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20030    52.50000    49.88178
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20049   -45.00000   -43.96426
+     0.00013
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20068    45.00000    43.88583
+     0.00013
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20086   -37.50000   -36.04381
+     0.00059
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20105    37.50000    35.98465
+     0.00059
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20124   -30.00001   -28.89418
+     0.00209
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20142    30.00001    28.84934
+     0.00208
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20161   -22.50001   -22.24549
+     0.00557
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20180    22.50001    22.21228
+     0.00556
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20198   -15.00000   -13.90008
+     0.01122
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20217    15.00000    13.87999
+     0.01120
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20236    -7.50000    -5.89259
+     0.01706
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20254     7.50000     5.88422
+     0.01703
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20273    -0.00001     0.00000
+     0.01958
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20292    90.00000    72.57933
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20311   -90.00000   -72.32278
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20329    82.50000    72.07021
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20348   -82.50000   -71.82143
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20367    75.00000    71.57631
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20385   -75.00000   -71.33472
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20404    67.50000    65.82198
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20423   -67.50000   -65.64230
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20441    60.00000    57.38554
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20460   -60.00000   -57.25932
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20479    52.50000    50.60098
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20497   -52.50000   -50.50264
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20516    45.00000    44.71328
+     0.00012
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20535   -45.00000   -44.63332
+     0.00012
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20553    37.50000    36.96671
+     0.00057
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20572   -37.50000   -36.90594
+     0.00057
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20591    30.00001    29.98107
+     0.00201
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20609   -30.00001   -29.93451
+     0.00201
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20628    22.50001    21.43373
+     0.00537
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20647   -22.50001   -21.40206
+     0.00536
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20665    15.00000    13.40829
+     0.01082
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20684   -15.00000   -13.38907
+     0.01080
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20703     7.50000     5.68742
+     0.01644
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20722    -7.50000    -5.67939
+     0.01642
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20740     0.00001     0.00000
+     0.01887
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20759   -90.00000   -72.54305
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20778    90.00000    72.28865
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20796   -82.50000   -72.03822
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20815    82.50000    71.79153
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20834   -75.00000   -71.54837
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20852    75.00000    71.30872
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20871   -67.50000   -65.96696
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20890    67.50000    65.78722
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20908   -60.00000   -57.74653
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20927    60.00000    57.61936
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20946   -52.50000   -51.11918
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20964    52.50000    51.01965
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.20983   -45.00000   -42.78412
+     0.00012
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21002    45.00000    42.70985
+     0.00012
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21020   -37.50000   -35.49088
+     0.00055
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21039    37.50000    35.43367
+     0.00055
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21058   -30.00001   -28.84598
+     0.00194
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21077    30.00001    28.80181
+     0.00194
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21095   -22.50001   -20.65939
+     0.00518
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21114    22.50001    20.62915
+     0.00517
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21133   -15.00000   -14.82531
+     0.01042
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21151    15.00000    14.80410
+     0.01041
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21170    -7.50000    -7.32970
+     0.01585
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21189     7.50000     7.31940
+     0.01583
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21207    -0.00001     0.00000
+     0.01819
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21226    90.00000    72.33266
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21245   -90.00000   -72.08308
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21263    82.50000    71.83725
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21282   -82.50000   -71.59496
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21301    75.00000    71.35609
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21319   -75.00000   -71.12055
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21338    67.50000    65.97746
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21357   -67.50000   -65.79878
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21375    60.00000    57.99729
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21394   -60.00000   -57.86970
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21413    52.50000    51.53782
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21431   -52.50000   -51.43744
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21450    45.00000    43.40399
+     0.00011
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21469   -45.00000   -43.32857
+     0.00011
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21488    37.50000    36.28384
+     0.00053
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21506   -37.50000   -36.22532
+     0.00053
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21525    30.00001    29.79907
+     0.00187
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21544   -30.00001   -29.75343
+     0.00187
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21562    22.50001    21.81949
+     0.00499
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21581   -22.50001   -21.78760
+     0.00498
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21600    15.00000    14.30601
+     0.01005
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21618   -15.00000   -14.28570
+     0.01003
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21637     7.50000     7.07723
+     0.01527
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21656    -7.50000    -7.06735
+     0.01525
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21674     0.00001     0.00000
+     0.01753
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21693   -90.00000   -71.96780
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21712    90.00000    71.72509
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21730   -82.50000   -71.48586
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21749    82.50000    71.24993
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21768   -75.00000   -71.01722
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21786    75.00000    70.78762
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21805   -67.50000   -65.86394
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21824    67.50000    65.68732
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21843   -60.00000   -58.14427
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21861    60.00000    58.01677
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21880   -52.50000   -51.86208
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21899    52.50000    51.76118
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21917   -45.00000   -43.93553
+     0.00011
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21936    45.00000    43.85919
+     0.00011
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21955   -37.50000   -36.99018
+     0.00051
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21973    37.50000    36.93051
+     0.00051
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.21992   -30.00001   -28.68620
+     0.00180
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22011    30.00001    28.64287
+     0.00180
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22029   -22.50001   -21.03969
+     0.00481
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22048    22.50001    21.00925
+     0.00480
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22067   -15.00000   -13.80878
+     0.00968
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22085    15.00000    13.78934
+     0.00967
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22104    -7.50000    -6.83508
+     0.01472
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22123     7.50000     6.82560
+     0.01470
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22141    -0.00001     0.00000
+     0.01689
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22160    90.00000    71.47035
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22179   -90.00000   -71.23601
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22198    82.50000    71.00488
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22216   -82.50000   -70.77679
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22235    75.00000    70.55162
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22254   -75.00000   -70.32931
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22272    67.50000    65.63839
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22291   -67.50000   -65.46476
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22310    60.00000    58.19470
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22328   -60.00000   -58.06777
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22347    52.50000    52.09758
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22366   -52.50000   -51.99648
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22384    45.00000    44.38347
+     0.00010
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22403   -45.00000   -44.30644
+     0.00010
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22422    37.50000    35.54061
+     0.00049
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22440   -37.50000   -35.48440
+     0.00049
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22459    30.00001    29.52026
+     0.00174
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22478   -30.00001   -29.47573
+     0.00173
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22496    22.50001    22.07133
+     0.00463
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22515   -22.50001   -22.03945
+     0.00463
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22534    15.00000    13.33258
+     0.00933
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22552   -15.00000   -13.31396
+     0.00932
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22571     7.50000     6.60279
+     0.01419
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22590    -7.50000    -6.59370
+     0.01417
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22609     0.00001     0.00000
+     0.01628
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22627   -90.00000   -70.86266
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22646    90.00000    70.63774
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22665   -82.50000   -76.09592
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22683    82.50000    75.78255
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22702   -75.00000   -69.97979
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22721    75.00000    69.76574
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22739   -67.50000   -65.31383
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22758    67.50000    65.14390
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22777   -60.00000   -58.15656
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22795    60.00000    58.03069
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22814   -52.50000   -52.25047
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22833    52.50000    52.14950
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22851   -45.00000   -44.75286
+     0.00010
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22870    45.00000    44.67537
+     0.00010
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22889   -37.50000   -36.14202
+     0.00047
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22907    37.50000    36.08495
+     0.00047
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22926   -30.00001   -28.43401
+     0.00167
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22945    30.00001    28.39171
+     0.00167
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22964   -22.50001   -21.29190
+     0.00447
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.22982    22.50001    21.26148
+     0.00446
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23001   -15.00000   -14.51928
+     0.00899
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23020    15.00000    14.49907
+     0.00898
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23038    -7.50000    -6.37997
+     0.01367
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23057     7.50000     6.37125
+     0.01365
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23076    -0.00001     0.00000
+     0.01569
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23094    90.00000    75.54616
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23113   -90.00000   -75.24686
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23132    82.50000    74.95388
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23150   -82.50000   -74.66680
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23169    75.00000    74.38538
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23188   -75.00000   -74.10926
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23206    67.50000    64.90352
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23225   -67.50000   -64.73793
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23244    60.00000    58.03831
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23262   -60.00000   -57.91392
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23281    52.50000    52.32727
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23300   -52.50000   -52.22676
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23319    45.00000    42.88202
+     0.00010
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23337   -45.00000   -44.97123
+     0.00010
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23356    37.50000    36.67035
+     0.00046
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23375   -37.50000   -36.61259
+     0.00046
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23393    30.00001    29.16353
+     0.00161
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23412   -30.00001   -29.12026
+     0.00161
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23431    22.50001    22.20918
+     0.00430
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23449   -22.50001   -22.17753
+     0.00430
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23468    15.00000    14.02446
+     0.00867
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23487   -15.00000   -14.00511
+     0.00866
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23505     7.50000     6.16626
+     0.01318
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23524    -7.50000    -6.15790
+     0.01316
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23543     0.00001     0.00000
+     0.01513
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23561   -90.00000   -74.32579
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23580    90.00000    74.05249
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23599   -82.50000   -73.78411
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23617    82.50000    73.52045
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23636   -75.00000   -73.26119
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23655    75.00000    73.00624
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23673   -67.50000   -64.42083
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23692    67.50000    64.26003
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23711   -60.00000   -57.84870
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23730    60.00000    57.72616
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23748   -52.50000   -52.33479
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23767    52.50000    52.23504
+     0.00002
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23786   -45.00000   -43.17305
+     0.00009
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23804    45.00000    43.10081
+     0.00009
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23823   -37.50000   -37.13041
+     0.00044
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23842    37.50000    37.07213
+     0.00044
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23860   -30.00001   -29.82237
+     0.00156
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23879    30.00001    29.77828
+     0.00155
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23898   -22.50001   -21.43575
+     0.00415
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23916    22.50001    21.40555
+     0.00414
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23935   -15.00000   -13.55077
+     0.00836
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23954    15.00000    13.53225
+     0.00835
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23972    -7.50000    -7.45929
+     0.01271
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.23991     7.50000     7.44923
+     0.01269
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24010    -0.00001     0.00000
+     0.01458
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24028    90.00000    73.10204
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24047   -90.00000   -72.85133
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24066    82.50000    72.60455
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24085   -82.50000   -72.36150
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24103    75.00000    72.12203
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24122   -75.00000   -71.88605
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24141    67.50000    67.44572
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24159   -67.50000   -67.26208
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24178    60.00000    57.59664
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24197   -60.00000   -57.47628
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24215    52.50000    52.28007
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24234   -52.50000   -52.18132
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24253    45.00000    43.40160
+     0.00009
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24271   -45.00000   -43.32940
+     0.00009
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24290    37.50000    35.71505
+     0.00042
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24309   -37.50000   -37.46837
+     0.00042
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24327    30.00001    28.74734
+     0.00150
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24346   -30.00001   -28.70550
+     0.00150
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24365    22.50001    22.25229
+     0.00400
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24383   -22.50001   -22.22110
+     0.00399
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24402    15.00000    14.58321
+     0.00806
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24421   -15.00000   -14.56340
+     0.00805
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24440     7.50000     7.21301
+     0.01225
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24458    -7.50000    -7.20337
+     0.01223
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24477     0.00001     0.00000
+     0.01406
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24496   -90.00000   -71.88732
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24514    90.00000    76.94765
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24533   -82.50000   -76.62374
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24552    82.50000    76.30787
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24570   -75.00000   -70.98167
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24589    75.00000    70.76260
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24608   -67.50000   -66.64949
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24626    67.50000    66.47437
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24645   -60.00000   -57.29088
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24664    60.00000    59.88572
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24682   -52.50000   -52.17011
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24701    52.50000    52.07267
+     0.00001
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24720   -45.00000   -43.57314
+     0.00009
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24738    45.00000    43.50115
+     0.00009
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24757   -37.50000   -36.10390
+     0.00041
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24776    37.50000    36.04876
+     0.00041
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24794   -30.00001   -29.32399
+     0.00145
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24813    30.00001    29.28154
+     0.00144
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24832   -22.50001   -21.49022
+     0.00386
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24851    22.50001    21.46049
+     0.00385
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24869   -15.00000   -14.09823
+     0.00777
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24888    15.00000    14.07928
+     0.00776
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24907    -7.50000    -6.97706
+     0.01181
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24925     7.50000     6.96783
+     0.01180
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24944    -0.00001     0.00000
+     0.01356
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24963    90.00000    75.45386
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.24981   -90.00000   -75.16640
+     0.00000
+   Freq, Input Dire, PBC Dire, Amplitude
+     0.25000    82.50000    74.88476
+     0.00000
+                                            TIDAL_BC not defined, Default: False
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.0000E+00  0.0000E+00
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+  0.0000E+00  0.1112E+09  0.2000E+01  0.0000E+00  0.0000E+00  0.0000E+00
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.0000E+00  0.9905E+00  0.0000E+00  0.0000E+00
+   PRINTING FILE NO.     0  TIME/TOTAL:        0.000 /   10002.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.1200E+04  0.1025E+00
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+  0.4815E+04  0.1116E+09  0.2000E+01 -0.7164E+00  0.1604E+01  0.1231E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1653E+01  0.9144E+01  0.1808E+00  0.0000E+00
+   PRINTING FILE NO.     1  TIME/TOTAL:     1200.039 /   10002.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.2400E+04  0.9729E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+ -0.8849E+03  0.1112E+09  0.2000E+01 -0.7063E+00  0.1929E+01  0.1077E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1933E+01  0.9418E+01  0.2052E+00  0.0000E+00
+   PRINTING FILE NO.     2  TIME/TOTAL:     2400.050 /   10002.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.3600E+04  0.1018E+00
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+  0.2591E+04  0.1114E+09  0.2000E+01 -0.6220E+00  0.1624E+01  0.9903E+00
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1630E+01  0.9230E+01  0.1766E+00  0.0000E+00
+   PRINTING FILE NO.     3  TIME/TOTAL:     3600.048 /   10002.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.4800E+04  0.1022E+00
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+  0.8452E+03  0.1113E+09  0.2000E+01 -0.5399E+00  0.1847E+01  0.1147E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1909E+01  0.9207E+01  0.2074E+00  0.0000E+00
+   PRINTING FILE NO.     4  TIME/TOTAL:     4800.014 /   10002.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.6000E+04  0.9697E-01
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+  0.8520E+03  0.1113E+09  0.2000E+01 -0.6587E+00  0.1877E+01  0.1185E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1911E+01  0.9415E+01  0.2030E+00  0.0000E+00
+   PRINTING FILE NO.     5  TIME/TOTAL:     6000.074 /   10002.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.7200E+04  0.1034E+00
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+  0.3484E+04  0.1114E+09  0.2000E+01 -0.5433E+00  0.1513E+01  0.1353E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1620E+01  0.9162E+01  0.1768E+00  0.0000E+00
+   PRINTING FILE NO.     6  TIME/TOTAL:     7200.009 /   10002.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.8400E+04  0.1007E+00
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+  0.4161E+04  0.1115E+09  0.2000E+01 -0.8087E+00  0.1993E+01  0.9903E+00
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.2007E+01  0.9199E+01  0.2182E+00  0.0000E+00
+   PRINTING FILE NO.     7  TIME/TOTAL:     8400.017 /   10002.000
+ ----------------- STATISTICS ----------------
+  TIME        DT
+  0.9600E+04  0.1019E+00
+  MassVolume  Energy      MaxEta      MinEta      Max U       Max V 
+  0.3107E+04  0.1115E+09  0.2000E+01 -0.5951E+00  0.1435E+01  0.1007E+01
+  MaxTotalU   PhaseS      Froude      WetDryMass
+  0.1551E+01  0.9231E+01  0.1681E+00  0.0000E+00
+   PRINTING FILE NO.     8  TIME/TOTAL:     9600.083 /   10002.000
+  PRINTING MEAN FILE     1
+ Simulation takes   3328.000     seconds
+ Normal Termination!

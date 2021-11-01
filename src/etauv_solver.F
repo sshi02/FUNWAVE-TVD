@@ -87,7 +87,9 @@ SUBROUTINE ESTIMATE_HUV(ISTEP)
       F_top=Q(I,J+1)
 ! now work for spherical # if defined (CARTESIAN)
         IF(WaveMaker(1:6)=='WK_IRR'.OR.WaveMaker(1:6)=='TMA_1D'  &
-           .OR.WaveMaker(1:6)=='JON_1D'.OR.WaveMaker(1:6)=='JON_2D')THEN
+           .OR.WaveMaker(1:6)=='JON_1D'.OR.WaveMaker(1:6)=='JON_2D' &
+	   .OR.WAVEMAKER(1:10)=='WK_NEW_IRR'&             ! Salatin et al. 2021
+           .OR.WAVEMAKER(1:13)=='WK_NEW_DATA2D')THEN      ! Salatin et al. 2021
 # if defined (PARALLEL)
 ![---ykchoi Jan/23/2018
 !            xmk=(I-Ibeg)*DXg+npx*(Mloc-2*Nghost)*DXg

@@ -86,48 +86,53 @@ SUBROUTINE ABSORBING_GENERATING_BC
      INTEGER :: KK,K
      real(SP),DIMENSION(Mloc,Nloc) :: Ein2D,Din2D
      real(SP),DIMENSION(Mloc,Nloc) :: Uin2D,Vin2D
-
+     
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!START!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    REAL(SP),DIMENSION(NumFreq) :: BB,CC                  ! Salatin et al. 2021
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!END!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
      Ein2D = ZERO
      Uin2D = ZERO
      Vin2D = ZERO
+     
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!START!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+!Oct, 2021
+!Salatin, R., Chen, Q., Bak, A. S., Shi, F., & Brandt, S. R. (2021). Effects of
+!wave coherence on longshore variability of nearshore wave processes. Journal
+!of Geophysical Research: Oceans,126, e2021JC017641.
+!https://doi.org/10.1029/2021JC017641
 
-     do j = 1,Nloc
-     do i = 1,Mloc
-      DO KK = 1, NumFreq
+! Eliminate redundant operations to speed up!
 
-       Ein2D(I,J) =Ein2D(I,J)+Cm_eta(I,J,KK)*COS(PI/2.0_SP+Segma_Ser(KK)*TIME+Phase_Ser(KK)) &
-                             +Sm_eta(I,J,KK)*SIN(PI/2.0_SP+Segma_Ser(KK)*TIME+Phase_Ser(KK))
- 
-       Uin2D(I,J) =Uin2D(I,J)+Cm_u(I,J,KK)*COS(PI/2.0_SP+Segma_Ser(KK)*TIME+Phase_Ser(KK)) &
-                             +Sm_u(I,J,KK)*SIN(PI/2.0_SP+Segma_Ser(KK)*TIME+Phase_Ser(KK))
-       Vin2D(I,J) =Vin2D(I,J)+Cm_v(I,J,KK)*COS(PI/2.0_SP+Segma_Ser(KK)*TIME+Phase_Ser(KK)) &
-                             +Sm_v(I,J,KK)*SIN(PI/2.0_SP+Segma_Ser(KK)*TIME+Phase_Ser(KK))
-       ENDDO 
+    ! eliminate sine and cosine from redundant calculations
+    DO KK = 1, NumFreq
+        BB(KK) = COS(pi/2.0_SP+Segma_Ser(KK)*TIME+Phase_Ser(KK))
+        CC(KK) = SIN(pi/2.0_SP+Segma_Ser(KK)*TIME+Phase_Ser(KK))
+    ENDDO
+    ! use constant values to speed up
+    DO J = 1,Nloc
+        DO I = 1,Mloc
+            DO KK = 1, NumFreq
+                Ein2D(I,J)=Ein2D(I,J)+Cm_eta(I,J,KK)*BB(KK)+Sm_eta(I,J,KK)*&
+                CC(KK)
+                Uin2D(I,J)=Uin2D(I,J)+Cm_u(I,J,KK)*BB(KK)+Sm_u(I,J,KK)*CC(KK)
+                Vin2D(I,J)=Vin2D(I,J)+Cm_v(I,J,KK)*BB(KK)+Sm_v(I,J,KK)*CC(KK)
+            ENDDO
+            !Ein2D(I,J)=Ein2D(I,J)/SPONGE(I,J)**4
+            !Uin2D(I,J)=Uin2D(I,J)/SPONGE(I,J)**4
+            !Vin2D(I,J)=Vin2D(I,J)/SPONGE(I,J)**4
+            Eta(I,J) = Ein2D(I,J)+ (Eta(I,J)-Ein2D(I,J))/SpongeMaker(I,J)
+            !U(I,J) = Uin2D(I,J)+(U(I,J)-Uin2D(I,J))/SpongeMaker(I,J)
+            !V(I,J) = Vin2D(I,J)+(V(I,J)-Vin2D(I,J))/SpongeMaker(I,J)
+            HU(I,J)=(Depth(I,J)+ETA(I,J))*U(I,J)
+            HV(I,J)=(Depth(I,J)+ETA(I,J))*V(I,J)
+        ENDDO
+    ENDDO
 
-     enddo 
-     enddo   
-
-! I removed variable sponge()  12/31/2020
-!       DO J=1,Nloc
-!       DO I=1,Mloc
-!         Ein2D(I,J)=Ein2D(I,J)/SPONGE(I,J)**4
-!         Uin2D(I,J)=Uin2D(I,J)/SPONGE(I,J)**4
-!         Vin2D(I,J)=Vin2D(I,J)/SPONGE(I,J)**4
-!       ENDDO
-!       ENDDO
-
-
-       do j = 1,Nloc
-       do i = 1,Mloc
-          Eta(i,j) = Ein2D(I,J)+ (Eta(i,j)-Ein2D(I,J))/SpongeMaker(i,j)
-!          U(i,j) = Uin2D(I,J)+(U(i,j)-Uin2D(I,J))/SpongeMaker(i,j)
-!          V(i,j) = Vin2D(I,J)+(V(i,j)-Vin2D(I,J))/SpongeMaker(i,j)
-          HU(I,J)=(Depth(I,J)+ETA(I,J))*U(I,J)
-          HV(I,J)=(Depth(I,J)+ETA(I,J))*V(I,J)
-       enddo
-       enddo
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!END!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
        tmp4preview = Uin2D
 

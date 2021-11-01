@@ -60,7 +60,7 @@ SUBROUTINE WAVEMAKER_INITIALIZATION
      IMPLICIT NONE
      INTEGER :: FreqCount,DireCount
      REAL(SP),DIMENSION(:),ALLOCATABLE :: DireTmp,FreqTmp
-     REAL(SP),DIMENSION(:,:),ALLOCATABLE :: WaveCompTmp
+     REAL(SP),DIMENSION(:,:),ALLOCATABLE :: WaveCompTmp,Phase2DTmp
      LOGICAL :: INPUT_WAVE_PHASE = .FALSE.
 ! internal wavemaker of wei and kirby
 
@@ -429,6 +429,186 @@ SUBROUTINE WAVEMAKER_INITIALIZATION
        ENDIF ! equal energy
       ENDIF ! data type
      ENDIF  ! left bc
+     
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!START!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!Oct, 2021
+!Salatin, R., Chen, Q., Bak, A. S., Shi, F., & Brandt, S. R. (2021). Effects of
+!wave coherence on longshore variability of nearshore wave processes. Journal
+!of Geophysical Research: Oceans,126, e2021JC017641.
+!https://doi.org/10.1029/2021JC017641
+
+    ! Wavemaker for reading the measured spectra
+    IF(WaveMaker(1:13)=='WK_NEW_DATA2D')THEN
+
+        OPEN(1,FILE=TRIM(WaveCompFile))
+            ! Read number of frequencies and directions from the input text file
+            READ(1,*)NumFreq
+            NumDir = 2 ! does not matter
+            READ(1,*)PeakPeriod
+            ALLOCATE (WAVE_COMP(NumFreq,1),Freq(NumFreq),Dire(NumFreq), &
+                DireTmp(NumFreq),FreqTmp(NumFreq),WaveCompTmp(NumFreq,1), &
+                Phase2D(NumFreq,1),Phase2DTmp(NumFreq,1))
+            DO I=1,NumFreq
+               READ(1,*)Freq(I)
+            ENDDO
+            DO I=1,NumFreq
+               READ(1,*)Dire(I)
+            ENDDO
+            DO I=1,NumFreq
+               READ(1,*)WAVE_COMP(I,1)
+            ENDDO
+            DO I=1,NumFreq
+                READ(1,*,END=1100)Phase2D(I,1)
+            ENDDO
+        CLOSE(1)
+
+# if defined (PARALLEL)
+        IF(myid.eq.0)THEN
+            WRITE(*,*) 'You input phase info'
+            WRITE(3,*) 'You input phase info'
+        ENDIF
+# else
+        WRITE(*,*) 'You input phase info'
+        WRITE(3,*) 'You input phase info'
+# endif
+        INPUT_WAVE_PHASE = .TRUE.
+
+1100    CONTINUE
+
+        ! remove bad components caused by conversion from other programs like
+        ! SWAN or measurements only consider the 2D array of spectral data
+        FreqCount = 0
+        DO I=1,NumFreq
+            IF(ABS(Dire(I)).LE.90.0_SP)THEN
+                FreqCount = FreqCount + 1
+                FreqTmp(FreqCount)=Freq(I)
+                DireTmp(FreqCount)=Dire(I)
+                WaveCompTmp(FreqCount,1) = WAVE_COMP(I,1)
+                Phase2DTmp(FreqCount,1) = Phase2D(I,1)
+            ENDIF
+        ENDDO
+        NumFreq = FreqCount
+
+        DEALLOCATE (WAVE_COMP,Freq,Dire,Phase2D)
+        ALLOCATE (WAVE_COMP(NumFreq,1),Beta_gen2D(NumFreq,1),&
+            D_gen2D(NumFreq,1),Phase2D(NumFreq,1),Freq(NumFreq),&
+            Dire(NumFreq),rlamda2D(NumFreq,1))
+        ALLOCATE (Cm(Mloc,Nloc,NumFreq),Sm(Mloc,Nloc,NumFreq))
+        ALLOCATE (OMGN2D(NumFreq))
+
+        ! put dire, freq, and wave amplitude into new variables
+        DO I=1,FreqCount
+            Dire(I)=DireTmp(I)
+            Freq(I)=FreqTmp(I)
+            WAVE_COMP(I,1)=WaveCompTmp(I,1)
+            Phase2D(I,1)=Phase2DTmp(I,1)
+        ENDDO
+        ! deallocate previous variables
+        DEALLOCATE (DireTmp,FreqTmp,WaveCompTmp,Phase2DTmp)
+
+        ! count the number of wave components and output it
+# if defined (PARALLEL)
+        if(myid.eq.0)then
+            WRITE(*,*) 'You use ', FreqCount, ' wave components.'
+        endif
+# else
+        WRITE(*,*) 'You use ', FreqCount, ' wave components.'
+# endif
+
+        ! assign random phase to each wave component
+        IF(INPUT_WAVE_PHASE)THEN
+            DO I=1,NumFreq
+                Phase2D(I,1)=Phase2D(I,1)*pi/180.0_SP
+            ENDDO
+        ELSE
+            DO I=1,NumFreq
+# if defined (INTEL)
+                Phase2D(I,1)=rand()*2.0_SP*pi
+# elif defined (CRAY)
+                Phase2D(I,1)=rand()*2.0_SP*pi
+# else
+                Phase2D(I,1)=rand(0)*2.0_SP*pi
+# endif
+            ENDDO
+        ENDIF
+
+        ! call the wavemaker
+        CALL WK_NEW_WAVEMAKER_2D_SPECTRAL_DATA &
+            (NumFreq,NumDir,Freq,Dire,WAVE_COMP,PeakPeriod,&
+            DEP_WK,Delta_WK,D_gen2D,beta_gen2D,&
+            rlamda2D,Width_WK,Phase2D)
+        !
+        DO I=1,NumFreq
+            OMGN2D(I) = 2.0_SP*PI*Freq(I)
+        ENDDO
+        ! peak frequency
+        FreqPeak = 1.0_SP/PeakPeriod
+        ! Calculate to Cm and Sm values (new algorithm)
+# if defined (CARTESIAN)
+        CALL CALCULATE_NEW_Cm_Sm(Mloc,Nloc,DX,DY,Xc_WK,Ibeg,Jbeg,&
+        NumFreq,NumDir,D_gen2D,Phase2D,Width_WK,rlamda2D,beta_gen2D,Cm,Sm)
+# else
+        CALL CALCULATE_NEW_Cm_Sm(Mloc,Nloc,DX(1,1),DY(1,1),Xc_WK,Ibeg,Jbeg,&
+        NumFreq,NumDir,D_gen2D,Phase2D,Width_WK,rlamda2D,beta_gen2D,Cm,Sm)
+# endif
+        !
+        IF(SHOW_BREAKING)THEN
+            T_brk=Freq(FreqCount)
+        ENDIF
+        ! deallocate the variables
+        DEALLOCATE (WAVE_COMP,Beta_gen2D,D_gen2D,  &
+        !   Phase2D, &
+            Freq,Dire,rlamda2D)
+
+    ENDIF ! END OF "IF(WaveMaker(1:13)=='WK_NEW_DATA2D')THEN"
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!END!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!START!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!Oct, 2021
+!Salatin, R., Chen, Q., Bak, A. S., Shi, F., & Brandt, S. R. (2021). Effects of
+!wave coherence on longshore variability of nearshore wave processes. Journal
+!of Geophysical Research: Oceans,126, e2021JC017641.
+!https://doi.org/10.1029/2021JC017641
+
+    ! Wavemaker for generating the analytic spectra
+
+    IF(WaveMaker(1:10)=='WK_NEW_IRR') THEN
+
+        ALLOCATE(D_gen_ir(Nfreq,1),rlamda_ir(Nfreq,1), &
+            phase_ir(Nfreq,1),Beta_gen_ir(Nfreq),omgn_ir(Nfreq), &
+            Cm(Mloc,Nloc,Nfreq),Sm(Mloc,Nloc,Nfreq),Freq(Nfreq))
+        ! call the wavemaker
+# if defined (CARTESIAN)
+        CALL WK_NEW_EQUAL_DFREQ_IRREGULAR_WAVE &
+            (Nfreq,Ntheta,delta_WK,DEP_WK,FreqPeak,FreqMax,FreqMin,GammaTMA,&
+            Hmo,ThetaPeak,sigma_theta,rlamda_ir,beta_gen_ir,D_gen_ir,Phase_ir,&
+            Width_WK,omgn_ir,Periodic,DY,Nglob,Freq,alpha_c)
+
+        CALL CALCULATE_NEW_Cm_Sm(Mloc,Nloc,DX,DY,Xc_WK,Ibeg,Jbeg,Nfreq,&
+            Ntheta,D_gen_ir,Phase_ir,Width_WK,rlamda_ir,beta_gen_ir,Cm,Sm)
+# else
+        CALL WK_NEW_EQUAL_DFREQ_IRREGULAR_WAVE &
+            (Nfreq,Ntheta,delta_WK,DEP_WK,FreqPeak,FreqMax,FreqMin,GammaTMA,&
+            Hmo,ThetaPeak,sigma_theta,rlamda_ir,beta_gen_ir,D_gen_ir,Phase_ir,&
+            Width_WK,omgn_ir,Periodic,DY(1,1),Nglob,Freq,alpha_c)
+
+        CALL CALCULATE_NEW_Cm_Sm(Mloc,Nloc,DX(1,1),DY(1,1),Xc_WK,Ibeg,Jbeg,&
+            Nfreq,Ntheta,D_gen_ir,Phase_ir,Width_WK,rlamda_ir,beta_gen_ir,Cm,Sm)
+# endif
+        ! deallocate some variables
+        DEALLOCATE(D_gen_ir,rlamda_ir,phase_ir,Beta_gen_ir)
+        !
+        IF(SHOW_BREAKING)THEN
+          T_brk=1.0_SP/FreqMax
+        ENDIF
+
+    ENDIF  ! END OF "IF(WaveMaker(1:10)=='WK_NEW_IRR') THEN"
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!END!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 END SUBROUTINE WAVEMAKER_INITIALIZATION
 
@@ -2441,3 +2621,656 @@ SUBROUTINE IRREGULAR_LEFT_BC
 
 END SUBROUTINE IRREGULAR_LEFT_BC
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!START!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!Oct, 2021
+!Salatin, R., Chen, Q., Bak, A. S., Shi, F., & Brandt, S. R. (2021). Effects of
+!wave coherence on longshore variability of nearshore wave processes. Journal
+!of Geophysical Research: Oceans,126, e2021JC017641.
+!https://doi.org/10.1029/2021JC017641
+
+! wavemaker for generating waves based on a measured spectrum
+
+SUBROUTINE WK_NEW_WAVEMAKER_2D_SPECTRAL_DATA &
+    (NumFreq,NumDir,Freq,DireD,WAVE_COMP,PeakPeriod,H_gen,delta,D_gen,&
+    beta_gen,rlamda,width,Phase2D)
+
+    USE PARAM
+    USE GLOBAL, ONLY : PERIODIC,DY,Nglob
+# if defined (PARALLEL)
+    USE GLOBAL,ONLY : myid,ier
+# endif
+    IMPLICIT NONE
+    INTEGER,INTENT(IN) :: NumFreq,NumDir
+    REAL(SP) :: alpha,alpha1,omgn,tb,tc,wkn,C_phase,wave_length,&
+        rl_gen,rI,Theta_temp,Tperiod,AMP_WK,omgn_tmp
+    REAL(SP),DIMENSION(NumFreq,1), INTENT(OUT) :: D_gen,beta_gen,rlamda
+    REAL(SP),DIMENSION(NumFreq,1) :: Dir2D
+    REAL(SP),INTENT(OUT) :: width
+    REAL(SP),DIMENSION(NumFreq),INTENT(IN) :: Freq,Phase2D
+    REAL(SP),DIMENSION(NumFreq),INTENT(IN) :: DireD
+    REAL(SP),DIMENSION(NumFreq) :: Dire
+    REAL(SP),DIMENSION(NumFreq,1),INTENT(IN) :: WAVE_COMP
+    REAL(SP),INTENT(IN) :: H_gen,delta,PeakPeriod
+    INTEGER :: nfre,ndir,I_temp
+    REAL(SP) :: angle1,angle2,Hmo_output
+
+    ! change degree to radian
+    Dire=DireD*DEG2RAD
+
+    IF(PERIODIC)THEN
+        DO nfre=1,NumFreq
+            tmp1 = -0.39_SP + 1.0_SP / 3.0_SP       ! alpha1
+            tmp2 = 2.*pi*Freq(nfre)                 ! omgn
+            tmp2 = tmp2*tmp2*H_gen/grav             ! tb
+            tmp3 = 1.0_SP + tmp2*(-0.39_SP)         ! tc
+            I_temp = 0
+            tmp1 = SQRT((tmp3-SQRT(tmp3*tmp3-4.0_SP*tmp1*tmp2)) &
+                /(2.0_SP*tmp1))/MAX(SMALL,H_gen)    ! wkn
+            Theta_temp = Dire(nfre)
+1001        IF(Theta_temp.GT.ZERO)THEN
+                tmp3=ZERO
+                I=0
+                Do WHILE (tmp3<Theta_temp)
+                    I=I+1
+# if defined (CARTESIAN)
+                    tmp2=I*2.0_SP*pi/DY/(Nglob-1.0_SP)
+# else
+                    tmp2=I*2.0_SP*pi/DY(1,1)/(Nglob-1.0_SP)     ! rlamda
+# endif
+                    IF(tmp2.GE.tmp1)THEN
+                        Theta_temp = Theta_temp - 0.001_SP
+                        I_temp = I_temp + 1
+                        IF(I_temp.eq.1000)THEN
+                            Theta_temp = 0.0_SP
+                            goto 10001
+                        ENDIF
+                        goto 1001
+                    ELSE
+                        ! theta, based on rlamda=wkn*sin(theta)
+                        tmp3=ASIN(tmp2/tmp1)
+                    ENDIF
+                ENDDO
+                IF(tmp2.LT.tmp1)THEN
+                    tmp3=ASIN((I-1)*2.0_SP*pi/DY/(Nglob-1.0_SP)/tmp1)
+                ENDIF
+            ELSEIF(Theta_temp.LT.ZERO)THEN
+                tmp3=ZERO
+                I=0
+                Do WHILE (tmp3>Theta_temp)
+                    I=I+1
+# if defined (CARTESIAN)
+                    tmp2=I*2.0_SP*pi/DY/(Nglob-1.0_SP)
+# else
+                    tmp2=I*2.0_SP*pi/DY(1,1)/(Nglob-1.0_SP)     ! rlamda
+# endif
+                    IF(tmp2.GE.tmp1)THEN
+                        Theta_temp = Theta_temp + 0.001_SP
+                        I_temp = I_temp + 1
+                        IF(I_temp.eq.1000)THEN
+                            Theta_temp = 0.0_SP
+                            goto 10001
+                        ENDIF
+                        goto 1001
+                    ELSE
+                        ! theta, based on rlamda=wkn*sin(theta)
+                        tmp3=-ASIN(tmp2/tmp1)
+                    ENDIF
+                ENDDO
+
+                IF(tmp2.LT.tmp1)THEN
+                    tmp3=-ASIN((I-1)*2.0_SP*pi/DY/(Nglob-1.0_SP)/tmp1)
+                ENDIF
+            ELSEIF(Theta_temp==0.0_SP)THEN
+                tmp3 = Theta_temp
+            ENDIF
+
+10001       Hmo_output = WAVE_COMP(nfre,1)*2.0_SP*SQRT(2.0_SP)
+
+# if defined (PARALLEL)
+            if(myid==0)then
+                WRITE(3,'(A40)') 'Freq, Input Dire, PBC Dire, Amplitude, Phase'
+                WRITE(3,'(3F12.5)')  Freq(nfre),Dire(nfre)*180./pi,&
+                    tmp3*180./pi,Hmo_output/2.0_SP/SQRT(2.0_SP),Phase2D(nfre)
+            endif
+# else
+            WRITE(3,'(A40)') 'Freq, Input Dire, PBC Dire, Amplitude, Phase'
+            WRITE(3,'(3F12.5)')  Freq(nfre),Dire(nfre)*180./pi,&
+                tmp3*180./pi,Hmo_output/2.0_SP/SQRT(2.0_SP),Phase2D(nfre)
+# endif
+            Dire(nfre) = tmp3
+        ENDDO ! "DO nfre=1,NumFreq"
+    ENDIF   ! "IF(PERIODIC)THEN"
+    !
+    alpha=-0.39_SP
+    alpha1=alpha+1.0_SP/3.0_SP
+    !
+    DO nfre=1,NumFreq
+        omgn=2.*pi*freq(nfre)
+        Tperiod = 1.0_SP/freq(nfre)
+        AMP_WK = WAVE_COMP(nfre,1)
+
+        tb=omgn*omgn*h_gen/grav
+        tc=1.+tb*alpha
+
+        IF(h_gen==ZERO.OR.Tperiod==ZERO)THEN
+            WRITE(*,*)'re-set depth, Tperiod for wavemaker, STOP!'
+            STOP
+        ELSE
+            wkn=SQRT((tc-SQRT(tc*tc-4.0_SP*alpha1*tb))  &
+                /(2.0_SP*alpha1))/h_gen
+            C_phase=1./wkn/Tperiod*2.*pi
+        ENDIF
+
+        wave_length=C_phase*Tperiod
+        rlamda(nfre,1)=wkn*sin(Dire(nfre))
+        beta_gen(nfre,1)=80.0_SP/delta**2/wave_length**2
+        rl_gen=wkn*cos(Dire(nfre))
+        rI=SQRT(3.14159/beta_gen(nfre,1))*exp(-rl_gen**2/4./beta_gen(nfre,1))
+
+        D_gen(nfre,1)=2.0_SP*AMP_WK  &
+            *cos(Dire(nfre))*(omgn**2-alpha1*grav*wkn**4*h_gen**3) &
+            /(omgn*wkn*rI*(1.0_SP-alpha*(wkn*h_gen)**2))
+
+    ENDDO ! "DO nfre=1,NumFreq"
+
+    ! Wavemaker Width
+    omgn_tmp=2.0_SP*pi/PeakPeriod
+    tb=omgn_tmp*omgn_tmp*h_gen/grav
+    tc=1.0_SP+tb*alpha
+    wkn=SQRT((tc-SQRT(tc*tc-4.0_SP*alpha1*tb))/(2.0_SP*alpha1))/h_gen
+    C_phase=1.0_SP/wkn/PeakPeriod*2.0_SP*pi
+    wave_length=C_phase*PeakPeriod
+    width=delta*wave_length/2.0_SP
+
+END SUBROUTINE WK_NEW_WAVEMAKER_2D_SPECTRAL_DATA
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!END!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!START!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!Oct, 2021
+!Salatin, R., Chen, Q., Bak, A. S., Shi, F., & Brandt, S. R. (2021). Effects of
+!wave coherence on longshore variability of nearshore wave processes. Journal
+!of Geophysical Research: Oceans,126, e2021JC017641.
+!https://doi.org/10.1029/2021JC017641
+
+! generates irregular waves based on the analytic spectrum
+! this method ONLY uses the equal frequency method
+! and equal energy is not supported yet
+! user can specify the degree of coherency by specifying alpha_c in input FILE
+! 0.0<alpha_c<100.0
+
+SUBROUTINE WK_NEW_EQUAL_DFREQ_IRREGULAR_WAVE &
+    (mfreq,mtheta,delta,h_gen,fm,fmax,fmin,gamma_spec,Hmo,theta_input,&
+    sigma_theta_input,rlamda,beta_gen,D_gen,phi1,width,omgn, &
+    Periodic,DY,Nglob,Freq,alpha_c)
+
+    USE PARAM
+    USE GLOBAL, only : WAVEMAKER
+#  if defined (PARALLEL)
+    USE GLOBAL, only : myid, ier
+# endif
+# if defined(INTEL)
+    USE IFPORT
+# endif
+    IMPLICIT NONE
+    INTEGER,INTENT(IN) :: mfreq,mtheta,Nglob
+    REAL(SP),INTENT(IN) :: delta,h_gen,fm,fmax,fmin,gamma_spec,Hmo,&
+                               theta_input,sigma_theta_input,DY
+    LOGICAL,INTENT(IN) :: Periodic
+    REAL(SP), INTENT(OUT) :: width
+    REAL(SP),DIMENSION(mfreq):: EnergyBin,theta,Etma
+    REAL(SP),DIMENSION(mfreq),INTENT(OUT):: Freq
+    REAL(SP), DIMENSION(mfreq) :: AG
+    REAL(SP), DIMENSION(1,mfreq) :: Hmo_each
+    REAL(SP),DIMENSION(mfreq,1),INTENT(OUT) :: D_gen,phi1,rlamda
+    REAL(SP),DIMENSION(mfreq),INTENT(OUT) :: beta_gen,omgn
+    REAL(SP) :: Ef,fre,omiga_spec,phi,sigma_spec,Ef100,Ef_add,sigma_theta,&
+                    theta_p,theta_m,theta_10,theta_11,theta_21,alpha_spec,ap,&
+                    alpha,alpha1,tb,tc,wkn,C_phase,wave_length,rl_gen,rI,&
+                    theta_1,omgn_tmp,df,correction_coeff,ktheta_temp,Theta_temp
+    INTEGER :: kf,kff,kb,N_spec,ktotal,k_n,ktheta,mcenter
+    INTEGER, DIMENSION(mfreq) :: displace_theta
+    INTEGER :: idx_theta
+    ! inclusion of wave coherency
+    REAL(SP),INTENT(INOUT) :: alpha_c   ! wave coherence percentage
+
+
+    df = (fmax-fmin)/(mfreq-1.0_SP)
+    Ef = ZERO
+
+    DO kf=1,mfreq
+        Freq(kf) = fmin +(kf-1)*df
+    ENDDO
+
+    ! --- directional wave
+    sigma_theta=sigma_theta_input*pi/180.0_SP
+    N_spec=20.0_SP/sigma_theta
+
+    IF(mtheta==1) THEN ! 1D case
+        theta(1) = theta_input*pi/180.0_SP
+        AG(1) = 1.0_SP
+    ELSE
+        displace_theta = minloc(abs(Freq-fm))
+        idx_theta = MOD(displace_theta(1),mtheta)
+        DO kf=1,mfreq !new method
+            ktheta_temp = MOD(kf-idx_theta,mtheta)
+            IF(ktheta_temp.le.ZERO) ktheta_temp = ktheta_temp + mtheta
+            theta(kf) = (-1_SP)**real(kf)*(-pi*1.0_SP/2.0_SP + &
+                2.0_SP/2.0_SP*pi*(floor(real(ktheta_temp)/2.0_SP - &
+                0.5_SP))/(real(mtheta)-1.0_SP))   !new method
+            theta(kf) = theta(kf) + theta_input*pi/180.0_SP   !new method
+            IF(theta(kf).gt.0.5_SP*pi) theta(kf) = 0.5_SP*pi
+            IF(theta(kf).lt.-0.5_SP*pi) theta(kf) = -0.5_SP*pi
+            AG(kf) = 1.0_SP/( 2.0_SP*pi )
+            do k_n=1,N_spec
+                AG(kf) = AG(kf)+ &
+                    (1.0_SP/pi)*exp(-0.5_SP*(real(k_n)*sigma_theta)**2) &
+  	                *cos(k_n*(theta(kf)-theta_input*pi/180.0_SP))
+            enddo
+        ENDDO
+        AG(:) = ABS(AG(:))
+    ENDIF ! IF(mtheta==1) THEN
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!WAVE COHERENCE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ! This part takes alpha_c into consideration and moves some wave components
+    ! so coherent waves form.
+    ! coherence percentage should be in range %0 ~ %100
+    IF(alpha_c.GT.100.0_SP) alpha_c = 100.0_SP
+    IF(alpha_c.LT.0.0_SP) alpha_c = 0.0_SP
+    IF(alpha_c.GT.0.00_SP)THEN ! only do this part if user inputs alpha_c
+        CALL  WAVE_COHERENCE(alpha_c,Freq,mfreq,mtheta,idx_theta)
+    ENDIF
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !
+    DO kf=1,mfreq
+        omiga_spec=2.0_SP*pi*Freq(kf)*SQRT(h_gen/grav)
+        phi=1.0_SP-0.5_SP*(2.0_SP-omiga_spec)**2
+        if(omiga_spec.le.1.0_SP) phi=0.5_SP*omiga_spec**2
+        if(omiga_spec.ge.2.0_SP) phi=1.0_SP
+        !IF(WaveMaker(1:3)=='JON') THEN
+        !  phi=1.0_SP
+        !ENDIF
+        sigma_spec=0.07_SP
+        if(Freq(kf).gt.fm) sigma_spec=0.09_SP
+        Etma(kf)=grav**2*Freq(kf)**(-5)*(2.0_SP*pi)**(-4)*phi &
+            *exp(-5.0_SP/4.0_SP*(Freq(kf)/fm)**(-4)) &
+            *gamma_spec**(exp(-(Freq(kf)/fm-1.0_SP)**2/(2.0_SP*sigma_spec**2)))
+        EnergyBin(kf) = Etma(kf)*df
+        Ef = Ef + EnergyBin(kf)
+    ENDDO  ! end DO kf=1,mfreq
+    !
+    alpha_spec=Hmo**2/16.0_SP/Ef
+    correction_coeff = Ef/dot_product(AG,EnergyBin)
+    DO kf=1,mfreq
+        ! calibrate the AG
+        AG(kf) = AG(kf) * correction_coeff
+        ! calculate Hmo for each wave component
+        Hmo_each(1,kf)=4.0_SP*SQRT((alpha_spec*EnergyBin(kf)*AG(kf)))
+    ENDDO
+    !
+    alpha=-0.39_SP
+    alpha1=alpha+1.0_SP/3.0_SP
+    DO kf = 1,mfreq
+        ap = Hmo_each(1,kf)/SQRT(2.0_SP)/2.0_SP
+        omgn(kf)=2.0_SP*pi*Freq(kf)
+        tb=omgn(kf)*omgn(kf)*h_gen/grav
+        tc=1.0_SP+tb*alpha
+        wkn=SQRT((tc-SQRT(tc*tc-4.0_SP*alpha1*tb))/(2.0_SP*alpha1))/h_gen
+
+        IF(wkn.eq.0.0)THEN
+            wkn=SMALL
+            C_phase=sqrt(grav*h_gen)
+            wave_length=C_phase/fm
+        ELSE
+            C_phase=1.0_SP/wkn*fm*2.0_SP*pi
+            wave_length=C_phase/fm
+        ENDIF
+        ! for periodic boundary conditions
+        Theta_temp = Theta(kf);
+1000    IF(PERIODIC)THEN
+            tmp1=wkn
+            IF(Theta_temp.GT.ZERO)THEN
+                tmp3=ZERO
+                I=0
+                DO WHILE (tmp3<Theta_temp)
+                    I=I+1
+                    tmp2=I*2.0_SP*pi/DY/(Nglob-1.0_SP)
+                    IF(tmp2.GE.tmp1)THEN
+                        Theta_temp = Theta_temp - 0.001_SP
+                        goto 1000
+                    ELSE
+                        ! theta, based on rlamda=wkn*sin(theta)
+                        tmp3=ASIN(tmp2/tmp1)
+                    ENDIF
+                ENDDO
+                IF(tmp2.LT.tmp1)THEN
+                    tmp3=ASIN((I-1)*2.0_SP*pi/DY/(Nglob-1.0_SP)/tmp1)
+                ENDIF
+            ELSEIF(Theta_temp.LT.ZERO)THEN
+                tmp3=ZERO
+                I=0
+                DO WHILE (tmp3>Theta_temp)
+                    I=I+1
+                    tmp2=I*2.0_SP*pi/DY/(Nglob-1.0_SP)     ! rlamda
+                    IF(tmp2.GE.tmp1)THEN
+                        Theta_temp = Theta_temp + 0.001_SP
+                        goto 1000
+                    ELSE
+                        ! theta, based on rlamda=wkn*sin(theta)
+                        tmp3=-ASIN(tmp2/tmp1)
+                    ENDIF
+                ENDDO
+                IF(tmp2.LT.tmp1)THEN
+                    tmp3=-ASIN((I-1)*2.0_SP*pi/DY/(Nglob-1.0_SP)/tmp1)
+                ENDIF
+            ELSEIF (Theta_temp==0.0_SP)THEN
+                tmp3 = Theta_temp
+            ENDIF ! IF(Theta_temp.GT.ZERO)THEN
+
+# if defined (PARALLEL)
+            if(myid==0)then
+                WRITE(3,'(A40)') 'Freq, Input Dire, PBC Dire, Amplitude'
+                WRITE(3,'(3F12.5)')  Freq(kf),theta(kf)*180./pi,&
+                    tmp3*180./pi,Hmo_each(1,kf)/SQRT(2.0_SP)/2.0_SP
+            endif
+# else
+            WRITE(3,'(A40)') 'Freq, Input Dire, PBC Dire, Amplitude'
+            WRITE(3,'(3F12.5)')  Freq(kf),theta(kf)*180./pi,tmp3*180./pi,&
+                Hmo_each(1,kf)/SQRT(2.0_SP)/2.0_SP
+# endif
+            Theta(kf) = tmp3
+        ENDIF ! IF(PERIODIC)THEN
+        rlamda(kf,1)=wkn*sin(theta(kf))
+        beta_gen(kf)=80.0_SP/delta**2/wave_length**2
+        rl_gen=wkn*cos(theta(kf))
+        rI=SQRT(pi/beta_gen(kf))*exp(-rl_gen**2/4.0_SP/beta_gen(kf))
+        D_gen(kf,1)=2.0_SP*ap*cos(theta(kf))  &
+            *(omgn(kf)**2-alpha1*grav*wkn**4*h_gen**3)  &
+            /(omgn(kf)*wkn*rI*(1.0_SP-alpha*(wkn*h_gen)**2))
+
+    ENDDO ! DO kf=1,mfreq
+
+    ! WAVEMAKER WIDTH
+    omgn_tmp=2.0_SP*pi*fm
+    tb=omgn_tmp*omgn_tmp*h_gen/grav
+    tc=1.0_SP+tb*alpha
+    wkn=SQRT((tc-SQRT(tc*tc-4.0_SP*alpha1*tb))/(2.0_SP*alpha1))/h_gen
+    width=delta*wave_length/2.0_SP
+
+    ! generate random phase for the wave components
+    DO kf=1,mfreq
+# if defined (INTEL)
+        phi1(kf,1)=rand()*2.0_SP*pi
+# elif defined (CRAY)
+        phi1(kf,1)=rand()*2.0_SP*pi
+# else
+        phi1(kf,1)=rand(0)*2.0_SP*pi
+# endif
+    ENDDO
+
+END SUBROUTINE WK_NEW_EQUAL_DFREQ_IRREGULAR_WAVE
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!END!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!START!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!Oct, 2021
+!Salatin, R., Chen, Q., Bak, A. S., Shi, F., & Brandt, S. R. (2021). Effects of
+!wave coherence on longshore variability of nearshore wave processes. Journal
+!of Geophysical Research: Oceans,126, e2021JC017641.
+!https://doi.org/10.1029/2021JC017641
+
+! calculate the Cm and Sm values for the new wavemakers
+! WK_NEW_IRR
+! WK_NEW_DATA2D
+
+SUBROUTINE CALCULATE_NEW_Cm_Sm(M,N,DX,DY,Xc,Ibeg,Jbeg,mfreq,mtheta,D_gen,&
+    phi1,width,rlamda,beta_gen,Cm,Sm)
+
+    USE PARAM
+# if defined (PARALLEL)
+    USE GLOBAL, ONLY : myid,npx,npy,px,py,Mglob,Nglob, &
+        iista,jjsta,&   !ykchoi Jan/23/2018
+        loop_index,Freq !Chen, Salatin
+# endif
+    IMPLICIT NONE
+    INTEGER,INTENT(IN) :: M,N,mfreq,mtheta,Ibeg,Jbeg
+    REAL(SP),INTENT(IN) :: DX,DY,width,Xc
+    REAL(SP),DIMENSION(mfreq,1),INTENT(IN) :: D_gen,phi1,rlamda
+    REAL(SP),DIMENSION(mfreq),INTENT(IN) :: beta_gen
+    REAL(SP),DIMENSION(M,N,mfreq),INTENT(OUT) :: Cm,Sm
+    INTEGER::kf,ktheta
+    INTEGER::temp_index,kf_temp,kkk
+
+    temp_index = 1
+    DO kf = 2,mfreq
+        IF(Freq(kf).ne.Freq(kf-1))THEN
+            temp_index = temp_index + 1
+        ENDIF
+    ENDDO
+
+    ALLOCATE(loop_index(temp_index))
+
+    temp_index = 1
+    loop_index(temp_index) = 1
+    DO kf = 2,mfreq
+        IF(Freq(kf).ne.Freq(kf-1)) THEN
+            temp_index = temp_index + 1
+            loop_index(temp_index) = kf
+        ENDIF
+    ENDDO
+
+# if defined (PARALLEL)
+    if(myid.eq.0)then
+        WRITE(*,*) 'Number of distinct freqs:', temp_index
+    endif
+# else
+    WRITE(*,*) 'Number of distinct freqs:', temp_index
+# endif
+
+    Cm=ZERO
+    Sm=ZERO
+
+    DO J=1,N ! first geometrical dimension
+        DO I=1,M ! second geometrical dimension
+            kkk = 0
+            kf = 1
+# if defined (PARALLEL)
+            Cm(i,j,kf)=Cm(i,j,kf) &
+                +D_gen(kf,1)*exp(-beta_gen(kf)*((I-Ibeg+(iista-1))*DX-Xc)**2) &
+                *cos(rlamda(kf,1)*((J-Jbeg+(jjsta-1))*DY-ZERO)+phi1(kf,1))
+
+            Sm(i,j,kf)=Sm(i,j,kf) &
+                +D_gen(kf,1)*exp(-beta_gen(kf)*((I-Ibeg+(iista-1))*DX-Xc)**2) &
+                *sin(rlamda(kf,1)*((J-Jbeg+(jjsta-1))*DY-ZERO)+phi1(kf,1))
+# else
+            Cm(i,j,kf)=Cm(i,j,kf) &
+                +D_gen(kf,1)*exp(-beta_gen(kf)*((I-Ibeg)*DX-Xc)**2) &
+                *cos(rlamda(kf,1)*((J-Jbeg)*DY-ZERO)+phi1(kf,1))
+
+            Sm(i,j,kf)=Sm(i,j,kf) &
+                +D_gen(kf,1)*exp(-beta_gen(kf)*((I-Ibeg)*DX-Xc)**2) &
+                *sin(rlamda(kf,1)*((J-Jbeg)*DY-ZERO)+phi1(kf,1))
+# endif
+
+            DO kf=2,mfreq
+                IF(Freq(kf).eq.Freq(kf-1)) THEN
+                    kkk = kkk+1
+                    kf_temp = kf - kkk
+# if defined (PARALLEL)
+                    Cm(i,j,kf_temp)=Cm(i,j,kf_temp) &
+                        +D_gen(kf,1)*exp(-beta_gen(kf)*&
+                        ((I-Ibeg+(iista-1))*DX-Xc)**2)*cos(rlamda(kf,1) &
+                        *((J-Jbeg+(jjsta-1))*DY-ZERO)+phi1(kf,1))
+
+                    Sm(i,j,kf_temp)=Sm(i,j,kf_temp) &
+                        +D_gen(kf,1)*exp(-beta_gen(kf)*&
+                        ((I-Ibeg+(iista-1))*DX-Xc)**2)*sin(rlamda(kf,1) &
+                        *((J-Jbeg+(jjsta-1))*DY-ZERO)+phi1(kf,1))
+# else
+                    Cm(i,j,kf_temp)=Cm(i,j,kf_temp) &
+                        +D_gen(kf,1)*exp(-beta_gen(kf)*((I-Ibeg)*DX-Xc)**2) &
+                        *cos(rlamda(kf,1)*((J-Jbeg)*DY-ZERO)+phi1(kf,1))
+
+                    Sm(i,j,kf_temp)=Sm(i,j,kf_temp) &
+                        +D_gen(kf,1)*exp(-beta_gen(kf)*((I-Ibeg)*DX-Xc)**2) &
+                        *sin(rlamda(kf,1)*((J-Jbeg)*DY-ZERO)+phi1(kf,1))
+# endif
+                ELSE
+                    kkk = 0
+# if defined (PARALLEL)
+                    Cm(i,j,kf)=Cm(i,j,kf) &
+                        +D_gen(kf,1)*exp(-beta_gen(kf)*&
+                        ((I-Ibeg + (iista-1) )*DX-Xc)**2)*cos(rlamda(kf,1) &
+                        *((J-Jbeg+(jjsta-1))*DY-ZERO)+phi1(kf,1))
+
+                    Sm(i,j,kf)=Sm(i,j,kf) &
+                        +D_gen(kf,1)*exp(-beta_gen(kf)*&
+                        ((I-Ibeg+ (iista-1) )*DX-Xc)**2)*sin(rlamda(kf,1) &
+                        *((J-Jbeg +(jjsta - 1))*DY-ZERO)+phi1(kf,1))
+# else
+                    Cm(i,j,kf)=Cm(i,j,kf) &
+                        +D_gen(kf,1)*exp(-beta_gen(kf)*((I-Ibeg)*DX-Xc)**2) &
+                        *cos(rlamda(kf,1)*((J-Jbeg)*DY-ZERO)+phi1(kf,1))
+
+                    Sm(i,j,kf)=Sm(i,j,kf) &
+                        +D_gen(kf,1)*exp(-beta_gen(kf)*((I-Ibeg)*DX-Xc)**2) &
+                        *sin(rlamda(kf,1)*((J-Jbeg)*DY-ZERO)+phi1(kf,1))
+# endif
+                ENDIF
+            ENDDO ! "DO kf=2,mfreq"
+        ENDDO ! "DO I=1,M"
+    ENDDO ! "DO J=1,N"
+
+
+END SUBROUTINE CALCULATE_NEW_Cm_Sm
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!END!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!START!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!Oct, 2021
+!Salatin, R., Chen, Q., Bak, A. S., Shi, F., & Brandt, S. R. (2021). Effects of
+!wave coherence on longshore variability of nearshore wave processes. Journal
+!of Geophysical Research: Oceans,126, e2021JC017641.
+!https://doi.org/10.1029/2021JC017641
+
+! This part takes alpha_c into consideration and moves some wave components
+! so coherent waves form for WK_NEW_IRR analytic wavemaker!
+
+SUBROUTINE WAVE_COHERENCE(alpha_c,Freq,mfreq,mtheta,idx_theta)
+
+    USE PARAM
+    USE GLOBAL, only : WAVEMAKER
+#  if defined (PARALLEL)
+    USE GLOBAL, only : myid, ier
+# endif
+# if defined(INTEL)
+    USE IFPORT
+# endif
+    IMPLICIT NONE
+
+    INTEGER,INTENT(IN) :: mfreq,mtheta,idx_theta
+    REAL(SP),DIMENSION(mfreq),INTENT(INOUT):: Freq
+    REAL(SP),INTENT(IN) :: alpha_c   ! wave coherence percentage
+    INTEGER :: Num_Coherent,Num_Coherent_temp,host_freq_idx,mfreq_temp,jj,kk
+    INTEGER :: candidate_freq_idx,nonzero_count,host_idx_whole,host_idx
+    REAL(SP) :: candidate_freq,host_freq
+    REAL(SP),DIMENSION(mfreq) :: Freq_temp
+    INTEGER,ALLOCATABLE,DIMENSION(:) :: host_freqs_idx,temp_idx
+    REAL(SP),ALLOCATABLE,DIMENSION(:) :: host_freqs,candidate_freq_pool
+    REAL(SP),ALLOCATABLE,DIMENSION(:) :: candidate_freq_pool_temp,freq_diff
+    INTEGER,DIMENSION(mfreq) :: repetitions
+    INTEGER :: kf
+
+    DO kf = 1,mfreq
+        repetitions(kf) = 1
+    ENDDO
+    ! number of coherence waves
+    Num_Coherent = alpha_c/100.0_SP*mfreq
+    ! in host frequency indices, which is the index of frequencies that
+    ! can be host, first element cannot be zero, and last element should be
+    ! equal to mfreq
+    IF(idx_theta.EQ.0)THEN
+        host_freqs_idx = [(host_freq_idx, host_freq_idx=idx_theta+mtheta,&
+        mfreq,mtheta)]
+    ELSE
+        host_freqs_idx = &
+            [(host_freq_idx, host_freq_idx=idx_theta,mfreq,mtheta)]
+    ENDIF
+    IF(host_freqs_idx(size(host_freqs_idx)).NE.mfreq)THEN
+        DEALLOCATE(host_freqs_idx)
+        IF(idx_theta.EQ.0)THEN
+            host_freqs_idx = (/ (host_freq_idx, host_freq_idx=idx_theta+&
+                mtheta,mfreq,mtheta),mfreq /)
+        ELSE
+            host_freqs_idx = (/ (host_freq_idx, host_freq_idx=idx_theta,&
+                mfreq,mtheta),mfreq /)
+        ENDIF
+    ENDIF
+    host_freqs = Freq(host_freqs_idx)
+    ! pool of frequencies which can be selected as coherent waves
+    ! this pool excludes the host freqs
+    ALLOCATE(candidate_freq_pool(mfreq-SIZE(host_freqs)))
+    jj = 1
+    kk = 1
+    DO kf = 1,mfreq
+        IF(kf.NE.host_freqs_idx(jj))THEN
+            candidate_freq_pool(kk) = Freq(kf)
+            kk = kk + 1
+        ELSE
+            jj = jj + 1
+        ENDIF
+    ENDDO
+    ! choose the coherent wave components and move them to the nearest
+    ! (upper) host freq
+    Num_Coherent_temp = 0
+    ! make a copy of the frequency bins
+    Freq_temp = Freq
+    ! Do till the coherency percentage is satisfied
+    DO WHILE(Num_Coherent_temp.LT.Num_Coherent)
+        mfreq_temp = size(candidate_freq_pool)
+# if defined (INTEL)
+        candidate_freq_idx=ceiling(rand()*mfreq_temp)
+# elif defined (CRAY)
+        candidate_freq_idx=ceiling(rand()*mfreq_temp)
+# else
+        candidate_freq_idx=ceiling(rand(0)*mfreq_temp)
+# endif
+        candidate_freq = candidate_freq_pool(candidate_freq_idx)
+        candidate_freq_pool(candidate_freq_idx) = 0.00_SP
+        ! remove this freq from the pool of candidate freqs
+        nonzero_count = COUNT(candidate_freq_pool.NE.0.00_SP)
+        ALLOCATE(candidate_freq_pool_temp(nonzero_count))
+        candidate_freq_pool_temp = PACK(candidate_freq_pool,&
+            candidate_freq_pool.NE.0.00_SP)
+        DEALLOCATE(candidate_freq_pool)
+        ALLOCATE(candidate_freq_pool(size(candidate_freq_pool_temp)))
+        candidate_freq_pool = candidate_freq_pool_temp
+        DEALLOCATE(candidate_freq_pool_temp)
+        ! choose the closest, also higher, host frequency for the candidate
+        ! wave component displaced from its original frequency
+        freq_diff = host_freqs - candidate_freq
+        temp_idx = MINLOC (freq_diff, MASK = freq_diff .GT. 0.00_SP)
+        host_idx = temp_idx(1)
+        host_freq = host_freqs(host_idx)
+        host_idx_whole = host_freqs_idx(host_idx)
+        DO kf = 1,mfreq
+            IF(Freq_temp(kf).EQ.candidate_freq)THEN
+                Freq_temp(kf) = host_freq
+            ENDIF
+        ENDDO
+        ! Count the number of coherent waves to see if input percentage
+        ! is attained
+        repetitions(host_idx_whole)=repetitions(host_idx_whole)+1
+        DO kf = 1,mfreq
+            IF(Freq_temp(kf).EQ.host_freq)THEN
+                repetitions(kf) = repetitions(host_idx_whole)
+            ENDIF
+        ENDDO
+        Num_Coherent_temp = COUNT(repetitions.GT.1)
+    ENDDO
+    Freq = Freq_temp
+    !DEALLOCATE(host_freqs_idx,temp_idx,host_freqs,candidate_freq_pool,&
+    !    candidate_freq_pool_temp,freq_diff) ! deallocate some variables
+END SUBROUTINE WAVE_COHERENCE
