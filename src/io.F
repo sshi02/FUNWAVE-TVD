@@ -1835,60 +1835,10 @@ SUBROUTINE READ_INPUT
 !of Geophysical Research: Oceans,126, e2021JC017641.
 !https://doi.org/10.1029/2021JC017641
 
-    IF(WaveMaker(1:13)=='WK_NEW_DATA2D')THEN
-
-        CALL READ_FLOAT(Xc_WK,FILE_NAME,'Xc_WK',ierr)
-
-        IF(ierr==1)THEN
-# if defined (PARALLEL)
-            if (myid.eq.0) THEN
-                WRITE(*,'(A80)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
-                WRITE(3,'(A80)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
-            endif
-            call MPI_FINALIZE ( ier )
-# else
-            WRITE(*,'(A80)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
-            WRITE(3,'(A80)')'Xc_WK NOT FOUND, specify Xc_WK in input.txt'
-# endif
-            STOP
-        ENDIF
-
-        CALL READ_FLOAT(Yc_WK,FILE_NAME,'Yc_WK',ierr)
-
-        IF(ierr==1)THEN
-            Yc_WK = ZERO
-# if defined (PARALLEL)
-            if (myid.eq.0) THEN
-                WRITE(*,'(A80)')'Yc_WK NOT FOUND, specify Yc_WK in input.txt'
-                WRITE(3,'(A80)')'Yc_WK NOT FOUND, specify Yc_WK in input.txt'
-            endif
-# else
-            WRITE(*,'(A80)')'Yc_WK NOT FOUND, specify Yc_WK in input.txt'
-            WRITE(3,'(A80)')'Yc_WK NOT FOUND, specify Yc_WK in input.txt'
-# endif
-        ENDIF
-
-        CALL READ_FLOAT(DEP_WK,FILE_NAME,'DEP_WK',ierr)
-
-        IF(ierr==1)THEN
-# if defined (PARALLEL)
-        if (myid.eq.0) THEN
-            WRITE(*,'(A80)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
-            WRITE(3,'(A80)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
-        endif
-        call MPI_FINALIZE ( ier )
-# else
-        WRITE(*,'(A80)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
-        WRITE(3,'(A80)')'DEP_WK NOT FOUND, specify DEP_WK in input.txt'
-# endif
-        STOP
-
-    ENDIF
-
+    IF(WaveMaker(1:13)=='WK_NEW_DATA2D'.OR.WaveMaker(1:9)=='WK_DATA2D')THEN
+    
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!END!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        IF(WaveMaker(1:9)=='WK_DATA2D')THEN
           CALL READ_FLOAT(Xc_WK,FILE_NAME,'Xc_WK',ierr)
       IF(ierr==1)THEN
 # if defined (PARALLEL)
