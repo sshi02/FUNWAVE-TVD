@@ -421,4 +421,23 @@ MODULE GLOBAL
        LOGICAL :: WAVEMAKER_VIS=.FALSE.
 !	 REAL(SP) :: PLOT_SMALLINTV
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!START!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!Oct, 2021
+!Salatin, R., Chen, Q., Bak, A. S., Shi, F., & Brandt, S. R. (2021). Effects of
+!wave coherence on longshore variability of nearshore wave processes. Journal
+!of Geophysical Research: Oceans,126, e2021JC017641.
+!https://doi.org/10.1029/2021JC017641
+
+! introduce some global variables
+
+    INTEGER,DIMENSION(:),ALLOCATABLE :: loop_index
+    INTEGER :: jlo,jhi,ilo,ihi
+    REAL(SP), DIMENSION(:),ALLOCATABLE :: xmk_wk, ymk_wk
+    REAL(SP)::alpha_c ! coherence percentage for WK_NEW_IRR
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!END!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 END MODULE GLOBAL
