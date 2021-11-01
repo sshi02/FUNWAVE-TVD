@@ -214,6 +214,22 @@ SUBROUTINE ALLOCATE_VARIABLES
         ALLOCATE(ARRTIME(Mloc,Nloc))
         ARRTIME=ZERO
       ENDIF      
+      
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!START!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!Oct, 2021
+!Salatin, R., Chen, Q., Bak, A. S., Shi, F., & Brandt, S. R. (2021). Effects of
+!wave coherence on longshore variability of nearshore wave processes. Journal
+!of Geophysical Research: Oceans,126, e2021JC017641.
+!https://doi.org/10.1029/2021JC017641
+
+! allocate some variables
+
+    ALLOCATE(xmk_wk(Mloc),ymk_wk(Nloc))
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!END!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 END SUBROUTINE ALLOCATE_VARIABLES
 
@@ -240,6 +256,10 @@ SUBROUTINE INITIALIZATION
      REAL(SP),DIMENSION(:,:),ALLOCATABLE :: VarGlob
      REAL(SP) :: myvar_tmp
 # endif
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!START!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    REAL(SP) :: DXg,DYg                                   ! Salatin et al. 2021
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!END!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 # if !defined (CARTESIAN)
      REAL(SP)::Dphi_r,Dtheta_r
@@ -1122,6 +1142,51 @@ SUBROUTINE INITIALIZATION
        T_brk=20.0_SP
       ENDIF
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!START!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!Oct, 2021
+!Salatin, R., Chen, Q., Bak, A. S., Shi, F., & Brandt, S. R. (2021). Effects of
+!wave coherence on longshore variability of nearshore wave processes. Journal
+!of Geophysical Research: Oceans,126, e2021JC017641.
+!https://doi.org/10.1029/2021JC017641
+
+    ! This is used inside source.F to speed up the calculations
+# if defined (CARTESIAN)
+     DXg=DX
+     DYg=DY
+# else
+     DXg=DX(1,1)
+     DYg=DY(1,1)
+# endif
+    ilo = Iend+1
+    ihi = Ibeg-1
+    jlo = Jend+1
+    jhi = Jbeg-1
+    DO J=Jbeg,Jend
+# if defined (PARALLEL)
+        ymk_wk(J)=(J-Jbeg)*DYg + (jjsta-1)*DYg
+# else
+        ymk_wk(J)=(J-Jbeg)*DYg
+# endif
+        IF(ABS(ymk_wk(J)-Yc_WK)<Ywidth_WK/2.0_SP) THEN
+            IF(J<jlo) jlo = J
+            IF(J>jhi) jhi = J
+        ENDIF
+    ENDDO
+    DO I=Ibeg,Iend
+# if defined (PARALLEL)
+        xmk_wk(I)=(I-Ibeg)*DXg + (iista-1)*DXg
+# else
+        xmk_wk(I)=(I-Ibeg)*DXg
+# endif
+        IF(ABS(xmk_wk(I)-Xc_WK)<Width_WK) THEN
+            IF(I<ilo) ilo = I
+            IF(I>ihi) ihi = I
+        ENDIF
+    ENDDO
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!END!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 END SUBROUTINE INITIALIZATION
 
