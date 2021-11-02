@@ -17,7 +17,7 @@ while 1
         output(j,4)=str2double(tline(6:12)); %output Amplitude
         i=0;
     end
-    if strfind(tline, 'Freq, Input Dire, PBC Dire, Amplitude')>0
+    if strfind(tline, 'Freq,Input Dire,PBC Dire,Amplitude,Phase')>0
         i=1;
         continue
     end
@@ -43,7 +43,7 @@ freq_resolution = (f_i(end)-f_i(1))/length(f_i);
 E_i = (Hmo_i./4).^2 / freq_resolution / pi;
 %%
 figure()
-scatter(theta_in,f_i,75,E_i,'filled')
+scatter(theta_in,f_i,50,E_i,'filled')
 xlim([-pi/2+theta_mean*pi/180-0.2 pi/2+theta_mean*pi/180+0.2]*180/pi)
 ylim([0.03 0.26])
 set(gca,'fontsize', 12)

@@ -1,7 +1,7 @@
 clear; clc; close all;
 %% Plot Current Field
 %% input
-fdir = '../Case_DATA2D_1Wave/';
+fdir = '../Case_DATA2D_2Waves/';
 x = 2:2:500;
 y = 2:2:1000;
 file_no = 1;
@@ -24,14 +24,14 @@ ylim([0 1000])
 pbaspect([350 1000 1])
 %%
 hold on
-skx=10;
-sky=10;
-cc=50;
+skx=5;
+sky=5;
+cc=75;
 quiver(x(1:skx:end,1:skx:end),y(1:sky:end,1:sky:end), ...
     cc*u(1:sky:end,1:skx:end),cc*v(1:sky:end,1:skx:end), ...
     'w','AutoScale','off');
-quiver(170,120,cc/2,0,'w','AutoScale','off');
-text(170,80,'50 cm/s','FontSize',15,'Color', 'white')
+quiver(170,60,cc/4,0,'w','AutoScale','off');
+text(170,40,'25 cm/s','FontSize',15,'Color', 'white')
 
 %% Plot sand in Dry Areas
 hold on
@@ -42,7 +42,8 @@ XX_Dry = XX1D(isnan(onedim));
 YY_Dry = YY1D(isnan(onedim));
 colors = copper;
 color_sand = colors(190,:);
-plot(XX_Dry,YY_Dry,'.','Color',color_sand);
+plot(XX_Dry,YY_Dry,'.','Color',color_sand,'MarkerSize',20);
 %% save the jpg file
+set(gca,'fontsize', 15)
 saveas(gcf,[fdir 'figures/current.jpg'])
 close 

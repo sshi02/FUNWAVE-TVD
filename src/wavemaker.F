@@ -2653,7 +2653,7 @@ SUBROUTINE WK_NEW_WAVEMAKER_2D_SPECTRAL_DATA &
     REAL(SP),DIMENSION(NumFreq) :: Dire
     REAL(SP),DIMENSION(NumFreq,1),INTENT(IN) :: WAVE_COMP
     REAL(SP),INTENT(IN) :: H_gen,delta,PeakPeriod
-    INTEGER :: nfre,ndir,I_temp
+    INTEGER :: nfre,ndir
     REAL(SP) :: angle1,angle2,Hmo_output
 
     ! change degree to radian
@@ -2665,7 +2665,6 @@ SUBROUTINE WK_NEW_WAVEMAKER_2D_SPECTRAL_DATA &
             tmp2 = 2.*pi*Freq(nfre)                 ! omgn
             tmp2 = tmp2*tmp2*H_gen/grav             ! tb
             tmp3 = 1.0_SP + tmp2*(-0.39_SP)         ! tc
-            I_temp = 0
             tmp1 = SQRT((tmp3-SQRT(tmp3*tmp3-4.0_SP*tmp1*tmp2)) &
                 /(2.0_SP*tmp1))/MAX(SMALL,H_gen)    ! wkn
             Theta_temp = Dire(nfre)
@@ -2681,8 +2680,7 @@ SUBROUTINE WK_NEW_WAVEMAKER_2D_SPECTRAL_DATA &
 # endif
                     IF(tmp2.GE.tmp1)THEN
                         Theta_temp = Theta_temp - 0.001_SP
-                        I_temp = I_temp + 1
-                        IF(I_temp.eq.1000)THEN
+                        IF(Theta_temp.LE.ZERO)THEN
                             Theta_temp = 0.0_SP
                             goto 10001
                         ENDIF
@@ -2707,8 +2705,7 @@ SUBROUTINE WK_NEW_WAVEMAKER_2D_SPECTRAL_DATA &
 # endif
                     IF(tmp2.GE.tmp1)THEN
                         Theta_temp = Theta_temp + 0.001_SP
-                        I_temp = I_temp + 1
-                        IF(I_temp.eq.1000)THEN
+                        IF(Theta_temp.GE.ZERO)THEN
                             Theta_temp = 0.0_SP
                             goto 10001
                         ENDIF
@@ -2730,14 +2727,16 @@ SUBROUTINE WK_NEW_WAVEMAKER_2D_SPECTRAL_DATA &
 
 # if defined (PARALLEL)
             if(myid==0)then
-                WRITE(3,'(A40)') 'Freq, Input Dire, PBC Dire, Amplitude, Phase'
+                WRITE(3,'(A40)') 'Freq,Input Dire,PBC Dire,Amplitude,Phase'
                 WRITE(3,'(3F12.5)')  Freq(nfre),Dire(nfre)*180./pi,&
-                    tmp3*180./pi,Hmo_output/2.0_SP/SQRT(2.0_SP),Phase2D(nfre)
+                    tmp3*180./pi,Hmo_output/2.0_SP/SQRT(2.0_SP),&
+                    Phase2D(nfre)*180/pi
             endif
 # else
-            WRITE(3,'(A40)') 'Freq, Input Dire, PBC Dire, Amplitude, Phase'
+            WRITE(3,'(A40)') 'Freq,Input Dire,PBC Dire,Amplitude,Phase'
             WRITE(3,'(3F12.5)')  Freq(nfre),Dire(nfre)*180./pi,&
-                tmp3*180./pi,Hmo_output/2.0_SP/SQRT(2.0_SP),Phase2D(nfre)
+                tmp3*180./pi,Hmo_output/2.0_SP/SQRT(2.0_SP),&
+                Phase2D(nfre)*180/pi
 # endif
             Dire(nfre) = tmp3
         ENDDO ! "DO nfre=1,NumFreq"
@@ -2939,6 +2938,10 @@ SUBROUTINE WK_NEW_EQUAL_DFREQ_IRREGULAR_WAVE &
                     tmp2=I*2.0_SP*pi/DY/(Nglob-1.0_SP)
                     IF(tmp2.GE.tmp1)THEN
                         Theta_temp = Theta_temp - 0.001_SP
+                        IF(Theta_temp.LE.ZERO)THEN
+                            Theta_temp = 0.0_SP
+                            goto 1002
+                        ENDIF
                         goto 1000
                     ELSE
                         ! theta, based on rlamda=wkn*sin(theta)
@@ -2956,6 +2959,10 @@ SUBROUTINE WK_NEW_EQUAL_DFREQ_IRREGULAR_WAVE &
                     tmp2=I*2.0_SP*pi/DY/(Nglob-1.0_SP)     ! rlamda
                     IF(tmp2.GE.tmp1)THEN
                         Theta_temp = Theta_temp + 0.001_SP
+                        IF(Theta_temp.GE.ZERO)THEN
+                            Theta_temp = 0.0_SP
+                            goto 1002
+                        ENDIF
                         goto 1000
                     ELSE
                         ! theta, based on rlamda=wkn*sin(theta)
@@ -2969,17 +2976,30 @@ SUBROUTINE WK_NEW_EQUAL_DFREQ_IRREGULAR_WAVE &
                 tmp3 = Theta_temp
             ENDIF ! IF(Theta_temp.GT.ZERO)THEN
 
+1002        CONTINUE
+
+# if defined (INTEL)
+            phi1(kf,1)=rand()*2.0_SP*pi
+# elif defined (CRAY)
+            phi1(kf,1)=rand()*2.0_SP*pi
+# else
+            phi1(kf,1)=rand(0)*2.0_SP*pi
+# endif
+
 # if defined (PARALLEL)
             if(myid==0)then
-                WRITE(3,'(A40)') 'Freq, Input Dire, PBC Dire, Amplitude'
+                WRITE(3,'(A40)') 'Freq,Input Dire,PBC Dire,Amplitude,Phase'
                 WRITE(3,'(3F12.5)')  Freq(kf),theta(kf)*180./pi,&
-                    tmp3*180./pi,Hmo_each(1,kf)/SQRT(2.0_SP)/2.0_SP
+                    tmp3*180./pi,Hmo_each(1,kf)/SQRT(2.0_SP)/2.0_SP,&
+                    phi1(kf,1)*180/pi
             endif
 # else
-            WRITE(3,'(A40)') 'Freq, Input Dire, PBC Dire, Amplitude'
-            WRITE(3,'(3F12.5)')  Freq(kf),theta(kf)*180./pi,tmp3*180./pi,&
-                Hmo_each(1,kf)/SQRT(2.0_SP)/2.0_SP
+            WRITE(3,'(A40)') 'Freq,Input Dire,PBC Dire,Amplitude,Phase'
+            WRITE(3,'(3F12.5)')  Freq(kf),theta(kf)*180./pi,&
+                tmp3*180./pi,Hmo_each(1,kf)/SQRT(2.0_SP)/2.0_SP,&
+                phi1(kf,1)*180/pi
 # endif
+
             Theta(kf) = tmp3
         ENDIF ! IF(PERIODIC)THEN
         rlamda(kf,1)=wkn*sin(theta(kf))
@@ -2998,17 +3018,6 @@ SUBROUTINE WK_NEW_EQUAL_DFREQ_IRREGULAR_WAVE &
     tc=1.0_SP+tb*alpha
     wkn=SQRT((tc-SQRT(tc*tc-4.0_SP*alpha1*tb))/(2.0_SP*alpha1))/h_gen
     width=delta*wave_length/2.0_SP
-
-    ! generate random phase for the wave components
-    DO kf=1,mfreq
-# if defined (INTEL)
-        phi1(kf,1)=rand()*2.0_SP*pi
-# elif defined (CRAY)
-        phi1(kf,1)=rand()*2.0_SP*pi
-# else
-        phi1(kf,1)=rand(0)*2.0_SP*pi
-# endif
-    ENDDO
 
 END SUBROUTINE WK_NEW_EQUAL_DFREQ_IRREGULAR_WAVE
 

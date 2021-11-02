@@ -1,7 +1,7 @@
 clear; clc; close all;
 %% Plot Surface Elevation snapshot
 %% input
-fdir = '../Case_NEWIRR_100P_Coherence/';
+fdir = '../Case_DATA2D_2Waves/';
 x = 2:2:500;
 y = 2:2:1000;
 file_no = 5;
@@ -28,7 +28,8 @@ XX_Dry = XX1D(isnan(onedim));
 YY_Dry = YY1D(isnan(onedim));
 colors = copper;
 color_sand = colors(190,:);
-plot(XX_Dry,YY_Dry,'.','Color',color_sand);
+plot(XX_Dry,YY_Dry,'.','Color',color_sand,'MarkerSize',20);
 %% save the jpg file
+set(gca,'fontsize', 15)
 saveas(gcf,[fdir 'figures/eta_fileno_' num2str(file_no) '.jpg'])
 close 

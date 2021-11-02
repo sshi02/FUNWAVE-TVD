@@ -1,7 +1,7 @@
 clear; clc; close all;
 %% Plot Wave Height
 %% input
-fdir = '../Case_DATA2D_2Waves/';
+fdir = '../Case_DATA2D_1Wave/';
 x = 2:2:500;
 y = 2:2:1000;
 file_no = 1;
@@ -28,7 +28,8 @@ XX_Dry = XX1D(isnan(onedim));
 YY_Dry = YY1D(isnan(onedim));
 colors = copper;
 color_sand = colors(190,:);
-plot(XX_Dry,YY_Dry,'.','Color',color_sand);
+plot(XX_Dry,YY_Dry,'.','Color',color_sand,'MarkerSize',20);
 %% save the jpg file
+set(gca,'fontsize', 15)
 saveas(gcf,[fdir 'figures/Hrms.jpg'])
 close 
