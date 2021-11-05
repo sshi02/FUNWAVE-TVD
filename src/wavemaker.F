@@ -2691,7 +2691,12 @@ SUBROUTINE WK_NEW_WAVEMAKER_2D_SPECTRAL_DATA &
                     ENDIF
                 ENDDO
                 IF(tmp2.LT.tmp1)THEN
+# if defined (CARTESIAN)
                     tmp3=ASIN((I-1)*2.0_SP*pi/DY/(Nglob-1.0_SP)/tmp1)
+# else
+                    tmp3=ASIN((I-1)*2.0_SP*pi/DY(1,1)/(Nglob-1.0_SP)/tmp1)
+                     ! use DY(1,1) to avoid error in spherical
+# endif
                 ENDIF
             ELSEIF(Theta_temp.LT.ZERO)THEN
                 tmp3=ZERO
@@ -2717,7 +2722,11 @@ SUBROUTINE WK_NEW_WAVEMAKER_2D_SPECTRAL_DATA &
                 ENDDO
 
                 IF(tmp2.LT.tmp1)THEN
+# if defined (CARTESIAN)
                     tmp3=-ASIN((I-1)*2.0_SP*pi/DY/(Nglob-1.0_SP)/tmp1)
+# else
+                    tmp3=-ASIN((I-1)*2.0_SP*pi/DY(1,1)/(Nglob-1.0_SP)/tmp1)
+# endif
                 ENDIF
             ELSEIF(Theta_temp==0.0_SP)THEN
                 tmp3 = Theta_temp
